@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "CRAFT APK Parser"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "CRAFT Entry Ability for APK parsing"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "CRAFT Parser"
+    }
+  ]
+}

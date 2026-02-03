@@ -1,0 +1,12 @@
+{
+  "name": "craft",
+  "version": "1.0.0",
+  "description": "CRAFT - Compatible Runtime for Android on Fuchsia/Trusty",
+  "main": "",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@ohos/hypium": "1.0.6"
+  }
+}
