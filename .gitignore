@@ -2,3 +2,7 @@ node_modules/
 dist/
 *.log
 .DS_Store
+
+# SSH keys
+ssh.key
+ssh.key.pub
