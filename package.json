@@ -1,7 +1,7 @@
 {
   "name": "craft",
   "version": "0.1.0",
-  "description": "Compatible Runtime for Android on Fuchsia/Trusty",
+  "description": "Compatibility Runtime for Android Framework Translation on OpenHarmony",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",

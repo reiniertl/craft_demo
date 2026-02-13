@@ -1,6 +1,6 @@
 # CRAFT Project Context
 
-CRAFT (Compatible Runtime for Android on Fuchsia/Trusty) - An Android APK parser and runtime for OpenHarmony.
+CRAFT (Compatibility Runtime for Android Framework Translation) - An Android APK parser and runtime for OpenHarmony.
 
 ## Current Stage: 4 Complete, Stage 5 Next
 

@@ -43,7 +43,7 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 
 ### For Claude Code / AI Agents
 
-- **Read first:** [CLAUDE.md](craft/CLAUDE.md) - Complete project context and current stage
+- **Read first:** [CLAUDE.md](CLAUDE.md) - Complete project context and current stage
 
 ### Documentation Index
 
@@ -325,7 +325,7 @@ This project is currently in proof-of-concept stage with AI-assisted development
 - **[Documentation Index](docs/index.md)** - Complete navigation
 - **[Architecture](docs/architecture.md)** - System design
 - **[Specification](docs/specification.md)** - Component specs
-- **[CRAFT_SPECIFICATION.md](CRAFT_SPECIFICATION.md)** - Comprehensive 1400+ line detailed spec
+- **[CRAFT_SPECIFICATION.md](docs/CRAFT_SPECIFICATION.md)** - Comprehensive 1400+ line detailed spec
 
 ### External References
 - [Dalvik Executable Format](https://source.android.com/devices/tech/dalvik/dex-format)
