@@ -31,13 +31,29 @@ Stage 4: UI Bridge & OpenHarmony host 🚧 (next)
 ```bash
 # Run tests
 npm test
+npm run craft-test -- --component parser
 
-# Run DEX dumper
-npx ts-node tools/dex_dumper.ts test/fixtures/hello_world.dex --all
+# Development skills (see tools/README.md for details)
+npm run analyze-apk test/fixtures/hello_world.apk  # Analyze APK requirements
+npm run dex-dump test/fixtures/hello_world.dex --all  # Dump DEX contents
+npm run gen-shim android.widget.Button  # Generate Android API shim
+npm run gen-opcode 0x32 if-eq 22t -- --category control  # Generate opcode handler
 
 # TypeScript check
 npx tsc --noEmit
 ```
+
+## 🔧 Development Skills
+
+Five core skills are available to accelerate development:
+
+1. **`craft-test`** - Run tests with component filtering
+2. **`gen-shim`** - Generate Android API shim implementations
+3. **`gen-opcode`** - Generate opcode handler implementations
+4. **`dex-dump`** - Dump and analyze DEX file contents
+5. **`analyze-apk`** - Analyze APK requirements and complexity
+
+See `/mnt/d/craft/craft/tools/README.md` for comprehensive documentation.
 
 ## Project Structure
 

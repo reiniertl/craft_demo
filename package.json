@@ -7,7 +7,11 @@
     "build": "tsc",
     "test": "jest",
     "test:watch": "jest --watch",
-    "dex-dump": "ts-node tools/dex_dumper.ts"
+    "dex-dump": "ts-node tools/dex_dumper.ts",
+    "craft-test": "ts-node tools/craft_test.ts",
+    "gen-shim": "ts-node tools/gen_shim.ts",
+    "gen-opcode": "ts-node tools/gen_opcode.ts",
+    "analyze-apk": "ts-node tools/analyze_apk.ts"
   },
   "keywords": ["android", "dex", "apk", "openharmony"],
   "license": "MIT",
