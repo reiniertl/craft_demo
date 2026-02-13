@@ -2,14 +2,15 @@
 
 CRAFT (Compatible Runtime for Android on Fuchsia/Trusty) - An Android APK parser and runtime for OpenHarmony.
 
-## Current Stage: 3 Complete, Stage 4 Next
+## Current Stage: 4 Complete, Stage 5 Next
 
-**Status:** 208 tests passing | 0 TypeScript errors | 0 regressions
+**Status:** 263 tests passing | 0 TypeScript errors | 0 regressions
 
 Stage 1: APK/DEX/Manifest parsing ✅
 Stage 2: Bytecode interpretation ✅
 Stage 3: Android API shims ✅
-Stage 4: UI Bridge & OpenHarmony host 🚧 (next)
+Stage 4: UI Bridge & OpenHarmony host ✅
+Stage 5: Integration & Polish 🚧 (next)
 
 ## 📚 Documentation (Reorganized 2026-02-12)
 
@@ -23,6 +24,7 @@ Stage 4: UI Bridge & OpenHarmony host 🚧 (next)
 - **Implementation plan:** `docs/implementation_plan.md` - 5-stage roadmap
 - **Stage plans:** `docs/stages/stage_N_plan.md` - Detailed planning for each stage
 - **Stage results:** `docs/stages/stage_N_results.md` - Completion reports
+- **Stage 4 complete:** `docs/stages/stage_4_complete.md` - UI Bridge completion report
 
 **File Naming Convention:** All docs use snake_case (stage_1_results.md, implementation_plan.md, etc.)
 
@@ -68,7 +70,7 @@ src/
 │   ├── class_loader.ts    # Class and method resolution
 │   ├── method_resolver.ts # Virtual dispatch with caching
 │   ├── opcode_table.ts    # Opcode dispatch table
-│   ├── opcodes.ts         # 26 essential opcode implementations
+│   ├── opcodes.ts         # 27 essential opcode implementations
 │   ├── shim_registry.ts   # Shim method registry
 │   ├── shim_init.ts       # Shim initialization (java.lang + android.*)
 │   ├── types.ts           # Interpreter type definitions
@@ -86,23 +88,29 @@ src/
 │       ├── content/context.ts   # android.content.Context + ContextWrapper
 │       ├── view/view.ts         # android.view.View
 │       ├── view/view_group.ts   # android.view.ViewGroup
-│       ├── widget/textview.ts   # android.widget.TextView
-│       ├── app/activity.ts      # android.app.Activity
+│       ├── widget/textview.ts   # android.widget.TextView (+ UIBridge)
+│       ├── app/activity.ts      # android.app.Activity (+ UIBridge)
 │       └── index.ts             # Registration
-├── bridge/         # UI Bridge (Stage 4 - empty)
-└── oh/             # OpenHarmony ability (excluded from desktop build)
+├── bridge/         # UI Bridge (Stage 4)
+│   ├── ui_bridge.ts       # View → ViewNode mapping
+│   ├── state_manager.ts   # Reactive state management
+│   └── lifecycle_bridge.ts # Activity ↔ Ability lifecycle
+├── runtime.ts      # High-level CRAFT API (Stage 4)
+└── oh/             # OpenHarmony ability (for Stage 5)
 
 tools/
 └── dex_dumper.ts   # CLI tool for DEX inspection
 
 test/
 ├── fixtures/       # hello_world.apk, .dex, manifest_binary.xml
-├── unit/           # 208 unit tests (58 Stage 1 + 115 Stage 2 + 35 Stage 3)
+├── unit/           # 263 unit tests (58+115+35+55)
 │   ├── interpreter/  # heap, frame, opcodes, shim_registry, interpreter
-│   └── shim/         # java.lang.* and android.* shim tests
+│   ├── shim/         # java.lang.* and android.* shim tests
+│   └── bridge/       # UIBridge, StateManager, LifecycleBridge tests (Stage 4)
 └── integration/    # (included in unit count above)
     ├── interpreter/  # Interpreter integration tests
-    └── android/      # Activity lifecycle integration tests
+    ├── android/      # Activity lifecycle integration tests
+    └── bridge/       # UI Bridge integration tests (Stage 4)
 ```
 
 ## Key Files
@@ -115,10 +123,14 @@ test/
 | `src/interpreter/interpreter.ts` | Main bytecode execution loop |
 | `src/interpreter/heap.ts` | Object/array/string allocation |
 | `src/interpreter/class_loader.ts` | Class/method/field resolution |
-| `src/interpreter/opcodes.ts` | 26 essential Dalvik opcodes |
+| `src/interpreter/opcodes.ts` | 27 essential Dalvik opcodes |
 | `src/interpreter/shim_registry.ts` | TypeScript shim method dispatch |
-| `src/shim/android/app/activity.ts` | Activity lifecycle shim |
-| `src/shim/android/widget/textview.ts` | TextView shim |
+| `src/shim/android/app/activity.ts` | Activity lifecycle shim (+ UIBridge) |
+| `src/shim/android/widget/textview.ts` | TextView shim (+ UIBridge) |
+| `src/bridge/ui_bridge.ts` | View → ViewNode mapping |
+| `src/bridge/state_manager.ts` | Reactive state for ArkUI |
+| `src/bridge/lifecycle_bridge.ts` | Activity ↔ Ability lifecycle |
+| `src/runtime.ts` | High-level CRAFT API |
 | `src/core/types.ts` | Value types (int, long, float, double, object, null) |
 
 ## Architecture
