@@ -2,15 +2,18 @@
 
 CRAFT (Compatibility Runtime for Android Framework Translation) - An Android APK parser and runtime for OpenHarmony.
 
-## Current Stage: 4 Complete, Stage 5 Next
+## Current Stage: 5 Code Complete, Awaiting APK & Device Testing
 
-**Status:** 263 tests passing | 0 TypeScript errors | 0 regressions
+**Status:** 266 tests passing | 0 TypeScript errors | 0 regressions | Code 100% Complete
 
 Stage 1: APK/DEX/Manifest parsing ✅
 Stage 2: Bytecode interpretation ✅
 Stage 3: Android API shims ✅
 Stage 4: UI Bridge & OpenHarmony host ✅
-Stage 5: Integration & Polish 🚧 (next)
+Stage 5: Integration & Polish ✅ Code Complete | ⚠️ Needs APK + Device
+
+**Deployment Ready:** HAP buildable now | Need Android SDK for APK + OH device for testing
+**Details:** See `docs/STAGE_5_STATUS.md` for complete deployment guide
 
 ## 📚 Documentation (Reorganized 2026-02-12)
 

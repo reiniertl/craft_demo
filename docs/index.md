@@ -9,6 +9,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 ## Quick Start
 
 - [📋 Project Overview](../README.md) - What is CRAFT and why?
+- [🚀 Stage 5 Status](STAGE_5_STATUS.md) - **Deployment guide: What's done, what needs human intervention**
 - [🎯 Requirements](requirements.md) - Project goals, constraints, and success criteria
 - [🏗️ Architecture](architecture.md) - System design and component interaction
 - [📅 Implementation Plan](implementation_plan.md) - Complete 5-stage roadmap with timeline
@@ -22,10 +23,11 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 | **Stage 1** | APK/DEX Parsing | [Plan](stages/stage_1_plan.md) | [Results](stages/stage_1_results.md) | ✅ Complete (58 tests) |
 | **Stage 2** | Bytecode Interpreter | [Plan](stages/stage_2_plan.md) | [Results](stages/stage_2_results.md) | ✅ Complete (115 tests) |
 | **Stage 3** | Android API Shims | [Plan](stages/stage_3_plan.md) | [Results](stages/stage_3_results.md) | ✅ Complete (35 tests) |
-| **Stage 4** | UI Bridge to ArkUI | [Plan](stages/stage_4_plan.md) | Results | 🚧 Next |
-| **Stage 5** | OpenHarmony Host | Plan | Results | ⏳ Planned |
+| **Stage 4** | UI Bridge to ArkUI | [Plan](stages/stage_4_plan.md) | [Results](stages/stage_4_complete.md) | ✅ Complete (55 tests) |
+| **Stage 5** | OpenHarmony Host | [Plan](stages/stage_5_plan.md) | [Status](../STAGE_5_STATUS.md) | ✅ Code Complete |
 
-**Current Status:** 208 tests passing (58 + 115 + 35) | 0 TypeScript errors | 0 regressions
+**Current Status:** 266 tests passing | 0 TypeScript errors | 0 regressions | Code 100% Complete
+**Deployment:** ✅ HAP buildable | ⚠️ Needs APK recompilation & device testing - [Details](STAGE_5_STATUS.md)
 
 ---
 
