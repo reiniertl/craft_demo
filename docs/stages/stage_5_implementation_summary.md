@@ -140,28 +140,54 @@ import { CraftRuntime, SerializedView } from '../craft/index';
 
 ## Pending Tasks (Blocked)
 
-### ⚠️ Task 2: Create Enhanced Hello World APK
+### ⚠️ Task 2: Complete Hello World APK
 
 **Status:** BLOCKED - Requires Android SDK
 **Blocker:** Android development environment not available
 
-**Current APK Status:**
-- Minimal test APK (7 instructions, no Android APIs)
-- NOT sufficient for real Activity testing
-- Missing proper MainActivity with onCreate(), TextView, etc.
+**Current APK Status (Stage 1 Stub):**
+- Stage 1 created a **minimal stub APK** for parser testing
+- Contains MainActivity with onCreate() method signature
+- onCreate() only calls `super.onCreate()` and returns (4 instructions)
+- **NO Android API usage:** No TextView, setText, or setContentView
+- **NOT sufficient** for testing interpreter, shims, or UI bridge
+
+**Why Completion is Needed:**
+The Stage 1 stub was intentionally minimal - just enough to test the parser.
+To test Stages 2-5 functionality, we need onCreate() to actually:
+- Create a TextView instance (tests interpreter's new-instance opcode)
+- Call setText(), setTextSize(), setTextColor() (tests Android API shims)
+- Call setContentView() (tests UI Bridge integration)
+
+**What Needs to be Added:**
+```java
+// Current Stage 1 stub:
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);  // Just this!
+}
+
+// Completed version needed:
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    TextView textView = new TextView(this);        // Add this
+    textView.setText("Hello World");               // Add this
+    textView.setTextSize(24.0f);                   // Add this
+    textView.setTextColor(0xFF000000);             // Add this
+    setContentView(textView);                       // Add this
+}
+```
 
 **Required:**
 - Android SDK (javac, d8, aapt2)
-- Proper Java source code compilation
-- Full MainActivity with Activity lifecycle
+- Recompile with completed onCreate() implementation
 
-**Recommendation:** Build APK externally and add to test/fixtures/
+**Recommendation:** Build completed APK externally and replace test/fixtures/hello_world.apk
 
 ---
 
 ### ⚠️ Task 6: End-to-End Integration Testing
 
-**Status:** BLOCKED - Requires OpenHarmony device and enhanced APK
+**Status:** BLOCKED - Requires OpenHarmony device and completed APK
 **Blocker:** No access to OpenHarmony device/emulator
 
 **Cannot Test:**
@@ -362,7 +388,7 @@ Screen Display
 
 ### Must Have (Required for Completion)
 - [x] Stages 1-4 complete (266 tests passing) ✅
-- [ ] Enhanced Hello World APK - **BLOCKED**
+- [ ] Completed Hello World APK - **BLOCKED**
 - [x] CraftAbility.ets using full runtime ✅
 - [x] CraftPage.ets with dynamic rendering ✅
 - [ ] End-to-end APK → Screen workflow working - **NEEDS DEVICE**
@@ -400,7 +426,7 @@ Screen Display
 
 Stage 5 code implementation is **100% complete** and ready for deployment testing. All integration components (CraftAbility, CraftPage, runtime packaging) are implemented and tested. The missing piece is a proper Android Hello World APK and access to an OpenHarmony device/emulator for validation.
 
-**Recommendation:** Build enhanced APK externally, then proceed to device testing to validate the complete end-to-end flow.
+**Recommendation:** Build completed APK externally, then proceed to device testing to validate the complete end-to-end flow.
 
 ---
 

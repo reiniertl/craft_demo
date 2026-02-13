@@ -23,9 +23,12 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 - ✅ CraftAbility.ets updated with full runtime
 - ✅ CraftPage.ets for dynamic UI rendering
 - ✅ TypeScript runtime packaged for ArkTS
-- ⚠️ Enhanced APK creation (blocked - needs Android SDK)
+- ✅ Completed APK source files ready (Stage 1 stub needs recompilation)
+- ⚠️ APK recompilation (blocked - needs Android SDK)
 - ⚠️ Device testing (blocked - needs OpenHarmony device)
 - ⚠️ Performance profiling (blocked - needs device)
+
+**Note:** Stage 1 created a minimal stub APK (just `super.onCreate()`). Source files for the completed version (with TextView, setText, setContentView) are ready in `test/fixtures/` but need Android SDK to compile.
 
 ---
 

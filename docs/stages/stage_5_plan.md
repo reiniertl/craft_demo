@@ -127,14 +127,19 @@ Stage 5 is the final stage of the CRAFT PoC, focusing on end-to-end integration,
 
 ## Implementation Tasks
 
-### Task 1: Enhance Test APK (Priority: High)
+### Task 1: Complete Test APK (Priority: High)
 
-**Goal:** Create a proper Hello World Android APK with complete MainActivity implementation.
+**Goal:** Complete the Hello World Android APK with full MainActivity implementation.
 
-**Current State:**
-- Minimal test APK with 2 methods, 7 instructions
-- Missing opcode 0x20 (instance-of)
-- No proper Activity implementation
+**Current State (Stage 1 Stub):**
+- Stage 1 created a minimal stub APK for parser testing only
+- Contains MainActivity with onCreate() that just calls `super.onCreate()`
+- Only 2 methods, 7 instructions total
+- Missing opcode 0x20 (instance-of) - now implemented in Stage 5
+- **No Android API usage:** No TextView creation, setText, or setContentView
+
+**Why Completion is Needed:**
+Stage 1 stub was intentionally minimal to test the parser. To test Stages 2-5 functionality (interpreter, shims, UI bridge), we need onCreate() to actually create views and make Android API calls.
 
 **Requirements:**
 ```java
@@ -939,7 +944,7 @@ cp -r src/{core,parser,interpreter,shim,bridge,runtime.ts} \
 ### Must Have (Required for Completion)
 
 - [x] Stages 1-4 complete (263 tests passing) ✅
-- [ ] Enhanced Hello World APK with full Activity
+- [ ] Completed Hello World APK with full Activity
 - [ ] CraftAbility.ets using full runtime
 - [ ] CraftPage.ets with dynamic rendering
 - [ ] End-to-end APK → Screen workflow working
@@ -1000,7 +1005,7 @@ cp -r src/{core,parser,interpreter,shim,bridge,runtime.ts} \
 ### Internal Dependencies
 
 1. **All Stage 1-4 components** (Complete ✅)
-2. **Test fixtures** (Need enhanced APK)
+2. **Test fixtures** (Need completed APK)
 3. **Development tools** (All implemented ✅)
 
 ---
@@ -1041,7 +1046,7 @@ cp -r src/{core,parser,interpreter,shim,bridge,runtime.ts} \
 ## Deliverables Checklist
 
 ### Code Deliverables
-- [ ] Enhanced Hello World APK
+- [ ] Completed Hello World APK
 - [ ] Updated CraftAbility.ets
 - [ ] New CraftPage.ets
 - [ ] Build/packaging scripts

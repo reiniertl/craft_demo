@@ -1,14 +1,58 @@
 # Android APK Build Guide for CRAFT
 
-**Purpose:** Build the enhanced Hello World APK for CRAFT testing
+**Purpose:** Build the completed Hello World APK for CRAFT testing
 
 **Status:** Source files prepared, requires Android SDK for compilation
 
 ---
 
+## Important: Stage 1 Stub vs Completed APK
+
+### Current APK (Stage 1 Stub)
+
+The project already has `test/fixtures/hello_world.apk` created in Stage 1. However, this is a **minimal stub** designed only to test the parser:
+
+**What the Stage 1 stub contains:**
+- ✅ Basic APK structure
+- ✅ MainActivity class
+- ✅ onCreate() method signature
+- ❌ **Only 7 instructions total** (just calls `super.onCreate()` and returns)
+- ❌ **No Android API usage** (no TextView, setText, setContentView)
+- ❌ **0 Android API classes** detected by analyzer
+
+**Stage 1 onCreate() code:**
+```java
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    // That's all - just a stub!
+}
+```
+
+### Why Completion is Needed
+
+The Stage 1 stub was intentionally minimal - just enough to test APK parsing and DEX format handling. To test the functionality implemented in Stages 2-5, we need to **complete** the onCreate() implementation:
+
+**Stage 2 (Interpreter):** Needs actual bytecode to interpret
+- new-instance, invoke-direct, invoke-virtual opcodes
+- Method calls and object creation
+
+**Stage 3 (Android API Shims):** Needs Android API calls to intercept
+- TextView constructor, setText(), setTextSize(), setTextColor()
+- Activity.setContentView()
+
+**Stage 4 (UI Bridge):** Needs View objects to bridge to ArkUI
+- TextView creation and property updates
+- setContentView() to register root view
+
+**Stage 5 (Integration):** Needs complete flow to demonstrate end-to-end
+- Full Activity lifecycle with actual UI output
+- Visual confirmation of "Hello World" on screen
+
+---
+
 ## Overview
 
-The CRAFT project requires a properly built Android APK with a complete MainActivity that includes:
+The CRAFT project requires a properly built Android APK with a **complete** MainActivity that includes:
 - `onCreate()` method with `super.onCreate()` call
 - `TextView` instantiation
 - `setText()`, `setTextSize()`, `setTextColor()` calls
@@ -414,7 +458,7 @@ After building the APK:
 
 ## Summary
 
-Building the enhanced Hello World APK requires:
+Building the completed Hello World APK requires:
 - ✅ Source files (provided in `test/fixtures/`)
 - ⚠️ Android SDK (not available in current environment)
 - ⚠️ Java compiler (not available in current environment)
