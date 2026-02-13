@@ -2,6 +2,8 @@
  * CRAFT - Compatible Runtime for Android on Fuchsia/Trusty
  * Stage 1: APK Parsing Foundation
  * Stage 2: Interpreter Core
+ * Stage 3: Android API Shim Layer
+ * Stage 4: UI Bridge & OpenHarmony Host
  */
 
 // Core utilities
@@ -37,3 +39,11 @@ export {
   ArrayIndexOutOfBoundsException,
   StringIndexOutOfBoundsException,
 } from './interpreter/errors';
+
+// Bridge (Stage 4)
+export { UIBridge, ViewNode } from './bridge/ui_bridge';
+export { StateManager, ViewState, SerializedView } from './bridge/state_manager';
+export { LifecycleBridge } from './bridge/lifecycle_bridge';
+
+// Runtime (Stage 4)
+export { CraftRuntime } from './runtime';

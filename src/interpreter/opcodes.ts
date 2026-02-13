@@ -98,6 +98,18 @@ export function registerEssentialOpcodes(table: OpcodeTable): void {
     },
   });
 
+  // 0x10 - return-wide vAA
+  table.register(0x10, {
+    name: 'return-wide',
+    format: '11x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      // Wide values occupy two registers
+      ctx.interpreter.returnFromMethod(ctx.frame.registers[vA]);
+    },
+  });
+
   // 0x11 - return-object vAA
   table.register(0x11, {
     name: 'return-object',

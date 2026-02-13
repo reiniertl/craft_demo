@@ -4,11 +4,12 @@
  */
 
 import { ShimRegistry } from '../../../interpreter/shim_registry';
+import { UIBridge } from '../../../bridge/ui_bridge';
 import { Value, NULL_VALUE, intValue, objectRef } from '../../../core/types';
 
 const ACTIVITY_CLASS = 'Landroid/app/Activity;';
 
-export function registerActivityShim(registry: ShimRegistry): void {
+export function registerActivityShim(registry: ShimRegistry, uiBridge?: UIBridge): void {
 
   // <init>()V
   registry.register(ACTIVITY_CLASS, '<init>', '()V',
@@ -69,6 +70,15 @@ export function registerActivityShim(registry: ShimRegistry): void {
     '(Landroid/view/View;)V',
     (_interp, heap, thisRef, args) => {
       heap.setField(thisRef, 'mContentView', args[0]);
+
+      // Notify UI bridge to set root view
+      if (uiBridge) {
+        const viewRef = args[0];
+        if (viewRef.type === 'object' && viewRef.ref !== 0) {
+          uiBridge.setRootView(viewRef.ref);
+        }
+      }
+
       return NULL_VALUE;
     }
   );

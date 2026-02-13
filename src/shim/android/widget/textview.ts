@@ -4,11 +4,12 @@
  */
 
 import { ShimRegistry } from '../../../interpreter/shim_registry';
+import { UIBridge } from '../../../bridge/ui_bridge';
 import { Value, NULL_VALUE, intValue, floatValue, objectRef } from '../../../core/types';
 
 const TEXTVIEW_CLASS = 'Landroid/widget/TextView;';
 
-export function registerTextViewShim(registry: ShimRegistry): void {
+export function registerTextViewShim(registry: ShimRegistry, uiBridge?: UIBridge): void {
 
   // <init>(Landroid/content/Context;)V
   registry.register(TEXTVIEW_CLASS, '<init>',
@@ -22,6 +23,12 @@ export function registerTextViewShim(registry: ShimRegistry): void {
       heap.setField(thisRef, 'mText', NULL_VALUE);
       heap.setField(thisRef, 'mTextSize', floatValue(14.0));
       heap.setField(thisRef, 'mTextColor', intValue(0xFF000000 | 0));
+
+      // Register with UI bridge
+      if (uiBridge) {
+        uiBridge.registerView(thisRef, 'TextView');
+      }
+
       return NULL_VALUE;
     }
   );
@@ -31,6 +38,21 @@ export function registerTextViewShim(registry: ShimRegistry): void {
     '(Ljava/lang/CharSequence;)V',
     (_interp, heap, thisRef, args) => {
       heap.setField(thisRef, 'mText', args[0]);
+
+      // Notify UI bridge of text change
+      if (uiBridge) {
+        // Extract text value from String object
+        const textRef = args[0];
+        let textValue = '';
+        if (textRef.type === 'object' && textRef.ref !== 0) {
+          const textObj = heap.getObject(textRef.ref);
+          if (textObj && textObj.stringValue !== undefined) {
+            textValue = textObj.stringValue;
+          }
+        }
+        uiBridge.updateViewProperty(thisRef, 'text', textValue);
+      }
+
       return NULL_VALUE;
     }
   );
@@ -47,6 +69,13 @@ export function registerTextViewShim(registry: ShimRegistry): void {
   registry.register(TEXTVIEW_CLASS, 'setTextSize', '(F)V',
     (_interp, heap, thisRef, args) => {
       heap.setField(thisRef, 'mTextSize', args[0]);
+
+      // Notify UI bridge of text size change
+      if (uiBridge) {
+        const textSizeValue = args[0].type === 'float' ? args[0].value : 14.0;
+        uiBridge.updateViewProperty(thisRef, 'textSize', textSizeValue);
+      }
+
       return NULL_VALUE;
     }
   );
@@ -55,6 +84,13 @@ export function registerTextViewShim(registry: ShimRegistry): void {
   registry.register(TEXTVIEW_CLASS, 'setTextColor', '(I)V',
     (_interp, heap, thisRef, args) => {
       heap.setField(thisRef, 'mTextColor', args[0]);
+
+      // Notify UI bridge of text color change
+      if (uiBridge) {
+        const textColorValue = args[0].type === 'int' ? args[0].value : 0xFF000000;
+        uiBridge.updateViewProperty(thisRef, 'textColor', textColorValue);
+      }
+
       return NULL_VALUE;
     }
   );
