@@ -162,12 +162,12 @@ Stage 3 adds Android framework API shims to CRAFT, enabling the interpreter to e
 
 ## 6. Test Results
 
-```
-Test Suites: 22 passed, 22 total
-Tests:       202 passed, 202 total
-Snapshots:   0 total
-Time:        3.683 s
-```
+**Final Status: 208 tests passing (all stages)**
+
+Initial implementation: 202 tests (173 existing + 29 new Stage 3 tests)
+After test strengthening audit: 208 tests (173 existing + 35 new Stage 3 tests)
+
+The audit strengthened 4 weak tests to verify actual side effects (not just return types) and added 6 new verification tests (3 registration tests + 3 ClassLoader superclass chain tests).
 
 ### Breakdown
 
@@ -175,10 +175,10 @@ Time:        3.683 s
 |----------|--------|-------|
 | Stage 1 (unchanged) | 6 | 58 |
 | Stage 2 Unit (unchanged) | 7 | 107 |
-| Stage 2 Integration (unchanged) | 8 | 8 |
-| Stage 3 Unit | 1 | 26 |
+| Stage 2 Integration (unchanged) | 1 | 8 |
+| Stage 3 Unit | 1 | 32 |
 | Stage 3 Integration | 1 | 3 |
-| **Total** | **22** | **202** |
+| **Total** | **22** | **208** |
 
 ### Stage 3 Unit Test Coverage
 
@@ -191,6 +191,9 @@ Time:        3.683 s
 | android.view.ViewGroup | 2 | Constructor, addView/getChildCount |
 | android.widget.TextView | 5 | Constructor, setText/getText, setTextSize, setTextColor |
 | android.app.Activity | 7 | Constructor, onCreate, setContentView, lifecycle methods, finish, findViewById, getIntent |
+| Shim Registration | 3 | Unregistered method throws, classes registered, non-Android not registered |
+| ClassLoader Superclasses | 3 | Activity chain, TextView chain, ViewGroup chain |
+| **Total Unit Tests** | **32** | |
 
 ### Stage 3 Integration Test Scenarios
 
@@ -209,11 +212,12 @@ Time:        3.683 s
 | Source files created | 8 |
 | Source lines written | ~320 |
 | Test files created | 2 |
-| Test lines written | ~370 |
-| Total new lines | ~690 |
+| Test lines written | ~450 (370 initial + 80 from audit strengthening) |
+| Total new lines | ~770 |
 | Android classes shimmed | 7 |
 | Android methods shimmed | 35 |
-| Tests passing | 202 / 202 |
+| Tests passing | 208 / 208 |
+| Stage 3 tests added | 35 (29 initial + 6 from audit) |
 | TypeScript errors | 0 |
 | Stage 1+2 regressions | 0 |
 

@@ -2,9 +2,29 @@
 
 CRAFT (Compatible Runtime for Android on Fuchsia/Trusty) - An Android APK parser and runtime for OpenHarmony.
 
-## Current Stage: 3 (Complete)
+## Current Stage: 3 Complete, Stage 4 Next
 
-Stage 1 implements APK/DEX/Manifest parsing. Stage 2 adds bytecode interpretation. Stage 3 adds Android API shims. Stage 4 will add the UI Bridge and OpenHarmony host integration.
+**Status:** 208 tests passing | 0 TypeScript errors | 0 regressions
+
+Stage 1: APK/DEX/Manifest parsing ✅
+Stage 2: Bytecode interpretation ✅
+Stage 3: Android API shims ✅
+Stage 4: UI Bridge & OpenHarmony host 🚧 (next)
+
+## 📚 Documentation (Reorganized 2026-02-12)
+
+**All documentation now centralized in `/mnt/d/craft/docs/` with consistent snake_case naming:**
+
+- **Main entry:** `/mnt/d/craft/README.md` - Project overview
+- **Documentation hub:** `/mnt/d/craft/docs/index.md` - Complete navigation
+- **Requirements:** `docs/requirements.md` - Goals, constraints, success criteria
+- **Architecture:** `docs/architecture.md` - System design, data flow
+- **Specification:** `docs/specification.md` - Component specs
+- **Implementation plan:** `docs/implementation_plan.md` - 5-stage roadmap
+- **Stage plans:** `docs/stages/stage_N_plan.md` - Detailed planning for each stage
+- **Stage results:** `docs/stages/stage_N_results.md` - Completion reports
+
+**File Naming Convention:** All docs use snake_case (stage_1_results.md, implementation_plan.md, etc.)
 
 ## Quick Reference
 
@@ -61,10 +81,10 @@ tools/
 
 test/
 ├── fixtures/       # hello_world.apk, .dex, manifest_binary.xml
-├── unit/           # 173 unit tests (58 Stage 1 + 87 Stage 2 + 28 Stage 3)
+├── unit/           # 208 unit tests (58 Stage 1 + 115 Stage 2 + 35 Stage 3)
 │   ├── interpreter/  # heap, frame, opcodes, shim_registry, interpreter
 │   └── shim/         # java.lang.* and android.* shim tests
-└── integration/    # 11 integration tests (8 Stage 2 + 3 Stage 3)
+└── integration/    # (included in unit count above)
     ├── interpreter/  # Interpreter integration tests
     └── android/      # Activity lifecycle integration tests
 ```
