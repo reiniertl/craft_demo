@@ -1,294 +1,327 @@
-# Android to OpenHarmony Compatibility Framework - Project Assessment
+# CRAFT - Compatibility Runtime for Android Framework Translation
 
-## Executive Summary
-
-This project aims to create a compatibility layer enabling OpenHarmony to run Android APKs natively. The PoC goal is displaying "Hello World" from an Android app through OpenHarmony's ArkUI framework.
-
-**Complexity Rating: HIGH**
-
-While the PoC scope is limited to "Hello World," the underlying infrastructure required is substantial. This involves bytecode interpretation, API translation, and cross-platform UI bridging.
-
-**Development Approach: AI-Assisted (Claude Code)**
-
-This plan assumes Claude Code is used throughout development, significantly accelerating implementation of well-defined, repetitive, or boilerplate-heavy components.
+Run Android APKs natively on OpenHarmony through bytecode interpretation.
 
 ---
 
-## Technical Analysis
+## Project Status
 
-### Core Components Required
+**Current Stage:** 3 Complete, Stage 4 In Progress
 
-1. **APK Parser**
-   - Extract and parse AndroidManifest.xml
-   - Extract DEX files
-   - Extract resources (strings, layouts)
+| Stage | Component | Status | Tests |
+|-------|-----------|--------|-------|
+| **1** | APK/DEX Parsing & Class Loading | ✅ Complete | 58 / 58 |
+| **2** | Bytecode Interpreter & java.lang Shims | ✅ Complete | 115 / 115 |
+| **3** | Android API Shim Layer | ✅ Complete | 35 / 35 |
+| **4** | UI Bridge & OpenHarmony Host | 🚧 Next | — |
+| **5** | Integration & Polish | ⏳ Planned | — |
 
-2. **DEX Bytecode Interpreter**
-   - Parse DEX file format
-   - Implement Dalvik bytecode interpreter (no JIT/AOT per requirements)
-   - Handle basic opcodes for "Hello World" scenario
-
-3. **Android API Shim Layer**
-   - Minimal `android.app.Activity` implementation
-   - Minimal `android.widget.TextView` implementation
-   - Minimal `android.content.Context` implementation
-   - Basic `android.os.Bundle` support
-
-4. **UI Bridge (Android Views → ArkUI)**
-   - Map `TextView` to ArkUI `Text` component
-   - Map `Activity.setContentView()` to ArkUI rendering
-   - Handle basic layout parameters
-
-5. **OpenHarmony Integration**
-   - Wrap APK execution as an OpenHarmony Ability
-   - Bridge lifecycle events (onCreate, onStart, etc.)
-   - Integrate with OpenHarmony's service layer
-
-### Key Technical Challenges
-
-| Challenge | Complexity | Notes |
-|-----------|------------|-------|
-| DEX parsing | Medium | Well-documented format |
-| Bytecode interpretation | High | ~200 opcodes, need subset |
-| API shimming | High | Large surface area |
-| UI translation | High | Different paradigms |
-| Lifecycle mapping | Medium | Activity ↔ Ability |
-| Resource loading | Medium | Binary XML parsing |
+**Total:** 208 tests passing | 0 TypeScript errors | 0 regressions
 
 ---
 
-## Implementation Plan
+## Quick Start
 
-### Stage 1: Foundation (Weeks 1-2)
-**Goal: Infrastructure and APK loading**
+### For New Developers
 
-- Set up development environment for both platforms
-- Implement APK file parser (ZIP extraction)
-- Implement AndroidManifest.xml parser (binary XML)
-- Implement DEX file header and structure parser
-- Create basic OpenHarmony Ability shell for hosting
+1. **Read the overview:** [Requirements](docs/requirements.md) - Project goals and constraints
+2. **Understand the architecture:** [Architecture](docs/architecture.md) - System design
+3. **Review implementation plan:** [Implementation Plan](docs/implementation_plan.md) - Stage-by-stage roadmap
+4. **Check current progress:** [Stage 3 Results](docs/stages/stage_3_results.md) - Latest completion status
 
-**Deliverable:** Can extract and parse APK contents
+### For Claude Code / AI Agents
 
-**AI Acceleration:** Parsers generated from format specifications; boilerplate setup automated
+- **Read first:** [CLAUDE.md](craft/CLAUDE.md) - Complete project context and current stage
 
-### Stage 2: Interpreter Core (Weeks 3-4)
-**Goal: Execute basic Dalvik bytecode**
+### Documentation Index
 
-- Implement DEX class/method/field resolution
-- Implement core bytecode interpreter loop
-- Implement essential opcodes:
-  - const/move operations
-  - invoke-virtual, invoke-direct, invoke-static
-  - return operations
-  - new-instance
-  - iput/iget operations
-- Implement basic object model and heap
-- Implement minimal java.lang.* classes (Object, String, StringBuilder)
-
-**Deliverable:** Can interpret simple Java methods
-
-**AI Acceleration:** Opcode implementations follow patterns; Claude Code can generate bulk of ~30-40 required opcodes rapidly
-
-### Stage 3: Android API Shim (Weeks 5-6)
-**Goal: Provide minimal Android API surface**
-
-- Implement `android.app.Activity` skeleton
-  - `onCreate(Bundle)`
-  - `setContentView()`
-- Implement `android.content.Context` basics
-- Implement `android.widget.TextView`
-  - `setText()`
-  - Basic constructor
-- Implement `android.os.Bundle` (minimal)
-- Wire lifecycle to OpenHarmony Ability events
-
-**Deliverable:** Android Activity code can execute
-
-**AI Acceleration:** Android API surface well-documented; shim classes are boilerplate-heavy
-
-### Stage 4: UI Bridge (Weeks 7-8)
-**Goal: Render Android Views through ArkUI**
-
-- Design View → ArkUI component mapping
-- Implement TextView → Text bridge
-- Implement basic ViewGroup → Container bridge
-- Handle layout parameters translation
-- Connect setContentView() to ArkUI rendering pipeline
-
-**Deliverable:** "Hello World" text visible on screen
-
-**AI Acceleration:** Moderate - requires understanding both platforms; mapping logic can be generated once patterns established
-
-### Stage 5: Integration & Polish (Week 9)
-**Goal: End-to-end working demo**
-
-- Full integration testing
-- Debug and fix issues
-- Documentation
-- Demo preparation
-
-**Deliverable:** Working PoC demonstration
-
-**AI Acceleration:** Limited - debugging and integration require human judgment; documentation can be AI-assisted
+📚 **[Full Documentation Index](docs/index.md)** - Complete navigation to all documentation
 
 ---
 
-## Team Allocation
+## What is CRAFT?
 
-### Team Structure
+CRAFT is a compatibility layer enabling OpenHarmony to run Android APKs through pure bytecode interpretation.
 
-| Role | Engineer | Focus Area |
-|------|----------|------------|
-| Team Lead | Engineer A | Architecture, Integration, Management |
-| Core Developer | Engineer B | Interpreter, Runtime |
-| Platform Developer | Engineer C | OpenHarmony Integration, UI Bridge |
+**Key Features:**
+- ✅ **No JIT/AOT:** Pure interpretation for simplicity and security
+- ✅ **Native UI:** Renders through OpenHarmony's ArkUI framework
+- ✅ **Minimal API Surface:** Only implements what's needed for "Hello World" PoC
+- ✅ **TypeScript/ArkTS:** Runs entirely in OpenHarmony's native runtime
 
-### Task Allocation by Stage
-
-#### Stage 1: Foundation
-| Task | Owner | Support |
-|------|-------|---------|
-| Architecture design & documentation | Engineer A | - |
-| APK parser implementation | Engineer B | - |
-| AndroidManifest.xml parser | Engineer B | - |
-| DEX file structure parser | Engineer B | Engineer A |
-| OpenHarmony Ability shell | Engineer C | - |
-| Development environment setup | Engineer C | All |
-| Code review & integration | Engineer A | - |
-
-#### Stage 2: Interpreter Core
-| Task | Owner | Support |
-|------|-------|---------|
-| Interpreter architecture | Engineer A | Engineer B |
-| Bytecode interpreter loop | Engineer B | - |
-| Opcode implementation (arithmetic/logic) | Engineer B | - |
-| Opcode implementation (invoke/return) | Engineer A | Engineer B |
-| Object model & heap | Engineer B | - |
-| java.lang.* base classes | Engineer A | - |
-| Testing framework & tests | Engineer C | - |
-| Code review & management | Engineer A | - |
-
-#### Stage 3: Android API Shim
-| Task | Owner | Support |
-|------|-------|---------|
-| Activity implementation | Engineer A | - |
-| Context implementation | Engineer A | - |
-| TextView implementation | Engineer C | - |
-| Bundle implementation | Engineer B | - |
-| Lifecycle bridge design | Engineer A | Engineer C |
-| Lifecycle bridge implementation | Engineer C | - |
-| Integration testing | All | - |
-
-#### Stage 4: UI Bridge
-| Task | Owner | Support |
-|------|-------|---------|
-| View → ArkUI architecture | Engineer A | Engineer C |
-| TextView → Text bridge | Engineer C | - |
-| ViewGroup → Container bridge | Engineer C | - |
-| Layout parameter translation | Engineer C | Engineer A |
-| Rendering pipeline integration | Engineer C | Engineer A |
-| End-to-end testing | All | - |
-
-#### Stage 5: Integration & Polish
-| Task | Owner | Support |
-|------|-------|---------|
-| Integration coordination | Engineer A | - |
-| Bug fixing & debugging | All | - |
-| Documentation | Engineer A | All |
-| Demo preparation | Engineer A | All |
-
----
-
-## Timeline (AI-Assisted with Claude Code)
-
+**Architecture:**
 ```
-Week 1:     [████████] Stage 1 - Foundation (Setup, APK Parser)
-Week 2:     [████████] Stage 1 - Foundation (DEX Parser, OH Ability)
-Week 3:     [████████] Stage 2 - Interpreter (Architecture, Core Loop)
-Week 4:     [████████] Stage 2 - Interpreter (Opcodes, Object Model)
-Week 5:     [████████] Stage 3 - API Shim (Activity, Context)
-Week 6:     [████████] Stage 3 - API Shim (Views, Lifecycle)
-Week 7:     [████████] Stage 4 - UI Bridge (Mapping, Rendering)
-Week 8:     [████████] Stage 4 - UI Bridge (Integration)
-Week 9:     [████████] Stage 5 - Integration & Polish
+Android APK → DEX Parser → Bytecode Interpreter → Android API Shims
+                                    ↓
+                               UI Bridge
+                                    ↓
+                       OpenHarmony ArkUI Renderer
 ```
 
-**Total Duration: 9 weeks (~2 months)**
+---
 
-### AI Acceleration by Component
+## Project Structure
 
-| Component | Traditional | AI-Assisted | Acceleration Factor |
-|-----------|-------------|-------------|---------------------|
-| APK/DEX Parsers | 2 weeks | 1 week | 2x - Well-documented formats, pattern-based |
-| Opcode Implementation | 2.5 weeks | 1 week | 2.5x - Highly repetitive patterns |
-| API Shim Classes | 2 weeks | 1 week | 2x - Boilerplate-heavy, documented APIs |
-| UI Bridge | 2 weeks | 1.5 weeks | 1.3x - Requires platform expertise |
-| Integration/Testing | 2 weeks | 1.5 weeks | 1.3x - Human judgment critical |
-
-### Where Claude Code Provides Most Value
-
-1. **Parser Generation** - DEX/APK formats are well-documented; AI can rapidly generate parsing code
-2. **Opcode Implementation** - ~200 Dalvik opcodes follow patterns; AI excels at repetitive implementations
-3. **API Shim Boilerplate** - Activity, Context, View stubs are straightforward to generate
-4. **Test Generation** - Unit tests for interpreter opcodes and parsers
-5. **Documentation** - Architecture docs, code comments, API documentation
-
-### Where Human Expertise Remains Critical
-
-1. **Architecture Decisions** - Overall system design, component boundaries
-2. **OpenHarmony Integration** - Platform-specific nuances, Ability lifecycle
-3. **Debugging Complex Issues** - Cross-platform interaction bugs
-4. **Performance Tuning** - Interpreter optimization (post-PoC)
-5. **Code Review** - Ensuring AI-generated code is correct and maintainable
+```
+/mnt/d/craft/
+├── README.md                   # This file - project overview
+├── docs/                       # 📚 All documentation
+│   ├── index.md               # Navigation hub
+│   ├── requirements.md        # Project goals & success criteria
+│   ├── architecture.md        # System design & data flow
+│   ├── specification.md       # Component specifications
+│   ├── implementation_plan.md # 5-stage roadmap
+│   └── stages/                # Stage-specific docs
+│       ├── stage_1_results.md # APK/DEX parsing complete
+│       ├── stage_2_plan.md    # Interpreter design (196KB detailed spec)
+│       ├── stage_2_results.md # Interpreter complete
+│       ├── stage_3_plan.md    # Android API shims design
+│       ├── stage_3_results.md # Android API shims complete
+│       └── stage_4_plan.md    # UI Bridge & OpenHarmony host design
+│
+├── craft/                      # Implementation codebase
+│   ├── src/                   # Source code
+│   │   ├── parser/            # APK & DEX parsers
+│   │   ├── interpreter/       # Bytecode interpreter
+│   │   ├── shim/              # API shims (java.lang, android.*)
+│   │   ├── core/              # Core types
+│   │   └── utils/             # Utilities
+│   ├── test/                  # Test suite (208 tests)
+│   │   ├── unit/              # Unit tests
+│   │   ├── integration/       # Integration tests
+│   │   └── fixtures/          # Test APKs & data
+│   ├── CLAUDE.md              # AI agent context
+│   └── README.md              # Quick reference
+│
+├── android/                    # Android AOSP (reference only)
+└── oh/                         # OpenHarmony SDK (reference only)
+```
 
 ---
 
-## Risk Assessment
+## Implementation Progress
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| DEX interpreter complexity underestimated | Medium | High | Start with minimal opcode set, expand as needed |
-| OpenHarmony API limitations | Medium | Medium | Early spike on OH integration |
-| UI paradigm mismatch | Medium | High | Design flexible abstraction layer |
-| Performance issues with interpretation | High | Low | Acceptable for PoC, optimize later |
-| Resource/staffing constraints | Low | High | Clear priorities, cut scope if needed |
+### ✅ Stage 1: APK/DEX Parsing (Complete)
+
+**Deliverables:**
+- APK file extraction (ZIP)
+- AndroidManifest.xml parsing (binary XML)
+- DEX format parsing (header, strings, types, classes, methods, code)
+- Class loader with superclass resolution
+
+**Tests:** 58 passing | **Files:** 6 source, 6 test
+
+### ✅ Stage 2: Bytecode Interpreter (Complete)
+
+**Deliverables:**
+- 26 Dalvik opcodes implemented
+- Frame-based execution (locals, stack, PC)
+- Heap with object allocation and field storage
+- java.lang shims (Object, String, Integer, StringBuilder, System, Class)
+- Method invocation (direct, virtual, static, super)
+
+**Tests:** 115 passing | **Files:** 13 source, 14 test
+
+### ✅ Stage 3: Android API Shims (Complete)
+
+**Deliverables:**
+- 7 Android classes: Activity, Context, ContextWrapper, View, ViewGroup, TextView, Bundle
+- 35 Android methods implemented
+- Correct superclass chains for virtual dispatch
+- Activity lifecycle methods (onCreate, onStart, onResume, onPause, onStop, onDestroy)
+- TextView with text storage (setText, getText, setTextSize, setTextColor)
+
+**Tests:** 35 passing (32 unit + 3 integration + 6 verification) | **Files:** 8 source, 2 test
+
+### 🚧 Stage 4: UI Bridge & OpenHarmony Host (Next)
+
+**Planned Deliverables:**
+- UI Bridge: Map Android Views to ArkUI components
+- State Manager: Reactive state for ArkUI rendering
+- Lifecycle Bridge: Activity ↔ Ability lifecycle mapping
+- CraftAbility: UIAbility wrapper for CRAFT runtime
+- CraftPage: Dynamic ArkUI rendering
+- **Visual Goal:** "Hello World" text renders on screen
+
+**Estimated:** ~2 weeks | **Files:** ~5 source, ~4 test
+
+### ⏳ Stage 5: Integration & Polish (Planned)
+
+**Planned Deliverables:**
+- End-to-end integration testing
+- Bug fixes and edge case handling
+- Performance profiling
+- Documentation and demo preparation
+- Working PoC demonstration
+
+**Estimated:** ~1 week
 
 ---
 
-## Success Criteria for PoC
+## Development
 
-1. ✓ APK file can be loaded by OpenHarmony
-2. ✓ APK runs as an OpenHarmony Ability
-3. ✓ Android Activity lifecycle executes correctly
-4. ✓ "Hello World" text renders via ArkUI
-5. ✓ No JIT/AOT - pure interpretation
-6. ✓ Uses OpenHarmony services (not Android services)
+### Prerequisites
+
+- **Node.js:** v18+ (for TypeScript compilation and Jest testing)
+- **npm:** v8+ (package manager)
+- **DevEco Studio:** For OpenHarmony development (Stage 4+)
+- **OpenHarmony SDK:** API 10+ (Stage 4+)
+
+### Setup
+
+```bash
+cd /mnt/d/craft/craft
+
+# Install dependencies (none currently - zero dependency project)
+npm install
+
+# Build TypeScript
+npm run build
+
+# Run tests
+npm test
+
+# Run specific test suite
+npm test -- test/unit/parser/dex_parser.test.ts
+
+# Type check (no compilation)
+npx tsc --noEmit
+```
+
+### Testing
+
+```bash
+# Run all 208 tests
+npm test
+
+# Run with coverage
+npm test -- --coverage
+
+# Run in watch mode
+npm test -- --watch
+
+# Run only Stage 3 tests
+npm test -- test/unit/shim/android_api.test.ts
+npm test -- test/integration/android/
+```
+
+### Project Commands
+
+```bash
+# Build
+npm run build              # Compile TypeScript to dist/
+
+# Test
+npm test                   # Run all tests
+npm run test:unit          # Unit tests only
+npm run test:integration   # Integration tests only
+
+# Type checking
+npm run typecheck          # Run tsc --noEmit
+
+# Linting (future)
+npm run lint              # ESLint (not yet configured)
+```
 
 ---
 
-## Assumptions & Dependencies
+## Key Metrics
 
-### Assumptions
-- Engineers have familiarity with both Android internals and OpenHarmony
-- Access to OpenHarmony development environment and documentation
-- "Hello World" app uses basic Android APIs (Activity, TextView)
-
-### Dependencies
-- OpenHarmony SDK and toolchain
-- Android SDK (for reference and test APK building)
-- DEX format specification (publicly available)
+| Metric | Value |
+|--------|-------|
+| **Stages Complete** | 3 / 5 |
+| **Tests Passing** | 208 / 208 (100%) |
+| **TypeScript Errors** | 0 |
+| **Regressions** | 0 |
+| **Opcodes Implemented** | 26 |
+| **Java Classes Shimmed** | 6 (java.lang.*) |
+| **Android Classes Shimmed** | 7 (android.*) |
+| **Total Methods Shimmed** | 66 (31 java.lang + 35 android) |
+| **Source Files** | 35 |
+| **Test Files** | 22 |
+| **Total Lines of Code** | ~3500 |
 
 ---
 
-## Recommendations
+## Technical Highlights
 
-1. **Parallel Workstreams**: Stages 1-2 can partially overlap with Stage 1's OH work, as APK parsing and OH integration are independent initially.
+### Bytecode Interpretation
 
-2. **Early Integration**: Perform integration checkpoints every 2 weeks to catch issues early.
+CRAFT implements a frame-based Dalvik bytecode interpreter with:
+- **26 opcodes:** move, const, return, arithmetic, conditionals, invocation
+- **Virtual dispatch:** Correct superclass chain resolution (Activity → ContextWrapper → Context → Object)
+- **Heap management:** Reference-based object storage with field access
+- **String interning:** Efficient string pool for constants
 
-3. **Scope Control**: Strictly limit to "Hello World" - resist feature creep. Additional View types, complex layouts, etc. should be Phase 2.
+### Android API Shims
 
-4. **Documentation**: Document architecture decisions early to facilitate future expansion beyond PoC.
+Shim pattern example (TextView.setText):
+```typescript
+registry.register('Landroid/widget/TextView;', 'setText', '(Ljava/lang/CharSequence;)V',
+  (interp, heap, thisRef, args) => {
+    heap.setField(thisRef, 'mText', args[0]);
+    return NULL_VALUE;
+  }
+);
+```
 
-5. **Test APK Strategy**: Create the simplest possible Android APK for testing - single Activity, hardcoded "Hello World" string, no resources if possible.
+### Hello World Execution Flow
+
+```
+1. DEXParser.parse(hello_world.dex)
+2. ClassLoader.loadClass('Lcom/example/MainActivity;')
+3. Interpreter.newInstance(MainActivity)
+4. Interpreter.invoke(MainActivity.onCreate, [bundle])
+   → new TextView(this)
+   → textView.setText("Hello World")
+   → setContentView(textView)
+5. UIBridge.setRootView(textViewRef)  [Stage 4]
+6. ArkUI renders Text("Hello World")  [Stage 4]
+```
+
+---
+
+## Contributing
+
+This project is currently in proof-of-concept stage with AI-assisted development (Claude Code).
+
+**Development Guidelines:**
+- All code in TypeScript (strict mode)
+- Zero external dependencies (except devDependencies)
+- 100% test coverage for core components
+- No regressions allowed (all prior tests must pass)
+- Document all public APIs
+
+---
+
+## References
+
+### Documentation
+- **[Documentation Index](docs/index.md)** - Complete navigation
+- **[Architecture](docs/architecture.md)** - System design
+- **[Specification](docs/specification.md)** - Component specs
+- **[CRAFT_SPECIFICATION.md](CRAFT_SPECIFICATION.md)** - Comprehensive 1400+ line detailed spec
+
+### External References
+- [Dalvik Executable Format](https://source.android.com/devices/tech/dalvik/dex-format)
+- [Dalvik Bytecode Reference](https://source.android.com/devices/tech/dalvik/dalvik-bytecode)
+- [OpenHarmony ArkUI Documentation](https://docs.openharmony.cn/pages/v4.0/en/application-dev/ui/arkui-overview.md)
+- [OpenHarmony UIAbility](https://docs.openharmony.cn/pages/v4.0/en/application-dev/application-models/uiability-overview.md)
+
+---
+
+## License
+
+[To be determined]
+
+---
+
+## Contact
+
+[Project contact information to be added]
+
+---
+
+**Status:** 3 of 5 stages complete | 208 tests passing | Ready for Stage 4
+**Last Updated:** 2026-02-12
+**Version:** 1.1.0 (Post-Stage 3 reorganization)
