@@ -25,7 +25,7 @@ interface AnalysisResult {
   recommendations: string[];
 }
 
-// Known implemented opcodes from Stage 1-3
+// Known implemented opcodes from Stage 1-5
 const IMPLEMENTED_OPCODES = new Set([
   0x00, // nop
   0x01, 0x02, 0x03, // move variants
@@ -35,6 +35,7 @@ const IMPLEMENTED_OPCODES = new Set([
   0x0e, 0x0f, 0x10, 0x11, // return variants
   0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b, // const variants
   0x1c, // const-class
+  0x20, // instance-of (Stage 5)
   0x22, // new-instance
   0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, // iget variants
   0x59, 0x5a, 0x5b, 0x5c, 0x5d, 0x5e, 0x5f, // iput variants
@@ -67,6 +68,7 @@ const OPCODE_NAMES: Map<number, string> = new Map([
   [0x1a, 'const-string'],
   [0x1b, 'const-string/jumbo'],
   [0x1c, 'const-class'],
+  [0x20, 'instance-of'],
   [0x22, 'new-instance'],
   [0x52, 'iget'],
   [0x53, 'iget-wide'],

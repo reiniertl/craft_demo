@@ -6,7 +6,7 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 
 ## Project Status
 
-**Current Stage:** 4 Complete, Stage 5 Next
+**Current Stage:** 5 In Progress (Code Complete, Needs Device Testing)
 
 | Stage | Component | Status | Tests |
 |-------|-----------|--------|-------|
@@ -14,9 +14,18 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 | **2** | Bytecode Interpreter & java.lang Shims | ✅ Complete | 115 / 115 |
 | **3** | Android API Shim Layer | ✅ Complete | 35 / 35 |
 | **4** | UI Bridge & OpenHarmony Host | ✅ Complete | 55 / 55 |
-| **5** | Integration & Polish | 🚧 Next | — |
+| **5** | Integration & Polish | 🚧 In Progress | 266 / 266 |
 
-**Total:** 263 tests passing | 0 TypeScript errors | 0 regressions
+**Total:** 266 tests passing | 0 TypeScript errors | 0 regressions | 28 opcodes implemented
+
+**Stage 5 Progress:**
+- ✅ Opcode 0x20 (instance-of) implemented
+- ✅ CraftAbility.ets updated with full runtime
+- ✅ CraftPage.ets for dynamic UI rendering
+- ✅ TypeScript runtime packaged for ArkTS
+- ⚠️ Enhanced APK creation (blocked - needs Android SDK)
+- ⚠️ Device testing (blocked - needs OpenHarmony device)
+- ⚠️ Performance profiling (blocked - needs device)
 
 ---
 

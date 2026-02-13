@@ -90,6 +90,11 @@ class MockClassLoader {
   setStaticField(field: any, value: Value): void {
     this.staticFields.set(`${field.classDescriptor}:${field.name}`, value);
   }
+
+  isInstanceOf(objectClass: string, targetType: string): boolean {
+    // Simple test implementation: exact match only
+    return objectClass === targetType;
+  }
 }
 
 function makeFrame(insns: number[], registersSize: number = 4): {
@@ -325,6 +330,64 @@ describe('Opcodes', () => {
       };
       table.execute(ctx, 0x1c, 0x001c);
       expect(frame.registers[0].type).toBe('object');
+      expect(frame.pc).toBe(2);
+    });
+  });
+
+  describe('instance-of (0x20)', () => {
+    it('returns 1 when object is instance of type', () => {
+      mockDex.setType(0, 'Lcom/example/Foo;');
+      const objRef = heap.allocate('Lcom/example/Foo;');
+
+      // instance-of v0, v1, type@0 -> vA=0(dest), vB=1(obj) -> [0x1020, 0x0000]
+      const { frame } = makeFrame([0x1020, 0x0000]);
+      frame.registers[1] = objectRef(objRef);
+      const ctx: ExecutionContext = {
+        frame,
+        heap,
+        classLoader: mockClassLoader as any,
+        interpreter: mockInterp,
+        dex: mockDex as any,
+      };
+      table.execute(ctx, 0x20, 0x1020);
+      expect(frame.registers[0]).toEqual(intValue(1)); // true
+      expect(frame.pc).toBe(2);
+    });
+
+    it('returns 0 when object is not instance of type', () => {
+      mockDex.setType(0, 'Lcom/example/Bar;');
+      const objRef = heap.allocate('Lcom/example/Foo;'); // Different type
+
+      // instance-of v0, v1, type@0
+      const { frame } = makeFrame([0x1020, 0x0000]);
+      frame.registers[1] = objectRef(objRef);
+      const ctx: ExecutionContext = {
+        frame,
+        heap,
+        classLoader: mockClassLoader as any,
+        interpreter: mockInterp,
+        dex: mockDex as any,
+      };
+      table.execute(ctx, 0x20, 0x1020);
+      expect(frame.registers[0]).toEqual(intValue(0)); // false
+      expect(frame.pc).toBe(2);
+    });
+
+    it('returns 0 when object is null', () => {
+      mockDex.setType(0, 'Lcom/example/Foo;');
+
+      // instance-of v0, v1, type@0 with v1 = null
+      const { frame } = makeFrame([0x1020, 0x0000]);
+      frame.registers[1] = NULL_VALUE;
+      const ctx: ExecutionContext = {
+        frame,
+        heap,
+        classLoader: mockClassLoader as any,
+        interpreter: mockInterp,
+        dex: mockDex as any,
+      };
+      table.execute(ctx, 0x20, 0x1020);
+      expect(frame.registers[0]).toEqual(intValue(0)); // false
       expect(frame.pc).toBe(2);
     });
   });
