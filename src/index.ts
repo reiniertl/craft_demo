@@ -24,7 +24,7 @@ export { ManifestParser, ManifestInfo } from './parser/manifest_parser';
 
 // Interpreter (Stage 2)
 export { Interpreter } from './interpreter/interpreter';
-export { Heap, HeapObject } from './interpreter/heap';
+export { Heap, HeapObject, HeapDump, HeapDumpObject } from './interpreter/heap';
 export { FrameManager, ExecutionFrame } from './interpreter/frame';
 export { ClassLoader } from './interpreter/class_loader';
 export { ShimRegistry } from './interpreter/shim_registry';
@@ -39,6 +39,9 @@ export {
   ArrayIndexOutOfBoundsException,
   StringIndexOutOfBoundsException,
 } from './interpreter/errors';
+
+// Tracer
+export { ExecutionTracer, TraceEntry } from './interpreter/tracer';
 
 // Bridge (Stage 4)
 export { UIBridge, ViewNode } from './bridge/ui_bridge';

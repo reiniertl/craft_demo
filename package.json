@@ -11,7 +11,15 @@
     "craft-test": "ts-node tools/craft_test.ts",
     "gen-shim": "ts-node tools/gen_shim.ts",
     "gen-opcode": "ts-node tools/gen_opcode.ts",
-    "analyze-apk": "ts-node tools/analyze_apk.ts"
+    "analyze-apk": "ts-node tools/analyze_apk.ts",
+    "trace-exec": "ts-node tools/trace_exec.ts",
+    "coverage-map": "ts-node tools/coverage_map.ts",
+    "validate-shims": "ts-node tools/validate_shims.ts",
+    "heap-dump": "ts-node tools/heap_dump.ts",
+    "gen-fixture": "ts-node tools/gen_fixture.ts",
+    "gen-integration-test": "ts-node tools/gen_integration_test.ts",
+    "apk-onboard": "ts-node tools/apk_onboard.ts",
+    "guard": "ts-node tools/regression_guard.ts"
   },
   "keywords": ["android", "dex", "apk", "openharmony"],
   "license": "MIT",

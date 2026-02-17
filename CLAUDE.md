@@ -4,7 +4,7 @@ CRAFT (Compatibility Runtime for Android Framework Translation) - An Android APK
 
 ## Current Stage: 5 Code Complete, Awaiting APK & Device Testing
 
-**Status:** 266 tests passing | 0 TypeScript errors | 0 regressions | Code 100% Complete
+**Status:** 274 tests passing | 0 TypeScript errors | 0 regressions | Code 100% Complete
 
 Stage 1: APK/DEX/Manifest parsing ✅
 Stage 2: Bytecode interpretation ✅
@@ -44,19 +44,44 @@ npm run dex-dump test/fixtures/hello_world.dex --all  # Dump DEX contents
 npm run gen-shim android.widget.Button  # Generate Android API shim
 npm run gen-opcode 0x32 if-eq 22t -- --category control  # Generate opcode handler
 
+# New debugging and validation tools
+npm run trace-exec test/fixtures/hello_world.dex     # Trace bytecode execution
+npm run coverage-map                                  # Opcode & shim coverage
+npm run validate-shims                                # Shim consistency check
+npm run heap-dump test/fixtures/hello_world.dex       # Inspect heap state
+npm run gen-fixture -- --list                         # List test fixture scenarios
+npm run gen-integration-test my-test                  # Scaffold integration test
+npm run apk-onboard test/fixtures/hello_world.apk     # APK onboarding report
+npm run guard                                         # Full regression guard
+
 # TypeScript check
 npx tsc --noEmit
 ```
 
-## 🔧 Development Skills
+## Development Skills
 
-Five core skills are available to accelerate development:
+14 skills are available to accelerate development:
 
+**Core (original):**
 1. **`craft-test`** - Run tests with component filtering
 2. **`gen-shim`** - Generate Android API shim implementations
 3. **`gen-opcode`** - Generate opcode handler implementations
 4. **`dex-dump`** - Dump and analyze DEX file contents
 5. **`analyze-apk`** - Analyze APK requirements and complexity
+
+**Debugging & Analysis:**
+6. **`trace-exec`** - Bytecode execution tracer
+7. **`coverage-map`** - Opcode & API coverage reporter
+8. **`validate-shims`** - Shim consistency checker
+9. **`heap-dump`** - Runtime heap inspector
+
+**Code Generation & Testing:**
+10. **`gen-fixture`** - Test fixture builder (6 scenarios)
+11. **`gen-integration-test`** - Integration test scaffolder
+
+**Orchestration:**
+12. **`apk-onboard`** - APK onboarding agent
+13. **`guard`** - Regression guard (TypeScript + tests + shims + opcodes)
 
 See `/mnt/d/craft/craft/tools/README.md` for comprehensive documentation.
 

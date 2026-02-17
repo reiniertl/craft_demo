@@ -3,68 +3,22 @@
  * Tests the full sequence: Activity creation → onCreate → TextView → setContentView.
  */
 
-import { ShimRegistry, InterpreterRef } from '../../../src/interpreter/shim_registry';
+import { ShimRegistry } from '../../../src/interpreter/shim_registry';
 import { Heap } from '../../../src/interpreter/heap';
-import { registerJavaLangShims } from '../../../src/shim/java/lang/index';
-import { registerAndroidShims } from '../../../src/shim/android/index';
 import { Value, intValue, objectRef, NULL_VALUE } from '../../../src/core/types';
-import { ResolvedMethod } from '../../../src/interpreter/types';
-
-function makeMethod(
-  classDesc: string,
-  name: string,
-  desc: string,
-  isStatic: boolean = false
-): ResolvedMethod {
-  return {
-    classDescriptor: classDesc,
-    name,
-    descriptor: desc,
-    accessFlags: isStatic ? 0x0008 : 0,
-    code: null,
-    isShim: true,
-  };
-}
+import { createShimTestContext, ShimTestContext } from '../../helpers/shim_test_utils';
 
 describe('Activity lifecycle integration', () => {
   let registry: ShimRegistry;
   let heap: Heap;
-  let mockInterp: InterpreterRef;
+  let invokeShim: ShimTestContext['invokeShim'];
 
   beforeEach(() => {
-    registry = new ShimRegistry();
-    heap = new Heap();
-    registerJavaLangShims(registry);
-    registerAndroidShims(registry);
-
-    mockInterp = {
-      invoke: (className, methodName, descriptor, args) => {
-        const method = makeMethod(className, methodName, descriptor);
-        return registry.invoke(method, mockInterp, heap, args);
-      },
-      getClassLoader: () => ({
-        getClassObject: (desc: string) => {
-          const ref = heap.allocate('Ljava/lang/Class;');
-          heap.setField(ref, '__classDescriptor', {
-            type: 'object',
-            ref: heap.internString(desc),
-          });
-          return ref;
-        },
-      }),
-    };
+    const ctx = createShimTestContext({ javaLang: true, android: true });
+    registry = ctx.registry;
+    heap = ctx.heap;
+    invokeShim = ctx.invokeShim;
   });
-
-  function invokeShim(
-    classDesc: string,
-    name: string,
-    desc: string,
-    args: Value[],
-    isStatic: boolean = false
-  ): Value {
-    const method = makeMethod(classDesc, name, desc, isStatic);
-    return registry.invoke(method, mockInterp, heap, args);
-  }
 
   it('creates Activity, calls onCreate with null Bundle, verifies initialized state', () => {
     const activityRef = heap.allocate('Landroid/app/Activity;');
