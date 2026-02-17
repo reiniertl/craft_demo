@@ -74,7 +74,7 @@ This document describes the system architecture for running Android APKs on Open
 ### 4. Bytecode Interpreter (Stage 2)
 - **Purpose:** Execute Dalvik bytecode instructions
 - **Capabilities:**
-  - 26 opcodes (arithmetic, logic, invoke, return, move, conditionals)
+  - 28 opcodes (nop, move, const, return, instance-of, new-instance, field access, invocation)
   - Frame-based execution (local variables, operand stack)
   - Method invocation (invoke-direct, invoke-virtual, invoke-static, invoke-super)
 - **Implementation:**
@@ -96,21 +96,21 @@ This document describes the system architecture for running Android APKs on Open
   - `android.os.Bundle` - Key-value data storage
 - **Implementation:** `src/shim/android/` directory tree
 
-### 6. UI Bridge (Stage 4 - Planned)
+### 6. UI Bridge (Stage 4 - Complete)
 - **Purpose:** Map Android View objects to ArkUI components
 - **Capabilities:**
   - ViewNode tree structure mirroring Android View hierarchy
   - Property mapping (text, textSize, textColor, visibility)
   - Reactive state management for ArkUI rendering
-- **Implementation:** `src/bridge/` directory (to be created)
+- **Implementation:** `src/bridge/ui_bridge.ts`, `src/bridge/state_manager.ts`, `src/bridge/lifecycle_bridge.ts`
 
-### 7. OpenHarmony Host (Stage 4 - Planned)
+### 7. OpenHarmony Host (Stage 5 - Code Complete)
 - **Purpose:** Wrap CRAFT runtime as OpenHarmony UIAbility
 - **Capabilities:**
   - Lifecycle bridging (Activity ↔ Ability)
   - Dynamic ArkUI page rendering
   - APK loading and execution
-- **Implementation:** `src/oh/` directory (to be created)
+- **Implementation:** `src/oh/entry/src/main/ets/`
 
 ---
 
@@ -247,13 +247,13 @@ interface Frame {
 
 ## Performance Characteristics
 
-**Current Status (Stages 1-3):**
-- Test suite: 208 tests in ~3.7 seconds
+**Current Status (Stages 1-5):**
+- Test suite: 266 tests in ~5 seconds
 - Zero TypeScript compilation errors
 - Heap allocation: ~1000 objects for Hello World scenario
 - Opcode execution: ~500 instructions for Hello World
 
-**Expected Performance (Stage 4):**
+**Expected Performance (On Device):**
 - APK load time: <1 second
 - Activity startup: <500ms
 - UI rendering: <100ms (ArkUI native performance)
@@ -291,4 +291,4 @@ interface Frame {
 ---
 
 **For detailed component specifications, see:** [specification.md](specification.md)
-**For full implementation details, see:** [CRAFT_SPECIFICATION.md](../CRAFT_SPECIFICATION.md) (comprehensive 1400+ line spec)
+**For full implementation details, see:** [CRAFT_SPECIFICATION.md](CRAFT_SPECIFICATION.md) (comprehensive 1400+ line spec)

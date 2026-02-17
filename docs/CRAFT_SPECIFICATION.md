@@ -3,9 +3,9 @@
 
 **Project Codename:** CRAFT (Compatibility Runtime for Android Framework Translation)
 
-**Version:** 1.2.0-spec
-**Last Updated:** 2026-02-13
-**Status:** Stages 1-4 Complete, Stage 5 In Progress
+**Version:** 0.1.0
+**Last Updated:** 2026-02-17
+**Status:** Stages 1-5 Code Complete, Awaiting APK recompilation & device testing
 
 ---
 
@@ -146,18 +146,19 @@ Create a compatibility layer enabling OpenHarmony to run Android APKs natively. 
 │   ├── shim/
 │   │   ├── java/
 │   │   │   ├── lang/
-│   │   │   │   ├── object.ts     # java.lang.Object
-│   │   │   │   ├── string.ts     # java.lang.String
-│   │   │   │   ├── class.ts      # java.lang.Class
-│   │   │   │   └── system.ts     # java.lang.System (stub)
-│   │   │   └── index.ts
+│   │   │   │   ├── object.ts          # java.lang.Object
+│   │   │   │   ├── string.ts          # java.lang.String
+│   │   │   │   ├── string_builder.ts  # java.lang.StringBuilder
+│   │   │   │   ├── class.ts           # java.lang.Class
+│   │   │   │   ├── system.ts          # java.lang.System
+│   │   │   │   └── index.ts           # Registration
+│   │   │   └── (no other java packages)
 │   │   │
 │   │   └── android/
 │   │       ├── app/
 │   │       │   └── activity.ts   # android.app.Activity
 │   │       ├── content/
-│   │       │   ├── context.ts    # android.content.Context
-│   │       │   └── context_wrapper.ts
+│   │       │   └── context.ts    # android.content.Context + ContextWrapper
 │   │       ├── view/
 │   │       │   ├── view.ts       # android.view.View
 │   │       │   └── view_group.ts # android.view.ViewGroup
@@ -614,7 +615,7 @@ class Interpreter {
 }
 ```
 
-#### 4.3.4 Implemented Opcodes (27 total)
+#### 4.3.4 Implemented Opcodes (28 total)
 
 | Opcode | Hex | Format | Status | Stage |
 |--------|-----|--------|--------|-------|

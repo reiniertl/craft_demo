@@ -1,5 +1,5 @@
 /**
- * CRAFT - Compatible Runtime for Android on Fuchsia/Trusty
+ * CRAFT - Compatibility Runtime for Android Framework Translation
  * Stage 1: APK Parsing Foundation
  * Stage 2: Interpreter Core
  * Stage 3: Android API Shim Layer

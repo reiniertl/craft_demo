@@ -15,11 +15,11 @@ This document provides technical specifications for all CRAFT components.
 | APK Parsing | Extract and parse AndroidManifest.xml, DEX files, resources | ✅ Stage 1 |
 | DEX Parsing | Parse DEX file format (header, strings, types, classes, code) | ✅ Stage 1 |
 | Class Loading | Load classes with correct superclass chains | ✅ Stages 1-2 |
-| Bytecode Interpretation | Execute Dalvik bytecode (26 opcodes minimum) | ✅ Stage 2 |
-| java.lang Shims | Provide Object, String, Integer, System | ✅ Stage 2 |
+| Bytecode Interpretation | Execute Dalvik bytecode (28 opcodes implemented) | ✅ Stage 2 |
+| java.lang Shims | Provide Object, String, StringBuilder, System, Class | ✅ Stage 2 |
 | Android API Shims | Provide Activity, Context, TextView, View, Bundle | ✅ Stage 3 |
-| UI Bridge | Map Android Views to ArkUI components | 🚧 Stage 4 |
-| OpenHarmony Host | Wrap as UIAbility with lifecycle bridging | 🚧 Stage 4 |
+| UI Bridge | Map Android Views to ArkUI components | ✅ Stage 4 |
+| OpenHarmony Host | Wrap as UIAbility with lifecycle bridging | ✅ Stage 5 |
 
 ### Non-Functional Requirements
 
@@ -139,19 +139,17 @@ Landroid/view/View; → Ljava/lang/Object;
 
 **Location:** `src/interpreter/interpreter.ts`, `src/interpreter/opcodes.ts`
 
-### Opcodes Implemented (26)
+### Opcodes Implemented (28)
 
 | Category | Opcodes | Count |
 |----------|---------|-------|
-| **Move** | move, move-result, move-exception | 3 |
-| **Return** | return-void, return, return-object | 3 |
-| **Const** | const/4, const/16, const-string | 3 |
-| **Arithmetic** | add-int, sub-int, mul-int, div-int, rem-int | 5 |
-| **Comparison** | cmp-long | 1 |
-| **Conditionals** | if-eq, if-ne, if-lt, if-ge, if-gt, if-le, if-eqz, if-nez | 8 |
+| **NOP** | nop | 1 |
+| **Move** | move, move-object, move-result, move-result-object | 4 |
+| **Return** | return-void, return, return-object, return-wide | 4 |
+| **Const** | const/4, const/16, const, const-string, const-class | 5 |
+| **Instance** | instance-of, new-instance | 2 |
 | **Invocation** | invoke-direct, invoke-virtual, invoke-static, invoke-super | 4 |
-| **Fields** | iget, iput, sget, sput | (not yet implemented) |
-| **Arrays** | new-array, aput, aget | (not yet implemented) |
+| **Fields** | iget, iget-object, iput, iput-object, sget, sget-object, sput, sput-object | 8 |
 
 ### Execution Model
 ```typescript
@@ -256,7 +254,7 @@ const childrenMap = new Map<number, number[]>();
 
 ## Component 7: UI Bridge (Stage 4)
 
-**Location:** `src/bridge/` (to be created)
+**Location:** `src/bridge/`
 
 ### ViewNode Structure
 ```typescript
@@ -292,9 +290,9 @@ class StateManager {
 
 ---
 
-## Component 8: OpenHarmony Host (Stage 4)
+## Component 8: OpenHarmony Host (Stage 5)
 
-**Location:** `src/oh/` (to be created)
+**Location:** `src/oh/`
 
 ### CraftAbility (UIAbility)
 ```typescript
@@ -347,37 +345,51 @@ struct CraftPage {
 
 | Component | Test File | Tests | Coverage |
 |-----------|-----------|-------|----------|
-| APK Parser | `test/unit/parser/apk_parser.test.ts` | 12 | Extract, parse manifest |
-| DEX Parser | `test/unit/parser/dex_parser.test.ts` | 46 | Parse all DEX structures |
-| Heap | `test/unit/interpreter/heap.test.ts` | 14 | Allocate, fields, strings |
-| Frame | `test/unit/interpreter/frame.test.ts` | 8 | Locals, stack, calls |
-| Opcodes | `test/unit/interpreter/opcodes/*.test.ts` | 53 | All 26 opcodes |
-| ShimRegistry | `test/unit/interpreter/shim_registry.test.ts` | 7 | Register, invoke |
-| java.lang Shims | `test/unit/shim/java_lang.test.ts` | 33 | Object, String, Integer, etc. |
-| Android Shims | `test/unit/shim/android_api.test.ts` | 32 | All 7 Android classes |
-| **Total Unit** | — | **205** | — |
+| APK Parser | `test/unit/apk_parser.test.ts` | 10 | Extract, parse manifest |
+| DEX Parser | `test/unit/dex_parser.test.ts` | 12 | Parse all DEX structures |
+| Utils | `test/unit/utils.test.ts` | 23 | LEB128, MUTF-8, logging |
+| Errors | `test/unit/errors.test.ts` | 5 | Error classes |
+| Heap | `test/unit/interpreter/heap.test.ts` | 19 | Allocate, fields, strings |
+| Frame | `test/unit/interpreter/frame.test.ts` | 10 | Locals, stack, calls |
+| Opcodes | `test/unit/interpreter/opcodes.test.ts` | 27 | All 28 opcodes |
+| Interpreter | `test/unit/interpreter/interpreter.test.ts` | 6 | Main execution loop |
+| ClassLoader | `test/unit/interpreter/class_loader.test.ts` | 11 | Class/method resolution |
+| ShimRegistry | `test/unit/interpreter/shim_registry.test.ts` | 6 | Register, invoke |
+| java.lang Shims | `test/unit/shim/java_lang.test.ts` | 31 | Object, String, StringBuilder, etc. |
+| Android Shims | `test/unit/shim/android_api.test.ts` | 29 | All 7 Android classes |
+| UIBridge | `test/unit/bridge/ui_bridge.test.ts` | 17 | View mapping |
+| StateManager | `test/unit/bridge/state_manager.test.ts` | 17 | Reactive state |
+| LifecycleBridge | `test/unit/bridge/lifecycle_bridge.test.ts` | 13 | Lifecycle mapping |
+| **Total Unit** | — | **236** | — |
 
 ### Integration Test Coverage
 
 | Scenario | Test File | Tests | Coverage |
 |----------|-----------|-------|----------|
-| Arithmetic | `test/integration/interpreter/arithmetic.test.ts` | 1 | End-to-end calculation |
-| Conditionals | `test/integration/interpreter/conditionals.test.ts` | 1 | Branching logic |
-| Hello World | `test/integration/interpreter/hello_world.test.ts` | 1 | Full Hello World bytecode |
+| APK Parsing | `test/integration/apk_parsing.test.ts` | 8 | End-to-end APK loading |
+| Simple Method | `test/integration/interpreter/simple_method.test.ts` | 1 | Basic method execution |
+| Method Calls | `test/integration/interpreter/method_calls.test.ts` | 1 | Method invocation |
+| Object Creation | `test/integration/interpreter/object_creation.test.ts` | 1 | Object allocation |
+| Field Access | `test/integration/interpreter/field_access.test.ts` | 1 | Field get/set |
+| Static Method | `test/integration/interpreter/static_method.test.ts` | 1 | Static invocation |
+| Static Field | `test/integration/interpreter/static_field.test.ts` | 1 | Static field access |
+| Super Call | `test/integration/interpreter/super_call.test.ts` | 1 | Super method invocation |
+| StringBuilder | `test/integration/interpreter/string_builder.test.ts` | 1 | String building |
 | Activity Lifecycle | `test/integration/android/activity_lifecycle.test.ts` | 6 | onCreate → TextView → setContentView |
-| **Total Integration** | — | **9** | — |
+| UI Integration | `test/integration/bridge/ui_integration.test.ts` | 8 | UI Bridge integration |
+| **Total Integration** | — | **30** | — |
 
-**Total: 214 tests across 22 test suites**
+**Total: 266 tests across 26 test suites**
 
 ---
 
 ## Quality Metrics
 
-### Current Status (Post-Stage 3)
+### Current Status (Post-Stage 5)
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| Test Pass Rate | 100% | 208/208 | ✅ |
+| Test Pass Rate | 100% | 266/266 | ✅ |
 | TypeScript Errors | 0 | 0 | ✅ |
 | Regression Rate | 0% | 0% | ✅ |
 | Code Coverage | >80% | ~85% | ✅ |
@@ -474,12 +486,12 @@ struct CraftPage {
 
 ## References
 
-- **Full Detailed Spec:** [CRAFT_SPECIFICATION.md](../CRAFT_SPECIFICATION.md) - Comprehensive 1400+ line specification
+- **Full Detailed Spec:** [CRAFT_SPECIFICATION.md](CRAFT_SPECIFICATION.md) - Comprehensive 1400+ line specification
 - **Architecture Overview:** [architecture.md](architecture.md) - System design and data flow
 - **Implementation Plan:** [implementation_plan.md](implementation_plan.md) - Stage-by-stage roadmap
 
 ---
 
-**Status:** Stages 1-3 Complete | Stage 4 In Progress
-**Last Updated:** 2026-02-12
-**Version:** 1.1.0
+**Status:** Stages 1-5 Code Complete | Awaiting APK recompilation & device testing
+**Last Updated:** 2026-02-17
+**Version:** 0.1.0

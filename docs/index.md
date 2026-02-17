@@ -24,7 +24,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 | **Stage 2** | Bytecode Interpreter | [Plan](stages/stage_2_plan.md) | [Results](stages/stage_2_results.md) | ✅ Complete (115 tests) |
 | **Stage 3** | Android API Shims | [Plan](stages/stage_3_plan.md) | [Results](stages/stage_3_results.md) | ✅ Complete (35 tests) |
 | **Stage 4** | UI Bridge to ArkUI | [Plan](stages/stage_4_plan.md) | [Results](stages/stage_4_complete.md) | ✅ Complete (55 tests) |
-| **Stage 5** | OpenHarmony Host | [Plan](stages/stage_5_plan.md) | [Status](../STAGE_5_STATUS.md) | ✅ Code Complete |
+| **Stage 5** | OpenHarmony Host | [Plan](stages/stage_5_plan.md) | [Status](STAGE_5_STATUS.md) | ✅ Code Complete |
 
 **Current Status:** 266 tests passing | 0 TypeScript errors | 0 regressions | Code 100% Complete
 **Deployment:** ✅ HAP buildable | ⚠️ Needs APK recompilation & device testing - [Details](STAGE_5_STATUS.md)
@@ -35,12 +35,10 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 
 ### Technical Specifications
 - [📐 Component Specifications](specification.md) - Detailed specs for all CRAFT components
-- [🧪 Testing Strategy](testing/test_strategy.md) - Test coverage approach and fixtures
+- [📘 CRAFT Specification](CRAFT_SPECIFICATION.md) - Comprehensive 1400+ line detailed spec
 
-### Extension Guides (Future)
-- [➕ Adding View Components](extensions/adding_views.md) - Extend UI component support
-- [⚙️ Adding Opcodes](extensions/adding_opcodes.md) - Implement additional Dalvik opcodes
-- [🔌 Adding API Shims](extensions/adding_apis.md) - Expand Android API coverage
+### Extension Guides
+- See [specification.md - Extension Guidelines](specification.md#extension-guidelines) for adding views, opcodes, and API classes
 
 ---
 
@@ -49,7 +47,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 ### Implementation Codebase
 - **Location:** `/mnt/d/craft/craft/`
 - **Main Entry:** `src/index.ts` - CRAFT runtime entry point
-- **Tests:** `test/` - 208 comprehensive tests across all stages
+- **Tests:** `test/` - 266 comprehensive tests across all stages
 
 ### For AI Agents (Claude Code)
 - [🤖 CLAUDE.md](../craft/CLAUDE.md) - Project context, architecture, and current stage
@@ -61,18 +59,18 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 - **File naming:** `snake_case` for all markdown files
 - **Stage docs:** `stage_N_plan.md` (planning) → `stage_N_results.md` (completion report)
 - **Status icons:** ✅ Complete | 🚧 In Progress | ⏳ Planned
-- **Test counts:** Always show breakdown by stage (e.g., "208 tests: 58 + 115 + 35")
+- **Test counts:** Always show breakdown by stage (e.g., "266 tests: 58 + 118 + 35 + 55")
 
 ---
 
 ## Navigation Tips
 
 - **New to CRAFT?** Start with [Project Overview](../README.md) → [Requirements](requirements.md) → [Architecture](architecture.md)
-- **Implementing Stage 4?** Read [Stage 4 Plan](stages/stage_4_plan.md) → [Implementation Plan](implementation_plan.md) sections 7-8
-- **Understanding current state?** Check [Stage 3 Results](stages/stage_3_results.md) for latest completion status
-- **Need AI context?** Consult [CLAUDE.md](../craft/CLAUDE.md) for full project history
+- **Deploying?** Read [Stage 5 Status](STAGE_5_STATUS.md) → [Deployment Guide](deployment_guide.md)
+- **Understanding current state?** Check [Stage 5 Final Summary](stages/stage_5_final_summary.md) for latest status
+- **Need AI context?** Consult [CLAUDE.md](../CLAUDE.md) for full project history
 
 ---
 
-**Last Updated:** 2026-02-12
-**Version:** 1.1.0 (Post-Stage 3 reorganization)
+**Last Updated:** 2026-02-17
+**Version:** 0.1.0

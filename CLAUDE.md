@@ -17,10 +17,10 @@ Stage 5: Integration & Polish ✅ Code Complete | ⚠️ Needs APK + Device
 
 ## 📚 Documentation (Reorganized 2026-02-12)
 
-**All documentation now centralized in `/mnt/d/craft/docs/` with consistent snake_case naming:**
+**All documentation now centralized in `docs/` with consistent snake_case naming:**
 
-- **Main entry:** `/mnt/d/craft/README.md` - Project overview
-- **Documentation hub:** `/mnt/d/craft/docs/index.md` - Complete navigation
+- **Main entry:** `README.md` - Project overview
+- **Documentation hub:** `docs/index.md` - Complete navigation
 - **Requirements:** `docs/requirements.md` - Goals, constraints, success criteria
 - **Architecture:** `docs/architecture.md` - System design, data flow
 - **Specification:** `docs/specification.md` - Component specs
@@ -73,7 +73,7 @@ src/
 │   ├── class_loader.ts    # Class and method resolution
 │   ├── method_resolver.ts # Virtual dispatch with caching
 │   ├── opcode_table.ts    # Opcode dispatch table
-│   ├── opcodes.ts         # 27 essential opcode implementations
+│   ├── opcodes.ts         # 28 essential opcode implementations
 │   ├── shim_registry.ts   # Shim method registry
 │   ├── shim_init.ts       # Shim initialization (java.lang + android.*)
 │   ├── types.ts           # Interpreter type definitions
@@ -102,11 +102,16 @@ src/
 └── oh/             # OpenHarmony ability (for Stage 5)
 
 tools/
-└── dex_dumper.ts   # CLI tool for DEX inspection
+├── craft_test.ts            # Test runner with component filtering
+├── gen_shim.ts              # Android API shim generator
+├── gen_opcode.ts            # Opcode handler generator
+├── dex_dumper.ts            # DEX file inspector
+├── analyze_apk.ts           # APK requirements analyzer
+└── generate_test_fixtures.ts # Test fixture generator
 
 test/
 ├── fixtures/       # hello_world.apk, .dex, manifest_binary.xml
-├── unit/           # 263 unit tests (58+115+35+55)
+├── unit/           # 266 tests (58+118+35+55)
 │   ├── interpreter/  # heap, frame, opcodes, shim_registry, interpreter
 │   ├── shim/         # java.lang.* and android.* shim tests
 │   └── bridge/       # UIBridge, StateManager, LifecycleBridge tests (Stage 4)
@@ -126,7 +131,7 @@ test/
 | `src/interpreter/interpreter.ts` | Main bytecode execution loop |
 | `src/interpreter/heap.ts` | Object/array/string allocation |
 | `src/interpreter/class_loader.ts` | Class/method/field resolution |
-| `src/interpreter/opcodes.ts` | 27 essential Dalvik opcodes |
+| `src/interpreter/opcodes.ts` | 28 essential Dalvik opcodes |
 | `src/interpreter/shim_registry.ts` | TypeScript shim method dispatch |
 | `src/shim/android/app/activity.ts` | Activity lifecycle shim (+ UIBridge) |
 | `src/shim/android/widget/textview.ts` | TextView shim (+ UIBridge) |
@@ -184,6 +189,6 @@ const result = interp.invoke('Lcom/example/Test;', 'main', '()V', []);
 
 ## Documentation
 
-- `docs/stage1_specification.md` - Detailed file format specs and interfaces
-- `Stage_2.md` - Interpreter implementation plan
-- `Stage_3.md` - Android API shim implementation plan
+- `docs/specification.md` - Component specifications
+- `docs/stages/stage_2_plan.md` - Interpreter implementation plan
+- `docs/stages/stage_3_plan.md` - Android API shim implementation plan

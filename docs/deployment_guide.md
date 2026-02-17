@@ -1,7 +1,7 @@
 # CRAFT Deployment Guide
 
 **Project:** CRAFT (Compatibility Runtime for Android Framework Translation)
-**Version:** 1.0.0-alpha
+**Version:** 0.1.0
 **Last Updated:** 2026-02-13
 
 ---
@@ -627,7 +627,7 @@ For issues or questions:
 
 ---
 
-**Last Updated:** 2026-02-13
-**Tested On:** OpenHarmony 4.0 (Emulator)
+**Last Updated:** 2026-02-17
+**Tested On:** Not yet tested on device/emulator (code complete, awaiting hardware)
 **Status:** Ready for Deployment Testing
 
