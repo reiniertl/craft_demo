@@ -14,9 +14,9 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 | **2** | Bytecode Interpreter & java.lang Shims | ✅ Complete | 118 / 118 |
 | **3** | Android API Shim Layer | ✅ Complete | 35 / 35 |
 | **4** | UI Bridge & OpenHarmony Host | ✅ Complete | 55 / 55 |
-| **5** | Integration & Polish | ✅ Code Complete | 266 / 266 |
+| **5** | Integration & Polish | ✅ Code Complete | 274 / 274 |
 
-**Total:** 266 tests passing | 0 TypeScript errors | 0 regressions | 28 opcodes implemented
+**Total:** 274 tests passing | 0 TypeScript errors | 0 regressions | 28 opcodes implemented
 
 **Stage 5 Status:**
 - ✅ All code implementation complete (EntryAbility.ets, CraftPage.ets, runtime integration)
@@ -99,7 +99,7 @@ Android APK → DEX Parser → Bytecode Interpreter → Android API Shims
 │   │   ├── core/              # Core types & utilities
 │   │   ├── oh/                # OpenHarmony host (EntryAbility, CraftPage)
 │   │   └── runtime.ts         # High-level CRAFT API
-│   ├── test/                  # Test suite (266 tests)
+│   ├── test/                  # Test suite (274 tests)
 │   │   ├── unit/              # Unit tests
 │   │   ├── integration/       # Integration tests
 │   │   └── fixtures/          # Test APKs & data
@@ -205,7 +205,7 @@ npx tsc --noEmit
 ### Testing
 
 ```bash
-# Run all 266 tests
+# Run all 274 tests
 npm test
 
 # Run with coverage
@@ -246,7 +246,7 @@ npm run dex-dump test/fixtures/hello_world.dex      # Inspect DEX
 | Metric | Value |
 |--------|-------|
 | **Stages Complete** | 5 / 5 (Code Complete) |
-| **Tests Passing** | 266 / 266 (100%) |
+| **Tests Passing** | 274 / 274 (100%) |
 | **TypeScript Errors** | 0 |
 | **Regressions** | 0 |
 | **Opcodes Implemented** | 28 |
@@ -350,6 +350,6 @@ MIT
 
 ---
 
-**Status:** 5 of 5 stages code complete | 266 tests passing | Awaiting APK recompilation & device testing
-**Last Updated:** 2026-02-17
+**Status:** 5 of 5 stages code complete | 274 tests passing | APK built & verified | Awaiting OpenHarmony device testing
+**Last Updated:** 2026-02-19
 **Version:** 0.1.0

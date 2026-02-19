@@ -119,11 +119,12 @@ DEX Dumper:  OK
 
 ## Test Fixture Details
 
-### hello_world.apk (1,579 bytes)
-- Package: `com.example.hello`
-- Main Activity: `com.example.hello.MainActivity`
+### hello_world.apk
+- Package: `com.example.helloworld`
+- Main Activity: `com.example.helloworld.MainActivity`
 - Compression: STORE (no compression)
-- Contents: AndroidManifest.xml, classes.dex
+- Contents: AndroidManifest.xml, classes.dex, resources.arsc
+- Built with `build_apk.bat` from `test/fixtures/MainActivity.java`
 
 ### hello_world.dex (433 bytes)
 - Version: 035

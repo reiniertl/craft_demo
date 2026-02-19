@@ -43,11 +43,11 @@ describe('End-to-end APK parsing', () => {
         const apkData = fs.readFileSync(apkPath);
         const parser = new APKParser(silentLogger);
         const contents = parser.parse(new Uint8Array(apkData));
-        
+
         const manifest = ManifestParser.parse(contents.manifest, silentLogger);
 
-        expect(manifest.packageName).toBe('com.example.hello');
-        expect(manifest.mainActivityClass).toBe('com.example.hello.MainActivity');
+        expect(manifest.packageName).toBe('com.example.helloworld');
+        expect(manifest.mainActivityClass).toBe('com.example.helloworld.MainActivity');
     });
 
     test('parses DEX with correct class count', () => {
@@ -60,7 +60,7 @@ describe('End-to-end APK parsing', () => {
         const header = dexParser.parseHeader();
 
         expect(header.classDefsSize).toBe(1);
-        expect(header.methodIdsSize).toBe(4);
+        expect(header.methodIdsSize).toBe(9);
     });
 
     test('finds MainActivity class in DEX', () => {
@@ -71,7 +71,7 @@ describe('End-to-end APK parsing', () => {
         const dexData = contents.dexFiles.get('classes.dex')!;
         const dexParser = new DexParser(dexData, silentLogger);
 
-        const classDef = dexParser.getClassDef('Lcom/example/hello/MainActivity;');
+        const classDef = dexParser.getClassDef('Lcom/example/helloworld/MainActivity;');
         expect(classDef).not.toBeNull();
 
         const classData = dexParser.getClassData(classDef!);
@@ -83,28 +83,28 @@ describe('End-to-end APK parsing', () => {
         const apkData = fs.readFileSync(apkPath);
         const parser = new APKParser(silentLogger);
         const contents = parser.parse(new Uint8Array(apkData));
-        
+
         const dexData = contents.dexFiles.get('classes.dex')!;
         const dexParser = new DexParser(dexData, silentLogger);
 
-        const classDef = dexParser.getClassDef('Lcom/example/hello/MainActivity;');
+        const classDef = dexParser.getClassDef('Lcom/example/helloworld/MainActivity;');
         const classData = dexParser.getClassData(classDef!);
 
         // Check <init> method
         const initMethod = classData.directMethods[0];
         expect(initMethod.codeOff).toBeGreaterThan(0);
-        
+
         const initCode = dexParser.getMethodCode(initMethod.codeOff);
         expect(initCode).not.toBeNull();
-        expect(initCode!.insnsSize).toBe(3);
+        expect(initCode!.insnsSize).toBe(4);
 
         // Check onCreate method
         const onCreateMethod = classData.virtualMethods[0];
         expect(onCreateMethod.codeOff).toBeGreaterThan(0);
-        
+
         const onCreateCode = dexParser.getMethodCode(onCreateMethod.codeOff);
         expect(onCreateCode).not.toBeNull();
-        expect(onCreateCode!.insnsSize).toBe(4);
+        expect(onCreateCode!.insnsSize).toBe(27);
     });
 });
 

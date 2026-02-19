@@ -136,7 +136,7 @@ tools/
 
 test/
 ├── fixtures/       # hello_world.apk, .dex, manifest_binary.xml
-├── unit/           # 266 tests (58+118+35+55)
+├── unit/           # 274 tests (58+118+35+55+8 integration)
 │   ├── interpreter/  # heap, frame, opcodes, shim_registry, interpreter
 │   ├── shim/         # java.lang.* and android.* shim tests
 │   └── bridge/       # UIBridge, StateManager, LifecycleBridge tests (Stage 4)
@@ -208,7 +208,7 @@ const result = interp.invoke('Lcom/example/Test;', 'main', '()V', []);
 
 ## Test Fixtures
 
-- `hello_world.apk` - Package: `com.example.hello`, Main: `MainActivity`
+- `hello_world.apk` - Package: `com.example.helloworld`, Main: `MainActivity`
 - Built with STORE compression (no DEFLATE)
 - Regenerate: `npx ts-node tools/generate_test_fixtures.ts`
 

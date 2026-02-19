@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.helloworld">
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="33" />
     <application android:label="Hello World">
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
