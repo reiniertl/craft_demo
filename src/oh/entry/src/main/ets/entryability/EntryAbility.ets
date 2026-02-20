@@ -11,9 +11,12 @@ const TAG = 'CRAFT';
 /**
  * CRAFT Entry Ability - Full runtime host for Android APKs
  *
- * Launch via:
+ * Launch with external APK:
  *   hdc shell aa start -a EntryAbility -b com.craft.runtime \
  *     --ps apk_path /data/app/hello_world.apk
+ *
+ * Launch with bundled APK (no parameters needed):
+ *   hdc shell aa start -a EntryAbility -b com.craft.runtime
  *
  * View logs:
  *   hdc hilog -T CRAFT
@@ -21,6 +24,7 @@ const TAG = 'CRAFT';
 export default class CraftAbility extends UIAbility {
     private runtime: CraftRuntime | null = null;
     private apkPath: string = '';
+    private useBundledApk: boolean = false;
     private activityRef: number = 0;
 
     onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
@@ -29,10 +33,11 @@ export default class CraftAbility extends UIAbility {
         // Extract APK path from Want parameters
         if (want.parameters && want.parameters['apk_path']) {
             this.apkPath = want.parameters['apk_path'] as string;
-            hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] APK: %{public}s', this.apkPath);
+            this.useBundledApk = false;
+            hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] APK path: %{public}s', this.apkPath);
         } else {
-            hilog.error(DOMAIN, TAG, '[CraftAbility][ERROR] No apk_path provided');
-            this.apkPath = '/data/app/hello_world.apk';  // Default fallback
+            this.useBundledApk = true;
+            hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] No apk_path provided, will use bundled APK');
         }
 
         // Initialize CRAFT runtime
@@ -74,14 +79,21 @@ export default class CraftAbility extends UIAbility {
                 throw new Error('Runtime not initialized');
             }
 
-            // Load APK
+            // Load APK - either from filesystem or bundled rawfile
             hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Loading APK...');
-            await this.runtime.loadAPKFromPath(this.apkPath);
-            hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] APK loaded successfully');
+            if (this.useBundledApk) {
+                const rawData = this.context.resourceManager.getRawFileContentSync('hello_world.apk');
+                const apkData = new Uint8Array(rawData.buffer);
+                this.runtime.loadAPK(apkData);
+                hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Bundled APK loaded (%{public}d bytes)', apkData.length);
+            } else {
+                await this.runtime.loadAPKFromPath(this.apkPath);
+                hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] APK loaded from path');
+            }
 
-            // Create Activity instance
+            // Create Activity instance (uses main activity from manifest)
             hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Creating Activity...');
-            this.activityRef = this.runtime.createActivity('com.example.helloworld.MainActivity');
+            this.activityRef = this.runtime.createActivity();
             hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Activity created: ref=%{public}d', this.activityRef);
 
             // Load CraftPage (will subscribe to state updates)

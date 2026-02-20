@@ -1,13 +1,46 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "material": {
+          "certpath": "C:/Users/Bluezone1/.ohos/config/openharmony/default_oh_h5JrLrWxJFb_tKtNLUNrh2JLR29lovqyhZUCN-3A77c=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001B9A0D4EC28C3BA47C76F823EDAD0AC4EC32BE931773CD60FE6B43241EF99CBA94C7D014AA76702C",
+          "profile": "C:/Users/Bluezone1/.ohos/config/openharmony/default_oh_h5JrLrWxJFb_tKtNLUNrh2JLR29lovqyhZUCN-3A77c=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/Bluezone1/.ohos/config/openharmony/default_oh_h5JrLrWxJFb_tKtNLUNrh2JLR29lovqyhZUCN-3A77c=.p12",
+          "storePassword": "0000001B6E69E83414B18E6704AF9979889DABF10A65E7D2612378E13810B10B43C45756C506ECB1294259"
+        }
+      },
+      {
+        "name": "charlotte",
+        "material": {
+          "certpath": "",
+          "keyAlias": "",
+          "keyPassword": "",
+          "profile": "",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "",
+          "storePassword": ""
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",
         "signingConfig": "default",
-        "compileSdkVersion": 21,
+        "compileSdkVersion": 12,
         "compatibleSdkVersion": 12,
-        "runtimeOS": "OpenHarmony"
+        "runtimeOS": "OpenHarmony",
+        "targetSdkVersion": 12
+      },
+      {
+        "name": "charlotte",
+        "signingConfig": "charlotte",
+        "compileSdkVersion": 12,
+        "compatibleSdkVersion": 12,
+        "runtimeOS": "HarmonyOS"
       }
     ],
     "buildModeSet": [
@@ -28,6 +61,12 @@
           "name": "default",
           "applyToProducts": [
             "default"
+          ]
+        },
+        {
+          "name": "charlotte",
+          "applyToProducts": [
+            "charlotte"
           ]
         }
       ]

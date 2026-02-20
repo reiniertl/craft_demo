@@ -5,6 +5,10 @@
     {
       "name": "default",
       "runtimeOS": "OpenHarmony"
+    },
+    {
+      "name": "charlotte",
+      "runtimeOS": "HarmonyOS"
     }
   ]
 }

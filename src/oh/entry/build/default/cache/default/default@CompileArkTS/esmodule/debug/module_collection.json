@@ -1,0 +1,9 @@
+{
+  "entry\\src\\main\\ets\\entryability\\EntryAbility.ets": [
+    "ohos.app.ability.UIAbility",
+    "ohos.hilog"
+  ],
+  "entry\\src\\main\\ets\\pages\\CraftPage.ets": [
+    "ohos.hilog"
+  ]
+}

@@ -333,4 +333,4 @@ class CraftPage extends ViewPU {
         return "CraftPage";
     }
 }
-registerNamedRoute(() => new CraftPage(undefined, {}), "", { bundleName: "com.craft.runtime", moduleName: "entry", pagePath: "pages/CraftPage", pageFullPath: "entry/src/main/ets/pages/CraftPage", integratedHsp: "false", moduleType: "followWithHap" });
+registerNamedRoute(() => new CraftPage(undefined, {}), "", { bundleName: "com.craft.runtime", moduleName: "entry", pagePath: "pages/CraftPage", pageFullPath: "entry/src/main/ets/pages/CraftPage", integratedHsp: "false" });

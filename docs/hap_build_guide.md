@@ -1,6 +1,6 @@
 # HAP Build Guide for CRAFT
 
-**Purpose:** Build and deploy the CRAFT runtime as an OpenHarmony HAP
+**Purpose:** Build and deploy the CRAFT runtime as an OpenHarmony or HarmonyOS HAP
 
 **Status:** Build verified working (480KB unsigned HAP)
 
@@ -8,12 +8,19 @@
 
 ## Overview
 
-The CRAFT HAP bundles the full runtime stack (parser, interpreter, shim layer, UI bridge) into an OpenHarmony application package. Once installed on a device, it can load and execute Android APKs.
+The CRAFT HAP bundles the full runtime stack (parser, interpreter, shim layer, UI bridge) into an OpenHarmony/HarmonyOS application package. The Hello World APK is bundled as a rawfile resource, so the HAP works out of the box with no manual APK push needed.
 
 ```
-CRAFT Source (TypeScript)  →  HAP Bundle  →  OpenHarmony Device
-     (src/)                   (hvigorw)        (hdc install)
+CRAFT Source (TypeScript)  →  HAP Bundle  →  Device
+     (src/)                   (hvigorw)      (hdc install)
 ```
+
+### Build Products
+
+| Product | runtimeOS | Target Device | SDK Required |
+|---------|-----------|---------------|--------------|
+| `default` | OpenHarmony | OH emulator / devices | OpenHarmony SDK |
+| `charlotte` | HarmonyOS | Huawei Mate 60 (Kirin) | HarmonyOS SDK |
 
 ---
 
@@ -22,10 +29,11 @@ CRAFT Source (TypeScript)  →  HAP Bundle  →  OpenHarmony Device
 | Requirement | Version | Purpose |
 |-------------|---------|---------|
 | **DevEco Studio** | 5.0+ (hvigor 6.21.1) | IDE, hvigorw build tool, ohpm package manager |
-| **OpenHarmony SDK** | API 21 (bundled with DevEco) | Target platform SDK |
+| **OpenHarmony SDK** | API 12+ (bundled with DevEco) | Target platform SDK (default product) |
+| **HarmonyOS SDK** | API 12+ | Target platform SDK (charlotte product) |
 | **Node.js** | 18+ | TypeScript compilation |
 | **Java** | 17+ (bundled with DevEco as JBR) | HAP packaging |
-| **OpenHarmony device or emulator** | OH 5.0+ | Runtime target |
+| **Device or emulator** | OH 5.0+ / HarmonyOS 4.0+ | Runtime target |
 
 ### Verify DevEco installation
 
@@ -50,18 +58,23 @@ dir "C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin"
 A batch script automates the entire HAP build. Edit the configuration block at the top of `build_hap.bat` to match your system, then run:
 
 ```cmd
+:: OpenHarmony (default product)
 build_hap.bat
+
+:: HarmonyOS / Charlotte (Mate 60)
+build_hap.bat charlotte
 ```
 
-The script performs 7 steps automatically:
+The script performs 8 steps automatically:
 
 1. Sync CRAFT TypeScript modules into the OH project tree
-2. Apply ArkTS compatibility patches (removes `fs`, `TextDecoder`, `any` types)
-3. Create placeholder icon resources if missing
-4. Validate configuration files (page routing, bundle name)
-5. Set up SDK versioned directory structure (symlinks to DevEco SDK)
-6. Install OH dependencies (`ohpm install`)
-7. Build HAP (`hvigorw assembleHap`)
+2. Bundle hello_world.apk into rawfile resources
+3. Apply ArkTS compatibility patches (removes `fs`, `TextDecoder`, `any` types)
+4. Create placeholder icon resources if missing
+5. Validate configuration files (page routing, bundle name)
+6. Set up SDK versioned directory structure (symlinks to DevEco SDK)
+7. Install OH dependencies (`ohpm install`)
+8. Build HAP (`hvigorw assembleHap -p product=<name>`)
 
 ### Configuration
 
@@ -80,10 +93,14 @@ The script auto-detects `ohpm` and `hvigorw` from PATH first, falling back to th
 The built HAP will be at:
 
 ```
+:: Default (OpenHarmony)
 src\oh\entry\build\default\outputs\default\entry-default-unsigned.hap
+
+:: Charlotte (HarmonyOS)
+src\oh\entry\build\charlotte\outputs\charlotte\entry-charlotte-signed.hap
 ```
 
-> **Note:** The HAP is unsigned. Configure signing in `build-profile.json5` or DevEco Studio for a signed build.
+> **Note:** The default product HAP may be unsigned. Configure signing in `build-profile.json5` or DevEco Studio for a signed build. The charlotte product requires signing configuration before deployment to a real device.
 
 ---
 
@@ -92,8 +109,9 @@ src\oh\entry\build\default\outputs\default\entry-default-unsigned.hap
 1. Open `src/oh/` as a project in DevEco Studio.
 2. Wait for the IDE to sync dependencies (ohpm install runs automatically).
 3. If prompted about missing SDK versions, install them via **File > Settings > SDK**.
-4. Select **Build > Build Hap(s)/APP(s) > Build Hap(s)**.
-5. Find the output HAP in `entry/build/default/outputs/default/`.
+4. **Select the product** in the toolbar: `default` (OpenHarmony) or `charlotte` (HarmonyOS).
+5. Select **Build > Build Hap(s)/APP(s) > Build Hap(s)**.
+6. Find the output HAP in `entry/build/<product>/outputs/<product>/`.
 
 ---
 
@@ -130,7 +148,14 @@ copy /y src\runtime.ts %CRAFT_ETS%\
 copy /y src\index.ts %CRAFT_ETS%\
 ```
 
-### Step 3: Apply ArkTS patches
+### Step 3: Bundle hello_world.apk
+
+```cmd
+mkdir src\oh\entry\src\main\resources\rawfile 2>nul
+copy /y test\fixtures\hello_world.apk src\oh\entry\src\main\resources\rawfile\
+```
+
+### Step 4: Apply ArkTS patches
 
 ArkTS has stricter requirements than standard TypeScript. The following manual patches are needed after syncing:
 
@@ -154,7 +179,7 @@ ArkTS has stricter requirements than standard TypeScript. The following manual p
 
 > The automated `build_hap.bat` applies all these patches automatically.
 
-### Step 4: Verify page routing
+### Step 5: Verify page routing
 
 Ensure `src/oh/entry/src/main/resources/base/profile/main_pages.json` includes CraftPage:
 
@@ -167,23 +192,74 @@ Ensure `src/oh/entry/src/main/resources/base/profile/main_pages.json` includes C
 }
 ```
 
-### Step 5: Install dependencies
+### Step 6: Install dependencies
 
 ```cmd
 cd D:\craft\craft\src\oh
 ohpm install
 ```
 
-### Step 6: Build
+### Step 7: Build
 
 ```cmd
 cd D:\craft\craft\src\oh
-node "C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.js" assembleHap --no-daemon
+
+:: Default (OpenHarmony)
+node "C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.js" assembleHap -p product=default --no-daemon
+
+:: Charlotte (HarmonyOS)
+node "C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.js" assembleHap -p product=charlotte --no-daemon
 ```
 
-Output:
+---
+
+## Charlotte / HarmonyOS Build (Mate 60)
+
+The `charlotte` product targets HarmonyOS devices like the Huawei Mate 60 (Kirin 9000S / "Charlotte" chipset).
+
+### Requirements
+
+- **HarmonyOS SDK** (API 12+) installed in DevEco Studio
+- **Signing configuration**: Real device deployment requires a valid signing config. Configure in DevEco Studio:
+  1. **File > Project Structure > Signing Configs**
+  2. Select the `charlotte` signing config
+  3. Configure certificate, profile, and keystore paths
+
+### Build
+
+```cmd
+:: Automated
+build_hap.bat charlotte
+
+:: Or in DevEco Studio: select "charlotte" product, Build > Build Hap(s)
 ```
-src\oh\entry\build\default\outputs\default\entry-default-unsigned.hap
+
+### Key differences from default
+
+| Aspect | default | charlotte |
+|--------|---------|-----------|
+| runtimeOS | OpenHarmony | HarmonyOS |
+| SDK | OpenHarmony SDK | HarmonyOS SDK |
+| deviceTypes | default (emulator) | default, phone |
+| Signing | OpenHarmony debug cert | HarmonyOS signing required |
+
+### Signing config placeholder
+
+The `charlotte` signing config in `build-profile.json5` has empty paths. Fill them in after configuring signing in DevEco Studio:
+
+```json5
+{
+  "name": "charlotte",
+  "material": {
+    "certpath": "<your-cert-path>",
+    "keyAlias": "<your-key-alias>",
+    "keyPassword": "<encrypted>",
+    "profile": "<your-profile-path>",
+    "signAlg": "SHA256withECDSA",
+    "storeFile": "<your-keystore-path>",
+    "storePassword": "<encrypted>"
+  }
+}
 ```
 
 ---
@@ -211,32 +287,34 @@ sdk.dir=C:/Users/<username>/OpenHarmony/Sdk
 
 ## Deployment
 
-### Connect the device
+### OpenHarmony (default product)
 
 ```cmd
-:: Verify device is connected
+:: Connect device
 hdc list targets
-```
 
-### Install the HAP
-
-```cmd
+:: Install HAP
 hdc install src\oh\entry\build\default\outputs\default\entry-default-unsigned.hap
+
+:: Launch (bundled APK loads automatically)
+hdc shell aa start -a EntryAbility -b com.craft.runtime
+
+:: Or launch with a custom APK
+hdc file send my_app.apk /data/app/my_app.apk
+hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/my_app.apk
 ```
 
-Expected output: `install bundle successfully.`
-
-### Push the Hello World APK
+### HarmonyOS / Charlotte (Mate 60)
 
 ```cmd
-hdc shell mkdir -p /data/app
-hdc file send test\fixtures\hello_world.apk /data/app/hello_world.apk
-```
+:: Connect Mate 60
+hdc list targets
 
-### Launch
+:: Install HAP (must be signed)
+hdc install entry-charlotte-signed.hap
 
-```cmd
-hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/hello_world.apk
+:: Launch (Hello World APK is bundled - no push needed)
+hdc shell aa start -a EntryAbility -b com.craft.runtime
 ```
 
 ### Verify
@@ -296,13 +374,16 @@ src/oh/
 │       │       ├── interpreter/
 │       │       ├── shim/
 │       │       └── bridge/
-│       └── resources/base/
-│           ├── element/                   # Strings, colors
-│           ├── media/icon.png             # Ability icon
-│           └── profile/main_pages.json    # Page routing
+│       └── resources/
+│           ├── base/
+│           │   ├── element/               # Strings, colors
+│           │   ├── media/icon.png         # Ability icon
+│           │   └── profile/main_pages.json # Page routing
+│           └── rawfile/
+│               └── hello_world.apk        # Bundled demo APK
 ├── hvigor/
 │   └── hvigor-config.json5               # Hvigor config (6.21.1 deps)
-├── build-profile.json5                    # App build config (SDK 21)
+├── build-profile.json5                    # App build config (default + charlotte)
 ├── hvigorfile.ts                          # Root build (appTasks)
 ├── local.properties                       # SDK path
 └── oh-package.json5                       # Root package
@@ -314,11 +395,11 @@ src/oh/
 
 | File | Key Settings |
 |------|-------------|
-| `build-profile.json5` | `compileSdkVersion: 21`, `compatibleSdkVersion: 12`, `runtimeOS: "OpenHarmony"` |
+| `build-profile.json5` | Products: `default` (OpenHarmony) + `charlotte` (HarmonyOS), `compileSdkVersion: 12` |
+| `entry/build-profile.json5` | Targets: `default` (OpenHarmony) + `charlotte` (HarmonyOS), `apiType: "stageMode"` |
+| `entry/src/main/module.json5` | `deviceTypes: ["default", "phone"]` |
 | `hvigor/hvigor-config.json5` | `modelVersion: "5.0.0"`, `@ohos/hvigor: "6.21.1"`, `@ohos/hvigor-ohos-plugin: "6.21.1"` |
 | `oh-package.json5` | `modelVersion: "5.0.0"` (required by hvigor) |
-| `entry/build-profile.json5` | `apiType: "stageMode"`, `runtimeOS: "OpenHarmony"` |
-| `entry/src/main/module.json5` | `deviceTypes: ["default"]` (not "phone" for OpenHarmony) |
 | `local.properties` | `sdk.dir=C:/Users/<username>/OpenHarmony/Sdk` |
 
 ---
@@ -340,10 +421,12 @@ src/oh/
 | `Cannot find module '@ohos/hvigor-ohos-plugin'` | Run `ohpm install` in `src/oh/` or open in DevEco Studio |
 | `ohpm not found` | Add DevEco tools to PATH or edit `DEVECO_HOME` in `build_hap.bat` |
 | `The project needs to be upgraded` | Missing `modelVersion: "5.0.0"` in `oh-package.json5` files |
-| `Please configure compileSdkVersion` | Add `compileSdkVersion: 21` to `build-profile.json5` |
-| `deviceType 'phone' not supported` | Change `deviceTypes` to `["default"]` in `module.json5` |
+| `Please configure compileSdkVersion` | Add `compileSdkVersion: 12` to `build-profile.json5` |
+| `deviceType 'phone' not supported` | OpenHarmony SDK doesn't support "phone" — build with `default` product or use HarmonyOS SDK |
 | Missing `$media:icon` resource | Run `build_hap.bat` (creates placeholders) or add a 48x48 PNG |
 | `Cannot find CraftPage` | Verify `main_pages.json` includes `"pages/CraftPage"` |
+| Charlotte build fails | Charlotte requires HarmonyOS SDK. This machine may only have OpenHarmony SDK |
+| Charlotte signing error | Configure signing in DevEco Studio for the `charlotte` signing config |
 
 ### Device connection
 
@@ -361,27 +444,25 @@ src/oh/
 | "Loading..." stays forever | Check `EntryAbility` logs -- APK load may have failed |
 | "Error" state shown | Check `hdc hilog -T CRAFT` for the error message |
 | "Runtime not available" | `AppStorage` link failed -- check `EntryAbility` logs |
-| APK not found on device | Re-push: `hdc file send test\fixtures\hello_world.apk /data/app/hello_world.apk` |
 
 ---
 
 ## Quick Reference
 
 ```cmd
-:: === Build ===
+:: === Build (OpenHarmony) ===
 build_hap.bat
 
-:: === Or manual ===
-set "JAVA_HOME=C:\Program Files\Huawei\DevEco Studio\jbr"
-set "PATH=%JAVA_HOME%\bin;%PATH%"
-cd src\oh && ohpm install && node "%DEVECO_HOME%\tools\hvigor\bin\hvigorw.js" assembleHap --no-daemon
+:: === Build (Charlotte / HarmonyOS / Mate 60) ===
+build_hap.bat charlotte
 
-:: === Deploy ===
+:: === Deploy (OpenHarmony) ===
 hdc install src\oh\entry\build\default\outputs\default\entry-default-unsigned.hap
-hdc file send test\fixtures\hello_world.apk /data/app/hello_world.apk
+hdc shell aa start -a EntryAbility -b com.craft.runtime
 
-:: === Launch ===
-hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/hello_world.apk
+:: === Deploy (Charlotte) ===
+hdc install entry-charlotte-signed.hap
+hdc shell aa start -a EntryAbility -b com.craft.runtime
 
 :: === Logs ===
 hdc hilog -T CRAFT

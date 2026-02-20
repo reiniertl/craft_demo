@@ -2,19 +2,25 @@
 setlocal enabledelayedexpansion
 
 :: ============================================================================
-:: CRAFT - Build HAP for OpenHarmony
+:: CRAFT - Build HAP for OpenHarmony / HarmonyOS
 :: ============================================================================
-:: Usage: build_hap.bat
-:: Output: src\oh\entry\build\default\outputs\default\entry-default-unsigned.hap
+:: Usage: build_hap.bat [product]
+::   build_hap.bat              Build default product (OpenHarmony)
+::   build_hap.bat charlotte    Build charlotte product (HarmonyOS, Mate 60)
+::
+:: Output: src\oh\entry\build\<product>\outputs\<product>\entry-<product>-*.hap
 ::
 :: Requirements:
-::   - DevEco Studio (with OpenHarmony SDK API 21+)
+::   - DevEco Studio (with OpenHarmony or HarmonyOS SDK)
 ::   - Node.js 18+
 ::
-:: The HAP bundles the CRAFT runtime which loads and executes Android APKs
-:: on OpenHarmony devices using the CRAFT interpreter, shim layer, and
-:: ArkUI bridge.
+:: The HAP bundles the CRAFT runtime which loads and executes Android APKs.
+:: The hello_world.apk is bundled as a rawfile resource for out-of-box demo.
 :: ============================================================================
+
+:: --- Product selection (first argument, default = "default") ----------------
+set "PRODUCT=default"
+if not "%~1"=="" set "PRODUCT=%~1"
 
 :: --- Configuration (edit these to match your system) ------------------------
 set DEVECO_HOME=C:\Program Files\Huawei\DevEco Studio
@@ -111,6 +117,7 @@ if %errorlevel% equ 0 (
 echo.
 echo ============================================================
 echo  CRAFT HAP Builder
+echo  Product: %PRODUCT%
 echo ============================================================
 echo.
 
@@ -152,7 +159,7 @@ if !HVIGORW_NODE! equ 1 (
 echo.
 
 :: --- Step 1: Sync CRAFT modules into OH project ----------------------------
-echo [1/7] Syncing CRAFT modules into OH project...
+echo [1/8] Syncing CRAFT modules into OH project...
 
 set "ETS_CRAFT=%OH_DIR%\entry\src\main\ets\craft"
 
@@ -196,8 +203,21 @@ copy /y "%CRAFT_DIR%\src\index.ts" "%ETS_CRAFT%\" >nul
 
 echo          Synced: core, parser, interpreter, shim, bridge, runtime, index
 
-:: --- Step 2: Apply ArkTS patches -------------------------------------------
-echo [2/7] Applying ArkTS compatibility patches...
+:: --- Step 2: Bundle hello_world.apk into rawfile ----------------------------
+echo [2/8] Bundling hello_world.apk into rawfile resources...
+
+set "RAWFILE_DIR=%OH_DIR%\entry\src\main\resources\rawfile"
+if not exist "%RAWFILE_DIR%" mkdir "%RAWFILE_DIR%"
+
+copy /y "%CRAFT_DIR%\test\fixtures\hello_world.apk" "%RAWFILE_DIR%\hello_world.apk" >nul
+if errorlevel 1 (
+    echo ERROR: Failed to copy hello_world.apk to rawfile resources.
+    goto :fail
+)
+echo          hello_world.apk bundled
+
+:: --- Step 3: Apply ArkTS patches -------------------------------------------
+echo [3/8] Applying ArkTS compatibility patches...
 
 powershell -NoProfile -ExecutionPolicy Bypass -File "%CRAFT_DIR%\tools\patch_arkts.ps1" -CraftEtsDir "%ETS_CRAFT%"
 if errorlevel 1 (
@@ -205,8 +225,8 @@ if errorlevel 1 (
     goto :fail
 )
 
-:: --- Step 3: Create placeholder icons if missing ---------------------------
-echo [3/7] Checking icon resources...
+:: --- Step 4: Create placeholder icons if missing ---------------------------
+echo [4/8] Checking icon resources...
 
 set "APP_MEDIA=%OH_DIR%\AppScope\resources\base\media"
 set "ENTRY_MEDIA=%OH_DIR%\entry\src\main\resources\base\media"
@@ -252,8 +272,8 @@ echo          icon.png exists
 del "%ICON_SCRIPT%" >nul 2>&1
 if %ICONS_CREATED% equ 1 echo          Placeholder icons created
 
-:: --- Step 4: Validate configuration files -----------------------------------
-echo [4/7] Validating configuration...
+:: --- Step 5: Validate configuration files -----------------------------------
+echo [5/8] Validating configuration...
 
 if not exist "%OH_DIR%\hvigor\hvigor-config.json5" (
     echo ERROR: hvigor-config.json5 not found at %OH_DIR%\hvigor\
@@ -274,8 +294,8 @@ if errorlevel 1 (
 )
 echo          app.json5: OK
 
-:: --- Step 5: Ensure SDK directory structure ----------------------------------
-echo [5/7] Checking SDK directory structure...
+:: --- Step 6: Ensure SDK directory structure ----------------------------------
+echo [6/8] Checking SDK directory structure...
 
 if not exist "%SDK_DIR%\21\ets" (
     echo          Setting up SDK versioned directory at %SDK_DIR%\21...
@@ -300,8 +320,8 @@ if not exist "%SDK_DIR%\21\ets" (
 set "SDK_FWD=!SDK_DIR:\=/!"
 powershell -NoProfile -Command "Set-Content -Path '!OH_DIR!\local.properties' -Value 'sdk.dir=!SDK_FWD!'"
 
-:: --- Step 6: Install dependencies -------------------------------------------
-echo [6/7] Installing dependencies (ohpm)...
+:: --- Step 7: Install dependencies -------------------------------------------
+echo [7/8] Installing dependencies (ohpm)...
 
 pushd "%OH_DIR%"
 call "!OHPM_CMD!" install
@@ -314,8 +334,8 @@ popd
 
 echo          Dependencies installed
 
-:: --- Step 7: Build HAP ------------------------------------------------------
-echo [7/7] Building HAP (hvigorw assembleHap)...
+:: --- Step 8: Build HAP ------------------------------------------------------
+echo [8/8] Building HAP (hvigorw assembleHap, product=%PRODUCT%)...
 
 :: Stop any running daemon (stale state causes "root node" errors)
 pushd "%OH_DIR%"
@@ -326,37 +346,47 @@ if !HVIGORW_NODE! equ 1 (
 )
 
 if !HVIGORW_NODE! equ 1 (
-    call node "!HVIGORW_CMD!" assembleHap --no-daemon
+    call node "!HVIGORW_CMD!" assembleHap -p product=%PRODUCT% --no-daemon
 ) else (
-    call "!HVIGORW_CMD!" assembleHap --no-daemon
+    call "!HVIGORW_CMD!" assembleHap -p product=%PRODUCT% --no-daemon
 )
 set BUILD_RESULT=%errorlevel%
 popd
 
 if %BUILD_RESULT% neq 0 (
     echo.
-    echo ERROR: hvigorw assembleHap failed.
+    echo ERROR: hvigorw assembleHap failed (product=%PRODUCT%).
     echo.
     echo Troubleshooting:
     echo   1. Open src\oh\ in DevEco Studio and try Build ^> Build Hap(s^)
-    echo   2. Check that OpenHarmony SDK is installed
+    echo   2. Check that the correct SDK is installed (OpenHarmony or HarmonyOS)
     echo   3. Run: "!OHPM_CMD!" install  in src\oh\
     echo   4. Check for ArkTS errors in the ets\ directory
+    if "%PRODUCT%"=="charlotte" (
+        echo   5. Charlotte requires HarmonyOS SDK - this machine may only have OpenHarmony SDK
+        echo   6. Configure signing in build-profile.json5 signingConfigs "charlotte" section
+    )
     goto :fail
 )
 
 :: --- Report success ---------------------------------------------------------
-set "HAP_PATH=%OH_DIR%\entry\build\default\outputs\default\entry-default-signed.hap"
-set "HAP_UNSIGNED=%OH_DIR%\entry\build\default\outputs\default\entry-default-unsigned.hap"
+set "HAP_SIGNED=%OH_DIR%\entry\build\%PRODUCT%\outputs\%PRODUCT%\entry-%PRODUCT%-signed.hap"
+set "HAP_UNSIGNED=%OH_DIR%\entry\build\%PRODUCT%\outputs\%PRODUCT%\entry-%PRODUCT%-unsigned.hap"
+
+:: Also check default output path structure
+if not exist "%HAP_SIGNED%" if not exist "%HAP_UNSIGNED%" (
+    set "HAP_SIGNED=%OH_DIR%\entry\build\default\outputs\default\entry-default-signed.hap"
+    set "HAP_UNSIGNED=%OH_DIR%\entry\build\default\outputs\default\entry-default-unsigned.hap"
+)
 
 echo.
 echo ============================================================
-echo  SUCCESS: CRAFT HAP built
+echo  SUCCESS: CRAFT HAP built (product: %PRODUCT%)
 echo ============================================================
 echo.
 
-if exist "%HAP_PATH%" (
-    echo   Signed HAP: %HAP_PATH%
+if exist "%HAP_SIGNED%" (
+    echo   Signed HAP: %HAP_SIGNED%
 ) else if exist "%HAP_UNSIGNED%" (
     echo   Unsigned HAP: %HAP_UNSIGNED%
     echo   NOTE: No signing config. Configure signing in DevEco Studio
@@ -366,10 +396,22 @@ if exist "%HAP_PATH%" (
 )
 
 echo.
-echo Deploy to device:
-echo   hdc install "%HAP_UNSIGNED%"
-echo   hdc file send test\fixtures\hello_world.apk /data/app/hello_world.apk
-echo   hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/hello_world.apk
+if "%PRODUCT%"=="charlotte" (
+    echo Deploy to Mate 60:
+    echo   hdc install entry-%PRODUCT%-signed.hap
+    echo   hdc shell aa start -a EntryAbility -b com.craft.runtime
+    echo.
+    echo   Hello World APK is bundled - no manual APK push needed.
+) else (
+    echo Deploy to device:
+    echo   hdc install "%HAP_UNSIGNED%"
+    echo   hdc shell aa start -a EntryAbility -b com.craft.runtime
+    echo.
+    echo   Hello World APK is bundled - no manual APK push needed.
+    echo   To load a different APK, push it and pass apk_path:
+    echo     hdc file send my_app.apk /data/app/my_app.apk
+    echo     hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/my_app.apk
+)
 echo.
 echo View logs:
 echo   hdc hilog -T CRAFT
