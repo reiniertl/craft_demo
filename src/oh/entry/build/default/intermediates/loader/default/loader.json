@@ -1,0 +1,22 @@
+{
+  "modulePathMap": {
+    "entry": "D:\\craft\\craft\\src\\oh\\entry"
+  },
+  "compileMode": "esmodule",
+  "projectRootPath": "D:\\craft\\craft\\src\\oh",
+  "nodeModulesPath": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\intermediates\\loader_out\\default\\node_modules",
+  "byteCodeHarInfo": {},
+  "declarationEntry": [],
+  "moduleName": "entry",
+  "hspNameOhmMap": {},
+  "harNameOhmMap": {},
+  "packageManagerType": "ohpm",
+  "compileEntry": [],
+  "otherCompileFiles": [],
+  "dynamicImportLibInfo": {},
+  "routerMap": [],
+  "hspResourcesMap": {},
+  "updateVersionInfo": {},
+  "anBuildOutPut": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\intermediates\\loader_out\\default\\an\\arm64-v8a",
+  "anBuildMode": "type"
+}

@@ -3,7 +3,6 @@
  * Supports STORE compression only (no DEFLATE).
  */
 
-import * as fs from 'fs';
 import { ParseError, NotFoundError } from '../core/errors';
 import { readUint16LE, readUint32LE, defaultLogger, Logger } from '../core/utils';
 
@@ -89,21 +88,30 @@ export class APKParser {
         return { manifest, dexFiles, resources };
     }
 
-    /**
-     * Parse APK from file path.
-     */
-    async parseFile(path: string): Promise<APKContents> {
-        const data = await fs.promises.readFile(path);
-        return this.parse(new Uint8Array(data));
+    private static decodeUtf8(bytes: Uint8Array): string {
+        let result = '';
+        let i = 0;
+        while (i < bytes.length) {
+            const byte = bytes[i];
+            if (byte < 0x80) {
+                result += String.fromCharCode(byte);
+                i++;
+            } else if ((byte & 0xE0) === 0xC0) {
+                result += String.fromCharCode(((byte & 0x1F) << 6) | (bytes[i + 1] & 0x3F));
+                i += 2;
+            } else if ((byte & 0xF0) === 0xE0) {
+                result += String.fromCharCode(((byte & 0x0F) << 12) | ((bytes[i + 1] & 0x3F) << 6) | (bytes[i + 2] & 0x3F));
+                i += 3;
+            } else {
+                const codePoint = ((byte & 0x07) << 18) | ((bytes[i + 1] & 0x3F) << 12) | ((bytes[i + 2] & 0x3F) << 6) | (bytes[i + 3] & 0x3F);
+                const offset = codePoint - 0x10000;
+                result += String.fromCharCode(0xD800 + (offset >> 10), 0xDC00 + (offset & 0x3FF));
+                i += 4;
+            }
+        }
+        return result;
     }
 
-    /**
-     * Parse APK from file path (synchronous).
-     */
-    parseFileSync(path: string): APKContents {
-        const data = fs.readFileSync(path);
-        return this.parse(new Uint8Array(data));
-    }
 
     /**
      * Find the End of Central Directory record.
@@ -161,7 +169,7 @@ export class APKParser {
             const localHeaderOffset = readUint32LE(data, pos + 42);
 
             const fileNameBytes = data.slice(pos + 46, pos + 46 + fileNameLength);
-            const fileName = new TextDecoder('utf-8').decode(fileNameBytes);
+            const fileName = APKParser.decodeUtf8(fileNameBytes);
 
             entries.push({
                 fileName,
@@ -227,10 +235,4 @@ export const parseAPK = (data: Uint8Array, logger?: Logger): APKContents => {
     return new APKParser(logger).parse(data);
 };
 
-export const parseAPKFile = async (path: string, logger?: Logger): Promise<APKContents> => {
-    return new APKParser(logger).parseFile(path);
-};
 
-export const parseAPKFileSync = (path: string, logger?: Logger): APKContents => {
-    return new APKParser(logger).parseFileSync(path);
-};

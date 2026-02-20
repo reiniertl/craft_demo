@@ -158,22 +158,24 @@ struct CraftPage {
         }
     }
 
+    private getViewPropString(view: SerializedView, key: string, fallback: string): string {
+        const val = view.props[key];
+        return (val !== undefined && val !== null) ? String(val) : fallback;
+    }
+
+    private getViewPropNumber(view: SerializedView, key: string, fallback: number): number {
+        const val = view.props[key];
+        return (val !== undefined && val !== null) ? Number(val) : fallback;
+    }
+
     /**
      * Render TextView as ArkUI Text component
      */
     @Builder
     renderTextView(view: SerializedView) {
-        const text = (view.props['text'] as string) || '';
-        const textSize = (view.props['textSize'] as number) || 14;
-        const textColor = (view.props['textColor'] as number) || 0xFF000000;
-
-        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Rendering TextView: text="%{public}s", size=%{public}f',
-                   text, textSize);
-
-        Text(text)
-            .fontSize(textSize)
-            .fontColor(this.intToColor(textColor))
-            .key(view.id)
+        Text(this.getViewPropString(view, 'text', ''))
+            .fontSize(this.getViewPropNumber(view, 'textSize', 14))
+            .fontColor(this.intToColor(this.getViewPropNumber(view, 'textColor', 0xFF000000)))
     }
 
     /**
@@ -186,7 +188,6 @@ struct CraftPage {
                 this.renderView(child);
             }, (child: SerializedView) => child.id)
         }
-        .key(view.id)
     }
 
     /**

@@ -236,7 +236,7 @@ export class ManifestParser {
 
         // Read UTF-8 data
         const bytes = this.data.slice(pos, pos + byteLen);
-        return new TextDecoder('utf-8').decode(bytes);
+        return ManifestParser.decodeUtf8(bytes);
     }
 
     /**
@@ -321,6 +321,30 @@ export class ManifestParser {
     private parseEndElement(offset: number): { name: string } {
         const nameIdx = readInt32LE(this.data, offset + 20);
         return { name: this.getPoolString(nameIdx) };
+    }
+
+    private static decodeUtf8(bytes: Uint8Array): string {
+        let result = '';
+        let i = 0;
+        while (i < bytes.length) {
+            const byte = bytes[i];
+            if (byte < 0x80) {
+                result += String.fromCharCode(byte);
+                i++;
+            } else if ((byte & 0xE0) === 0xC0) {
+                result += String.fromCharCode(((byte & 0x1F) << 6) | (bytes[i + 1] & 0x3F));
+                i += 2;
+            } else if ((byte & 0xF0) === 0xE0) {
+                result += String.fromCharCode(((byte & 0x0F) << 12) | ((bytes[i + 1] & 0x3F) << 6) | (bytes[i + 2] & 0x3F));
+                i += 3;
+            } else {
+                const codePoint = ((byte & 0x07) << 18) | ((bytes[i + 1] & 0x3F) << 12) | ((bytes[i + 2] & 0x3F) << 6) | (bytes[i + 3] & 0x3F);
+                const offset = codePoint - 0x10000;
+                result += String.fromCharCode(0xD800 + (offset >> 10), 0xDC00 + (offset & 0x3FF));
+                i += 4;
+            }
+        }
+        return result;
     }
 
     /**

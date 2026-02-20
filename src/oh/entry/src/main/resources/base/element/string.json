@@ -2,15 +2,15 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "CRAFT APK Parser"
+      "value": "CRAFT Runtime"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "CRAFT Entry Ability for APK parsing"
+      "value": "CRAFT Runtime for Android on OpenHarmony"
     },
     {
       "name": "EntryAbility_label",
-      "value": "CRAFT Parser"
+      "value": "CRAFT"
     }
   ]
 }

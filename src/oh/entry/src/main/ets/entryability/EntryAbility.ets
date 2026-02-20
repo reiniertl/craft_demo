@@ -51,7 +51,7 @@ export default class CraftAbility extends UIAbility {
         // Destroy Activity and cleanup
         if (this.runtime && this.activityRef) {
             try {
-                this.runtime.destroyActivity(this.activityRef);
+                this.runtime.destroyActivity();
                 hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Activity destroyed');
             } catch (error) {
                 const msg = error instanceof Error ? error.message : String(error);
@@ -100,8 +100,9 @@ export default class CraftAbility extends UIAbility {
                 // Now call Activity.onCreate() - this will trigger UI updates
                 hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Calling Activity.onCreate()...');
                 try {
-                    this.runtime!.callActivityLifecycle(this.activityRef, 'onCreate', null);
-                    hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Activity.onCreate() complete');
+                    // createActivity already calls onCreate, just resume
+                    this.runtime!.resumeActivity();
+                    hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Activity resumed');
                 } catch (error) {
                     const msg = error instanceof Error ? error.message : String(error);
                     hilog.error(DOMAIN, TAG, '[CraftAbility][ERROR] onCreate failed: %{public}s', msg);
@@ -124,7 +125,7 @@ export default class CraftAbility extends UIAbility {
         // Resume Activity
         if (this.runtime && this.activityRef) {
             try {
-                this.runtime.resumeActivity(this.activityRef);
+                this.runtime.resumeActivity();
                 hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Activity resumed');
             } catch (error) {
                 const msg = error instanceof Error ? error.message : String(error);
@@ -139,7 +140,7 @@ export default class CraftAbility extends UIAbility {
         // Pause Activity
         if (this.runtime && this.activityRef) {
             try {
-                this.runtime.pauseActivity(this.activityRef);
+                this.runtime.pauseActivity();
                 hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Activity paused');
             } catch (error) {
                 const msg = error instanceof Error ? error.message : String(error);

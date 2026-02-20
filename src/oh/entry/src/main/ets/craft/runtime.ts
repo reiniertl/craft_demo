@@ -56,8 +56,14 @@ export class CraftRuntime {
    * @param apkPath Path to APK file
    */
   async loadAPKFromPath(apkPath: string): Promise<void> {
+        const ohFs = await import('@ohos.file.fs');
+    const file = ohFs.default.openSync(apkPath, ohFs.default.OpenMode.READ_ONLY);
+    const stat = ohFs.default.statSync(apkPath);
+    const buf = new ArrayBuffer(stat.size);
+    ohFs.default.readSync(file.fd, buf);
+    ohFs.default.closeSync(file);
     const parser = new APKParser();
-    const apkContents = await parser.parseFile(apkPath);
+    const apkContents = parser.parse(new Uint8Array(buf));
     this.loadAPKContents(apkContents);
   }
 

@@ -15,7 +15,7 @@ import { Value } from '../core/types';
 export interface ViewNode {
   viewRef: number;              // Heap reference to Android View object
   viewType: string;             // 'TextView', 'ViewGroup', etc.
-  properties: Map<string, any>; // text, textSize, textColor, visibility, etc.
+  properties: Map<string, string | number | boolean>; // text, textSize, textColor, visibility, etc.
   children: ViewNode[];         // Child views (for ViewGroup)
   parent: ViewNode | null;      // Parent view
   arkuiId: string;              // Unique ID for ArkUI component
@@ -72,7 +72,7 @@ export class UIBridge {
    * @param property Property name (e.g., 'text', 'textSize', 'textColor')
    * @param value Property value
    */
-  updateViewProperty(viewRef: number, property: string, value: any): void {
+  updateViewProperty(viewRef: number, property: string, value: string | number | boolean): void {
     const node = this.viewMap.get(viewRef);
     if (!node) {
       // View not registered, ignore

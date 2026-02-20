@@ -1,6 +1,6 @@
 {
   "app": {
-    "bundleName": "com.craft.parser",
+    "bundleName": "com.craft.runtime",
     "vendor": "craft",
     "versionCode": 1000000,
     "versionName": "1.0.0",

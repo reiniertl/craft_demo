@@ -21,9 +21,16 @@
     "apk-onboard": "ts-node tools/apk_onboard.ts",
     "guard": "ts-node tools/regression_guard.ts"
   },
-  "keywords": ["android", "dex", "apk", "openharmony"],
+  "keywords": [
+    "android",
+    "dex",
+    "apk",
+    "openharmony"
+  ],
   "license": "MIT",
   "devDependencies": {
+    "@ohos/hvigor": "^6.21.1",
+    "@ohos/hvigor-ohos-plugin": "^6.21.1",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.11.0",
     "jest": "^29.7.0",

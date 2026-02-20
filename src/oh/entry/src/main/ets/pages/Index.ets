@@ -26,7 +26,7 @@ struct Index {
                 .margin({ top: 40 })
                 .fontColor('#999999')
 
-            Text('hdc shell aa start -a EntryAbility -b com.craft.parser --ps apk_path /path/to/app.apk')
+            Text('hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /path/to/app.apk')
                 .fontSize(12)
                 .margin({ top: 10 })
                 .fontColor('#999999')

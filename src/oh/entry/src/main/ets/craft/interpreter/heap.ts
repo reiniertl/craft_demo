@@ -162,4 +162,55 @@ export class Heap {
     if (!obj) return false;
     return obj.classDescriptor === classDescriptor;
   }
+
+  /** Dump the entire heap state for inspection */
+  dump(): HeapDump {
+    const objects: HeapDumpObject[] = [];
+
+    for (const [ref, obj] of this.objects.entries()) {
+      const fields: Record<string, Value> = {};
+      for (const [name, value] of obj.fields.entries()) {
+        fields[name] = value;
+      }
+
+      objects.push({
+        ref,
+        classDescriptor: obj.classDescriptor,
+        fields,
+        stringValue: obj.stringValue,
+        arrayData: obj.arrayData ? [...obj.arrayData] : undefined,
+        arrayLength: obj.arrayLength,
+      });
+    }
+
+    const stringPool: { value: string; ref: number }[] = [];
+    for (const [value, ref] of this.stringPool.entries()) {
+      stringPool.push({ value, ref });
+    }
+
+    return {
+      objectCount: this.objects.size,
+      nextRef: this.nextRef,
+      objects: objects.sort((a, b) => a.ref - b.ref),
+      stringPool,
+    };
+  }
+}
+
+/** Dump of a single heap object */
+export interface HeapDumpObject {
+  ref: number;
+  classDescriptor: string;
+  fields: Record<string, Value>;
+  stringValue?: string;
+  arrayData?: Value[];
+  arrayLength?: number;
+}
+
+/** Complete heap dump */
+export interface HeapDump {
+  objectCount: number;
+  nextRef: number;
+  objects: HeapDumpObject[];
+  stringPool: { value: string; ref: number }[];
 }

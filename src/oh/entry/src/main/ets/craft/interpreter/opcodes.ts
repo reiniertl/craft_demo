@@ -1,6 +1,6 @@
 /**
  * CRAFT - Essential Opcode Implementations
- * All 26 opcodes needed for basic Dalvik bytecode execution.
+ * All 28 opcodes needed for basic Dalvik bytecode execution.
  */
 
 import {

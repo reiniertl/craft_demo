@@ -124,7 +124,13 @@ src/
 │   ├── state_manager.ts   # Reactive state management
 │   └── lifecycle_bridge.ts # Activity ↔ Ability lifecycle
 ├── runtime.ts      # High-level CRAFT API (Stage 4)
-└── oh/             # OpenHarmony ability (for Stage 5)
+└── oh/             # OpenHarmony HAP project (Stage 5)
+    ├── entry/build/        # Compiled HAP output (checked in)
+    ├── oh_modules/         # OH package dependencies (checked in)
+    ├── .hvigor/            # Hvigor build cache (checked in)
+    ├── hvigor/             # Hvigor wrapper config
+    ├── local.properties    # SDK path (update for your machine)
+    └── entry/src/main/ets/craft/  # ArkTS-patched copy of src/
 
 tools/
 ├── craft_test.ts            # Test runner with component filtering

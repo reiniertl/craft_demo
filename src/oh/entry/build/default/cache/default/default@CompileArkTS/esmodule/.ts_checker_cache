@@ -1,0 +1,2491 @@
+{
+  "runtimeOS": "OpenHarmony",
+  "sdkInfo": "true:21:6.0.1.112:Release",
+  "fileList": {
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.UIAbility.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Ability.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AbilityConstant.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.rpc.d.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\entryability\\EntryAbility.ets",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AbilityLifecycleCallback.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AbilityConstant.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.appManager.d.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\entryability\\EntryAbility.ets",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.UIAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Ability.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.EnvironmentCallback.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\entryability\\EntryAbility.ets",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.UIAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.dialogRequest.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\abilityResult.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.unifiedDataChannel.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\startAbilityParameter.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AppServiceExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\embedded_component.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\BaseContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.ConfigurationConstant.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\entryability\\EntryAbility.ets",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.UIAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.StartOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AbilityLifecycleCallback.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\component\\navigation.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\folder_stack.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\nav_destination.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\navigation.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.hilog.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\entryability\\EntryAbility.ets",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\pages\\CraftPage.ets"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts": {
+      "mtimeMs": 1771605836522.5032,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\manifest_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_init.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\ui_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\state_manager.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\lifecycle_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\apk_parser.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.file.fs.d.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\entryability\\EntryAbility.ets",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": true,
+      "errorCodes": [
+        28040
+      ]
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\entryability\\EntryAbility.ets": {
+      "mtimeMs": 1771604320574.7307,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.UIAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AbilityConstant.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.hilog.d.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Ability.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AbilityConstant.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Configuration.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.UIAbility.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\connectOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.UIAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.dialogRequest.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AbilityConstant.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AtomicServiceOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.ConfigurationConstant.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIServiceProxy.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIServiceExtensionConnectCallback.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStartCallback.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\AbilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\abilityResult.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\HapModuleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.OpenLinkOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.StartOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Configuration.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.UIAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.observer.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\EmbeddableUIAbilityContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.rpc.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.UIAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\connectOptions.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Configuration.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.ConfigurationConstant.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Ability.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.EnvironmentCallback.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStageContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.appManager.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ProcessInformation.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationStateObserver.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStateData.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AppStateData.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ProcessData.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AbilityConstant.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ProcessInformation.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.appManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.resourceManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.rpc.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.mediaquery.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.inspector.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.promptAction.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.router.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.observer.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\component\\navigation.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.componentSnapshot.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.dragController.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.unifiedDataChannel.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityHelper.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.rdb.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimodalInput.pointer.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneResources.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\embedded_component.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\nav_destination.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\navigation.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\pattern_lock.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\video.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.web.webview.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.security.cert.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.security.cryptoFramework.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.print.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.file.fs.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.util.stream.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.events.emitter.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ProcessInformation.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.appManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.appManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationStateObserver.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AppStateData.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStateData.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ProcessData.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.appManager.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStateData.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.appManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationStateObserver.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AppStateData.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.appManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationStateObserver.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ProcessData.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.appManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationStateObserver.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\Metadata.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ElementName.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ApplicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\AbilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\BundleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\HapModuleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ExtensionAbilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\Skill.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ProcessInformation.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ApplicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\AbilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\BundleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\HapModuleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ExtensionAbilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.StartOptions.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\Metadata.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ApplicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\AbilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\HapModuleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ExtensionAbilityInfo.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ElementName.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\connectOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.CompletionHandler.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ApplicationInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\Metadata.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\global\\resource.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\AbilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\BundleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ExtensionAbilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\AbilityInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ApplicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\Metadata.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\Skill.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\HapModuleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\BundleInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ApplicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\HapModuleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\HapModuleInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\AbilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ExtensionAbilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\Metadata.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\BundleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStageContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ExtensionAbilityInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ApplicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\Metadata.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\Skill.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\HapModuleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ExtensionContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\Skill.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\AbilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ExtensionAbilityInfo.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\global\\resource.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ApplicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.resourceManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.drawing.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\units.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.ConfigurationConstant.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Configuration.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\BaseContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.rdb.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.colorSpaceManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.resourceManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.rpc.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.drawableDescriptor.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.drawing.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.StartOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.componentSnapshot.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.unifiedDataChannel.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\PhotoEditorExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimodalInput.pointer.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.web.webview.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.font.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.mediaquery.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.inspector.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.promptAction.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.router.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.componentUtils.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.animator.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.observer.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.animator.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.measure.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.componentSnapshot.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.dragController.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimodalInput.pointer.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\BuilderNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\ComponentContent.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\NodeController.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\XComponentNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\BuilderNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\BuilderNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\BuilderNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\NodeController.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\RenderNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\XComponentNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Content.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\ComponentContent.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\NodeContent.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\content_slot.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\node_container.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.colorSpaceManager.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.drawing.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.resourceManager.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\global\\rawFileDescriptor.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\global\\resource.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.drawableDescriptor.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\global\\rawFileDescriptor.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.resourceManager.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.drawableDescriptor.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.resourceManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\image.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.font.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.mediaquery.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.inspector.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.promptAction.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\action_sheet.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\alert_dialog.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\custom_dialog_controller.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.router.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.componentUtils.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.animator.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.observer.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\component\\navigation.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.measure.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.componentSnapshot.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.dragController.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.unifiedDataChannel.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStageContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\BaseContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\FormExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\EventHub.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityHelper.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStartCallback.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\connectOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\VpnExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\EmbeddableUIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\PhotoEditorExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIServiceProxy.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIServiceExtensionConnectCallback.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AppServiceExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\abilityResult.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimodalInput.pointer.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\BuilderNode.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\ComponentContent.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\XComponentNode.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\NodeController.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\RenderNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\ComponentContent.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\BuilderNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\NodeController.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\XComponentNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\NodeContent.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\canvas.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.drawing.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.common2D.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\global\\resource.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\BuilderNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\RenderNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\NodeController.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\particle.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\units.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\RenderNode.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\XComponentNode.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\BuilderNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Content.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\ComponentContent.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\NodeContent.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\ComponentContent.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\BuilderNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Content.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\NodeContent.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Content.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.drawing.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.common2D.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.colorSpaceManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\global\\resource.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\canvas.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.text.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.common2D.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.drawing.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.text.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\component\\navigation.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.observer.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\connectOptions.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ElementName.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.rpc.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AppServiceExtensionContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.dialogRequest.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AtomicServiceOptions.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.CompletionHandlerForAtomicService.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.StartOptions.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIServiceProxy.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIServiceExtensionConnectCallback.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStartCallback.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\abilityResult.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.CompletionHandlerForAbilityStartCallback.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\abilityResult.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStartCallback.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\PhotoEditorExtensionContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\EventHub.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ApplicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\BaseContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.resourceManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.contextConstant.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStageContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.print.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.OpenLinkOptions.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.CompletionHandler.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.StartOptions.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.contextConstant.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.bundleManager.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.CompletionHandler.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AtomicServiceOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AppServiceExtensionContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.CompletionHandlerForAtomicService.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AtomicServiceOptions.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.contextConstant.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.StartOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.CompletionHandler.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ElementName.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.StartOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.OpenLinkOptions.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.CompletionHandlerForAbilityStartCallback.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStartCallback.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\EventHub.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ProcessInformation.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.ConfigurationConstant.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AbilityLifecycleCallback.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.EnvironmentCallback.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.ApplicationStateChangeCallback.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AbilityLifecycleCallback.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.UIAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.EnvironmentCallback.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AbilityConstant.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Configuration.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.ApplicationStateChangeCallback.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ApplicationContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.unifiedDataChannel.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.dragController.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.StartOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\abilityResult.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\connectOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.AtomicServiceOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.OpenLinkOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.ConfigurationConstant.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIServiceProxy.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIServiceExtensionConnectCallback.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AbilityStageContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\HapModuleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Configuration.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ExtensionContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\HapModuleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Configuration.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundleManager\\ExtensionAbilityInfo.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\FormExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\VpnExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\PhotoEditorExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AppServiceExtensionContext.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\FormExtensionContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ExtensionContext.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityHelper.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\data\\rdb\\resultSet.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityOperation.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityResult.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.dataAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.rdb.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\VpnExtensionContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ExtensionContext.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\EmbeddableUIAbilityContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\UIAbilityContext.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\PhotoEditorExtensionContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\abilityResult.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\AppServiceExtensionContext.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\ExtensionContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\connectOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.StartOptions.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\data\\rdb\\resultSet.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityHelper.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.rdb.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityOperation.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.dataAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.rdb.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityHelper.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityResult.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityHelper.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.dataAbility.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.rdb.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityHelper.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityOperation.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.rdb.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\data\\rdb\\resultSet.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\BaseContext.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityHelper.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityOperation.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.dataAbility.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\startAbilityParameter.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\abilityResult.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\appVersionInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityHelper.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\connectOptions.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\processInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\dataAbilityOperation.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\ability\\startAbilityParameter.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\appVersionInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\context.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\context.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\applicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\processInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\elementName.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\BaseContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\hapModuleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\appVersionInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\abilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\processInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.ability.featureAbility.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\context.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\applicationInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\moduleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\customizeData.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\abilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\bundleInfo.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\elementName.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\context.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\hapModuleInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\abilityInfo.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\bundleInfo.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\abilityInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\applicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\customizeData.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\hapModuleInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\bundleInfo.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\applicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\abilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\bundleInfo.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\app\\context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\abilityInfo.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\moduleInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\applicationInfo.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\customizeData.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\applicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\abilityInfo.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\bundleInfo.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\abilityInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\applicationInfo.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\bundle\\hapModuleInfo.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.bundle.d.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_parser.ts": {
+      "mtimeMs": 1770150983494.9192,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\errors.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\utils.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_types.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcode_table.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\manifest_parser.ts": {
+      "mtimeMs": 1771605836519.5085,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\errors.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\utils.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts": {
+      "mtimeMs": 1771358323283.71,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\errors.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcode_table.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\ui_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\os\\bundle.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\lifecycle_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts": {
+      "mtimeMs": 1770930313148.4717,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\frame.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcode_table.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcodes.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\errors.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\lifecycle_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts": {
+      "mtimeMs": 1771003546636.8264,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\errors.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcode_table.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts": {
+      "mtimeMs": 1770930313195.13,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\errors.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_init.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\index.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\object.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\string.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\string_builder.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\class.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\system.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\index.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\os\\bundle.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\content\\context.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\view\\view.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\view\\view_group.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\widget\\textview.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\app\\activity.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_init.ts": {
+      "mtimeMs": 1771000079239.1045,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\index.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\index.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\ui_bridge.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\ui_bridge.ts": {
+      "mtimeMs": 1771605836527.5034,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\state_manager.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_init.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\index.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\state_manager.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\widget\\textview.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\app\\activity.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\state_manager.ts": {
+      "mtimeMs": 1771605836526.5034,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\ui_bridge.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\ui_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\lifecycle_bridge.ts": {
+      "mtimeMs": 1771000498094.1797,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\apk_parser.ts": {
+      "mtimeMs": 1771605836456.512,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\errors.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\utils.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\errors.ts": {
+      "mtimeMs": 1770150983481.8206,
+      "children": [],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\manifest_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\apk_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\utils.ts": {
+      "mtimeMs": 1770150983485.1636,
+      "children": [],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\manifest_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\apk_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_types.ts": {
+      "mtimeMs": 1770150983503.713,
+      "children": [],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts": {
+      "mtimeMs": 1770150983478.7761,
+      "children": [],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\frame.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcode_table.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\ui_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\os\\bundle.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\content\\context.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\view\\view.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\view\\view_group.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\widget\\textview.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\app\\activity.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\lifecycle_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\tracer.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\errors.ts": {
+      "mtimeMs": 1770930313131.7395,
+      "children": [],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\frame.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcode_table.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcodes.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\string.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\frame.ts": {
+      "mtimeMs": 1770930313137.8374,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\errors.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcode_table.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcode_table.ts": {
+      "mtimeMs": 1770930313160.481,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\frame.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\errors.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcodes.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\tracer.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\types.ts": {
+      "mtimeMs": 1770930313201.5916,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\frame.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcodes.ts": {
+      "mtimeMs": 1771356758762.3108,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcode_table.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\errors.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\index.ts": {
+      "mtimeMs": 1770930313310.9678,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\object.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\string.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\string_builder.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\class.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\system.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_init.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\index.ts": {
+      "mtimeMs": 1771000083635.1086,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\ui_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\os\\bundle.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\content\\context.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\view\\view.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\view\\view_group.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\widget\\textview.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\app\\activity.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_init.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\object.ts": {
+      "mtimeMs": 1770930313317.237,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\string.ts": {
+      "mtimeMs": 1770930313324.8499,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\errors.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\string_builder.ts": {
+      "mtimeMs": 1770930313331.0437,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\class.ts": {
+      "mtimeMs": 1770930313303.577,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\system.ts": {
+      "mtimeMs": 1770930313336.7158,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\java\\lang\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\os\\bundle.ts": {
+      "mtimeMs": 1770930313254.467,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\content\\context.ts": {
+      "mtimeMs": 1770930313232.3374,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\view\\view.ts": {
+      "mtimeMs": 1770930313266.9429,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\view\\view_group.ts": {
+      "mtimeMs": 1770930313275.9468,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\widget\\textview.ts": {
+      "mtimeMs": 1771000386776.993,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\ui_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\app\\activity.ts": {
+      "mtimeMs": 1771000381474.7058,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\ui_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\shim\\android\\index.ts"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts": {
+      "mtimeMs": 1771605836524.5056,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\utils.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\utils.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\utils.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\errors.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\apk_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\dex_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\parser\\manifest_parser.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\interpreter.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\heap.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\frame.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\class_loader.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_registry.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\shim_init.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\errors.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\tracer.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\ui_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\state_manager.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\bridge\\lifecycle_bridge.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\pages\\CraftPage.ets"
+      ],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\pages\\CraftPage.ets": {
+      "mtimeMs": 1771604335483.9114,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.hilog.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\tracer.ts": {
+      "mtimeMs": 1771358059868.0547,
+      "children": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\core\\types.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcode_table.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\action_sheet.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.promptAction.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.promptAction.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\alert_dialog.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.promptAction.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\canvas.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.drawing.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\FrameNode.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.uniformTypeDescriptor.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimodalInput.intentionCode.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\ImageModifier.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\SymbolGlyphModifier.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.shape.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.matrix4.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\image.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.uiEffect.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.theme.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\with_theme.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\common.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.dragController.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.dragController.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimodalInput.pointer.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.unifiedDataChannel.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.unifiedDataChannel.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.uniformTypeDescriptor.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.unifiedDataChannel.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.data.unifiedDataChannel.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimodalInput.intentionCode.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\ImageModifier.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\SymbolGlyphModifier.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.shape.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.shape.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.shape.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.shape.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.matrix4.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.observer.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.observer.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.observer.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.UIContext.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.uiEffect.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.uiEffect.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\ComponentContent.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.theme.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.promptAction.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.scene.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\ScenePostProcessSettings.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneTypes.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneResources.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneNodes.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\Scene.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\component3d.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\component3d.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.scene.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\ScenePostProcessSettings.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.scene.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneNodes.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneTypes.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.scene.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneResources.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneNodes.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\Scene.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneResources.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneTypes.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.scene.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneNodes.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\Scene.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneNodes.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneResources.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneTypes.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\ScenePostProcessSettings.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\Scene.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.scene.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\Scene.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\Scene.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneResources.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneNodes.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneTypes.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.scene.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\graphics3d\\SceneNodes.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\content_slot.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\custom_dialog_controller.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.promptAction.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\embedded_component.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.app.ability.Want.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\folder_stack.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\image.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.drawableDescriptor.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.drawing.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.drawing.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.matrix4.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\nav_destination.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\navigation.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.window.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\node_container.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.node.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\particle.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\pattern_lock.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\CommonModifier.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\tabs.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\tabs.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\CommonModifier.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.text.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.drawing.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.common2D.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\text_common.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\text_common.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.text.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.text.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.text.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.text.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.text.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.graphics.text.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.intl.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\time_picker.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\time_picker.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.intl.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\with_theme.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.arkui.theme.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\units.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\global\\resource.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\arkui\\Graphics.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\video.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.web.webview.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.security.cert.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.multimedia.image.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.print.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.web.netErrorList.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\web.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\build-tools\\ets-loader\\declarations\\web.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.web.webview.d.ts"
+      ],
+      "parent": [],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.security.cert.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.security.cryptoFramework.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.web.webview.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.print.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\application\\Context.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.web.webview.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.web.netErrorList.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.web.webview.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.security.cryptoFramework.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.security.cert.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.file.fs.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.util.stream.d.ts"
+      ],
+      "parent": [
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.util.stream.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts",
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.events.emitter.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.file.fs.d.ts"
+      ],
+      "error": false
+    },
+    "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.events.emitter.d.ts": {
+      "mtimeMs": 1763803364000,
+      "children": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.base.d.ts"
+      ],
+      "parent": [
+        "C:\\Users\\Bluezone1\\OpenHarmony\\Sdk\\21\\ets\\api\\@ohos.util.stream.d.ts"
+      ],
+      "error": false
+    }
+  }
+}
