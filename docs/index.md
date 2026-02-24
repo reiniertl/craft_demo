@@ -8,11 +8,10 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 
 ## Quick Start
 
-- [📋 Project Overview](../README.md) - What is CRAFT and why?
-- [🚀 Stage 5 Status](STAGE_5_STATUS.md) - **Deployment guide: What's done, what needs human intervention**
-- [🎯 Requirements](requirements.md) - Project goals, constraints, and success criteria
-- [🏗️ Architecture](architecture.md) - System design and component interaction
-- [📅 Implementation Plan](implementation_plan.md) - Complete 5-stage roadmap with timeline
+- [Project Overview](../README.md) - What is CRAFT and why?
+- [Requirements](requirements.md) - Project goals, constraints, and success criteria
+- [Architecture](architecture.md) - System design and component interaction
+- [Implementation Plan](implementation_plan.md) - Complete 5-stage roadmap with timeline
 
 ---
 
@@ -24,20 +23,25 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 | **Stage 2** | Bytecode Interpreter | [Plan](stages/stage_2_plan.md) | [Results](stages/stage_2_results.md) | ✅ Complete (115 tests) |
 | **Stage 3** | Android API Shims | [Plan](stages/stage_3_plan.md) | [Results](stages/stage_3_results.md) | ✅ Complete (35 tests) |
 | **Stage 4** | UI Bridge to ArkUI | [Plan](stages/stage_4_plan.md) | [Results](stages/stage_4_complete.md) | ✅ Complete (55 tests) |
-| **Stage 5** | OpenHarmony Host | [Plan](stages/stage_5_plan.md) | [Status](STAGE_5_STATUS.md) | ✅ Code Complete |
+| **Stage 5** | OpenHarmony Host | [Plan](stages/stage_5_plan.md) | [Status](stage_5_status.md) | ✅ Code Complete (94 tests) |
 
 **Current Status:** 357 tests passing | 0 TypeScript errors | 0 regressions | Code 100% Complete
-**Deployment:** ✅ HAP buildable | ⚠️ Needs APK recompilation & device testing - [Details](STAGE_5_STATUS.md)
+**Deployment:** ✅ HAP buildable | Needs device testing - [Details](stage_5_status.md)
 
 ---
 
 ## Reference Documentation
 
 ### Technical Specifications
-- [📐 Component Specifications](specification.md) - Detailed specs for all CRAFT components
-- [📘 CRAFT Specification](CRAFT_SPECIFICATION.md) - Comprehensive 1400+ line detailed spec
+- [Component Specifications](specification.md) - Detailed specs for all 12 CRAFT components
 
-### Extension Guides
+### Guides
+- [Deployment Guide](deployment_guide.md) - HAP/device deployment instructions
+- [APK Build Guide](apk_build_guide.md) - Building the Hello World APK
+- [HAP Build Guide](hap_build_guide.md) - Building the OpenHarmony HAP
+- [Skills Guide](skills_guide.md) - 13 development skills reference
+
+### Extension
 - See [specification.md - Extension Guidelines](specification.md#extension-guidelines) for adding views, opcodes, and API classes
 
 ---
@@ -50,27 +54,25 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 - **Tests:** `test/` - 357 comprehensive tests across all stages
 
 ### For AI Agents (Claude Code)
-- [🤖 CLAUDE.md](../craft/CLAUDE.md) - Project context, architecture, and current stage
+- [CLAUDE.md](../CLAUDE.md) - Project context, architecture, and current stage
 
 ---
 
 ## Documentation Conventions
 
 - **File naming:** `snake_case` for all markdown files
-- **Stage docs:** `stage_N_plan.md` (planning) → `stage_N_results.md` (completion report)
-- **Status icons:** ✅ Complete | 🚧 In Progress | ⏳ Planned
-- **Test counts:** Always show breakdown by stage (e.g., "357 tests: 58 + 201 + 35 + 55 + 8 integration")
+- **Stage docs:** `stage_N_plan.md` (planning) / `stage_N_results.md` (completion report)
+- **Status icons:** ✅ Complete | In Progress | Planned
 
 ---
 
 ## Navigation Tips
 
-- **New to CRAFT?** Start with [Project Overview](../README.md) → [Requirements](requirements.md) → [Architecture](architecture.md)
-- **Deploying?** Read [Stage 5 Status](STAGE_5_STATUS.md) → [Deployment Guide](deployment_guide.md)
-- **Understanding current state?** Check [Stage 5 Final Summary](stages/stage_5_final_summary.md) for latest status
+- **New to CRAFT?** Start with [Project Overview](../README.md) then [Requirements](requirements.md) then [Architecture](architecture.md)
+- **Deploying?** Read [Stage 5 Status](stage_5_status.md) then [Deployment Guide](deployment_guide.md)
 - **Need AI context?** Consult [CLAUDE.md](../CLAUDE.md) for full project history
 
 ---
 
 **Last Updated:** 2026-02-24
-**Version:** 0.1.0
+**Version:** 0.2.0

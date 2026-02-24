@@ -2,7 +2,7 @@
 
 **CRAFT** - Compatibility Runtime for Android Framework Translation
 
-This document provides technical specifications for all CRAFT components.
+This document provides technical specifications for all CRAFT components. All interfaces and method signatures reflect the actual implementation.
 
 ---
 
@@ -38,21 +38,45 @@ This document provides technical specifications for all CRAFT components.
 
 **Location:** `src/parser/apk_parser.ts`, `src/parser/manifest_parser.ts`
 
-### Input
-- APK file path (string)
-
-### Output
+### APKContents Interface
 ```typescript
 interface APKContents {
-  manifest: Manifest;
-  dexFiles: Uint8Array[];
-  resources: Map<string, Uint8Array>;
+  manifest: Uint8Array;              // Raw AndroidManifest.xml binary data
+  dexFiles: Map<string, Uint8Array>; // Filename → DEX bytes (e.g. "classes.dex")
+  resources: Uint8Array | null;      // resources.arsc or null if absent
 }
 ```
 
-### Key Methods
-- `APKParser.parse(path: string): APKContents` - Main entry point
-- `ManifestParser.parse(data: Uint8Array): Manifest` - Binary XML parser
+### APKParser
+```typescript
+class APKParser {
+  constructor(logger?: Logger)
+  parse(data: Uint8Array): APKContents              // Parse from bytes
+  parseFileSync(path: string): APKContents           // Parse from file (sync)
+  async parseFile(path: string): Promise<APKContents> // Parse from file (async)
+}
+
+// Convenience functions
+function parseAPK(data: Uint8Array, logger?: Logger): APKContents
+function parseAPKFileSync(path: string, logger?: Logger): APKContents
+async function parseAPKFile(path: string, logger?: Logger): Promise<APKContents>
+```
+
+### ManifestParser
+```typescript
+interface ManifestInfo {
+  packageName: string
+  mainActivityClass: string
+  minSdkVersion?: number
+  targetSdkVersion?: number
+}
+
+class ManifestParser {
+  constructor(data: Uint8Array, logger?: Logger)
+  parse(): ManifestInfo
+  static parse(data: Uint8Array, logger?: Logger): ManifestInfo
+}
+```
 
 ### Verification
 - ✅ Can extract AndroidManifest.xml from hello_world.apk
@@ -63,35 +87,49 @@ interface APKContents {
 
 ## Component 2: DEX Parser
 
-**Location:** `src/parser/dex_parser.ts`
+**Location:** `src/parser/dex_parser.ts`, `src/parser/dex_types.ts`
 
-### Input
-- DEX file data (Uint8Array)
-
-### Output
+### DexParser
 ```typescript
 class DexParser {
-  header: DexHeader;
-  stringIds: string[];
-  typeIds: string[];
-  protoIds: ProtoIdItem[];
-  methodIds: MethodIdItem[];
-  classDefs: ClassDefItem[];
+  constructor(data: Uint8Array, logger?: Logger)
 
-  getString(index: number): string;
-  getType(index: number): string;
-  getClass(descriptor: string): ClassDefItem | null;
-  getMethod(classIdx: number, methodIdx: number): MethodIdItem;
+  // Header
+  parseHeader(): DexHeader
+
+  // String/type lookups
+  getString(idx: number): string
+  getTypeName(idx: number): string
+
+  // Class resolution
+  getClassDefs(): ClassDefItem[]
+  getClassDefByIndex(idx: number): ClassDefItem
+  getClassDef(className: string): ClassDefItem | null
+  getClassData(classDef: ClassDefItem): ClassDataItem
+
+  // Method/field/proto access
+  getMethodId(idx: number): MethodIdItem
+  getMethodCode(codeOffset: number): CodeItem | null
+  getFieldId(idx: number): FieldIdItem
+  getProtoId(idx: number): ProtoIdItem
+  getProtoParameters(proto: ProtoIdItem): number[]
+
+  // Formatting
+  formatMethodSignature(methodId: MethodIdItem): string
 }
 ```
 
+All internal data (header, string cache, etc.) is private. Access is through the methods above.
+
 ### DEX Structures Parsed
-- Header (magic, version, checksums)
+- Header (magic, version, checksums, section offsets)
 - String pool (MUTF-8 encoded)
 - Type IDs (class descriptors)
-- Method IDs (class, name, signature)
+- Proto IDs (method prototypes)
+- Field IDs (class, type, name)
+- Method IDs (class, proto, name)
 - Class definitions (fields, methods, code)
-- Code items (bytecode instructions)
+- Code items (registers, bytecode instructions, try/catch)
 
 ### Verification
 - ✅ Parses hello_world.dex without errors
@@ -107,15 +145,37 @@ class DexParser {
 ### Responsibilities
 1. Load classes from DEX or shim registry
 2. Resolve superclass chains
-3. Find methods (direct, virtual, static)
-4. Manage class objects
+3. Resolve methods (direct, virtual, static, super)
+4. Manage class objects and static fields
 
-### Key Methods
+### ClassLoader
 ```typescript
 class ClassLoader {
-  loadClass(descriptor: string): LoadedClass;
-  findMethod(classDesc: string, name: string, signature: string): ResolvedMethod;
-  getClassObject(descriptor: string): number; // heap reference to Class object
+  constructor(dex: DexParser, heap: Heap, shimRegistry: ShimRegistry)
+
+  // Class loading
+  loadClass(descriptor: string): ResolvedClass
+  getClass(descriptor: string): ResolvedClass | null
+  isClassLoaded(descriptor: string): boolean
+  isInstanceOf(objectClass: string, targetType: string): boolean
+  getClassObject(descriptor: string): number  // Heap ref to java.lang.Class
+
+  // Method resolution
+  resolveMethod(methodIdx: number): ResolvedMethod
+  resolveMethodByName(classDescriptor: string, methodName: string,
+                      methodDescriptor: string): ResolvedMethod | null
+  resolveVirtualMethod(objectRef: number, methodIdx: number): ResolvedMethod
+  resolveSuperMethod(callingClass: string, methodIdx: number): ResolvedMethod
+
+  // Field resolution
+  resolveField(fieldIdx: number): FieldInfo
+  getStaticField(field: FieldInfo): Value
+  setStaticField(field: FieldInfo, value: Value): void
+
+  // Initialization
+  initializeClass(descriptor: string): void
+  setClinitRunner(runner: (descriptor: string) => void): void
+  buildMethodDescriptor(protoIdx: number): string
 }
 ```
 
@@ -137,31 +197,55 @@ Landroid/view/View; → Ljava/lang/Object;
 
 ## Component 4: Bytecode Interpreter
 
-**Location:** `src/interpreter/interpreter.ts`, `src/interpreter/opcodes.ts`
+**Location:** `src/interpreter/interpreter.ts`, `src/interpreter/opcodes.ts`, `src/interpreter/opcode_table.ts`
 
-### Opcodes Implemented (28)
+### Interpreter
+```typescript
+class Interpreter {
+  constructor(dex: DexParser, heap: Heap, shimRegistry: ShimRegistry)
+
+  // Entry point
+  invoke(className: string, methodName: string,
+         descriptor: string, args: Value[]): Value
+
+  // Called by opcode handlers
+  invokeMethod(method: ResolvedMethod, args: Value[]): void
+  returnFromMethod(value: Value): void
+  getLastResult(): Value
+
+  // Component access
+  getClassLoader(): ClassLoader
+  getHeap(): Heap
+  getFrameManager(): FrameManager
+}
+```
+
+### Execution Model
+1. `invoke()` resolves the target method via ClassLoader
+2. Creates an `ExecutionFrame` with registers sized per CodeItem
+3. Places arguments into the last N registers (Dalvik calling convention)
+4. Loops: fetch opcode at `frame.pc` → dispatch via `OpcodeTable` → handler advances `pc`
+5. On `return-*`, pops frame and stores result for caller's `move-result`
+
+### Opcodes Implemented (82)
 
 | Category | Opcodes | Count |
 |----------|---------|-------|
-| **NOP** | nop | 1 |
-| **Move** | move, move-object, move-result, move-result-object | 4 |
-| **Return** | return-void, return, return-object, return-wide | 4 |
-| **Const** | const/4, const/16, const, const-string, const-class | 5 |
-| **Instance** | instance-of, new-instance | 2 |
-| **Invocation** | invoke-direct, invoke-virtual, invoke-static, invoke-super | 4 |
-| **Fields** | iget, iget-object, iput, iput-object, sget, sget-object, sput, sput-object | 8 |
-
-### Execution Model
-```typescript
-class Interpreter {
-  execute(method: ResolvedMethod, thisRef: number, args: Value[]): Value {
-    // 1. Create frame (locals, stack, pc)
-    // 2. Initialize locals with thisRef + args
-    // 3. Loop: fetch opcode → execute → increment pc
-    // 4. Handle return
-  }
-}
-```
+| **NOP** | nop (0x00) | 1 |
+| **Move** | move, move/from16, move/16, move-wide, move-wide/from16, move-wide/16, move-object, move-object/from16, move-object/16 | 9 |
+| **Move Result** | move-result, move-result-wide, move-result-object, move-exception | 4 |
+| **Return** | return-void, return, return-wide, return-object | 4 |
+| **Const** | const/4, const/16, const, const/high16, const-wide/16, const-wide/32, const-wide, const-wide/high16 | 8 |
+| **String/Class** | const-string, const-string/jumbo, const-class, check-cast | 4 |
+| **Type Check** | instance-of | 1 |
+| **Array** | array-length, new-array, aget, aget-wide, aget-object, aget-boolean, aget-byte, aget-char, aget-short, aput, aput-wide, aput-object, aput-boolean, aput-byte, aput-char, aput-short | 16 |
+| **Object** | new-instance | 1 |
+| **Instance Fields** | iget, iget-object, iput, iput-object | 4 |
+| **Static Fields** | sget, sget-object, sput, sput-object | 4 |
+| **Throw** | throw | 1 |
+| **Goto** | goto, goto/16, goto/32 | 3 |
+| **Comparison** | if-eq, if-ne, if-lt, if-ge, if-gt, if-le, if-eqz, if-nez, if-ltz, if-gez, if-gtz, if-lez | 12 |
+| **Invocation** | invoke-virtual, invoke-super, invoke-direct, invoke-static, invoke-interface, invoke-virtual/range, invoke-super/range, invoke-direct/range, invoke-static/range, invoke-interface/range | 10 |
 
 ### Verification
 - ✅ Executes arithmetic operations (42 + 1 = 43)
@@ -175,14 +259,48 @@ class Interpreter {
 
 **Location:** `src/interpreter/heap.ts`
 
+### HeapObject
+```typescript
+interface HeapObject {
+  classDescriptor: string
+  fields: Map<string, Value>
+  arrayData?: Value[]
+  arrayLength?: number
+  stringValue?: string
+}
+```
+
 ### Heap API
 ```typescript
 class Heap {
-  allocate(classDescriptor: string): number;        // Create object, return ref
-  setField(ref: number, field: string, value: Value): void;
-  getField(ref: number, field: string): Value;
-  internString(str: string): number;                // String interning
-  getStringValue(ref: number): string;
+  // Object allocation
+  allocate(classDescriptor: string): number
+  allocateArray(elementType: string, length: number): number
+  allocateString(value: string): number
+
+  // Object access
+  getObject(ref: number): HeapObject | null
+  getClassDescriptor(ref: number): string | null
+
+  // Field access
+  getField(ref: number, fieldName: string): Value
+  setField(ref: number, fieldName: string, value: Value): void
+
+  // Array access
+  getArrayElement(ref: number, index: number): Value
+  setArrayElement(ref: number, index: number, value: Value): void
+  getArrayLength(ref: number): number
+
+  // String operations
+  getStringValue(ref: number): string
+  setStringValue(ref: number, value: string): void
+  internString(value: string): number
+
+  // Type checking
+  isInstanceOf(ref: number, classDescriptor: string): boolean
+
+  // Debugging
+  dump(): HeapDump
 }
 ```
 
@@ -190,7 +308,8 @@ class Heap {
 - **Object Representation:** `Map<number, HeapObject>`
 - **Reference Counting:** No automatic GC (manual management)
 - **String Interning:** Strings stored in separate pool
-- **Field Storage:** Flat map (no prototype chain)
+- **Field Storage:** Flat map per object (no prototype chain)
+- **Arrays:** Stored as `Value[]` in HeapObject.arrayData
 
 ### Verification
 - ✅ Allocate object returns unique reference
@@ -199,11 +318,53 @@ class Heap {
 
 ---
 
-## Component 6: Android API Shims
+## Component 6: Frame Manager
 
-**Location:** `src/shim/android/`
+**Location:** `src/interpreter/frame.ts`
 
-### Shim Classes (7)
+### ExecutionFrame
+```typescript
+interface ExecutionFrame {
+  method: ResolvedMethod
+  registers: Value[]             // Dalvik register array
+  pc: number                     // Program counter (index into insns)
+  callerFrame: ExecutionFrame | null
+  returnRegister: number         // Caller's register for move-result
+  lockRef: number | null         // For monitor-enter/exit
+}
+```
+
+### FrameManager
+```typescript
+class FrameManager {
+  createFrame(method: ResolvedMethod, args: Value[]): ExecutionFrame
+  pushFrame(frame: ExecutionFrame): void
+  popFrame(): ExecutionFrame | null
+  currentFrame(): ExecutionFrame | null
+  getStackDepth(): number        // Max 256 frames
+  getStackTrace(): string[]
+}
+```
+
+Arguments are placed in the last N registers of the frame (Dalvik calling convention). Wide values (long, double) occupy two consecutive registers.
+
+---
+
+## Component 7: Android API Shims
+
+**Location:** `src/shim/android/`, `src/shim/java/lang/`
+
+### java.lang Shims (5 classes, 30 methods)
+
+| Class | Methods | Key Methods |
+|-------|---------|-------------|
+| `java.lang.Object` | 5 | `<init>`, getClass, hashCode, equals, toString |
+| `java.lang.String` | 12 | `<init>` (x2), length, charAt, equals, hashCode, toString, substring (x2), concat, valueOf (x2) |
+| `java.lang.StringBuilder` | 7 | `<init>` (x2), append (x3), toString, length |
+| `java.lang.Class` | 3 | getName, getSimpleName, toString |
+| `java.lang.System` | 3 | currentTimeMillis, identityHashCode, arraycopy |
+
+### Android Shim Classes (7 classes, 35 methods)
 
 | Class | Methods | Purpose |
 |-------|---------|---------|
@@ -217,7 +378,7 @@ class Heap {
 
 ### Shim Pattern
 ```typescript
-export function registerActivityShim(registry: ShimRegistry): void {
+export function registerActivityShim(registry: ShimRegistry, uiBridge?: UIBridge): void {
   registry.register(
     'Landroid/app/Activity;',   // Class descriptor
     'onCreate',                  // Method name
@@ -252,7 +413,7 @@ const childrenMap = new Map<number, number[]>();
 
 ---
 
-## Component 7: UI Bridge (Stage 4)
+## Component 8: UI Bridge (Stage 4)
 
 **Location:** `src/bridge/`
 
@@ -264,33 +425,116 @@ interface ViewNode {
   properties: Map<string, any>; // text, textSize, etc.
   children: ViewNode[];
   parent: ViewNode | null;
-  arkuiId: string;
+  arkuiId: string;              // Unique ID for ArkUI binding
 }
 ```
 
-### UIBridge API
+### UIBridge
 ```typescript
 class UIBridge {
-  registerView(viewRef: number, viewType: string): void;
-  updateViewProperty(viewRef: number, property: string, value: any): void;
-  setRootView(viewRef: number): void;
-  addChildView(parentRef: number, childRef: number): void;
+  constructor(heap: Heap, stateManager: StateManager)
+  registerView(viewRef: number, viewType: string): void
+  updateViewProperty(viewRef: number, property: string, value: any): void
+  setRootView(viewRef: number): void
+  addChildView(parentRef: number, childRef: number): void
+  getRootView(): ViewNode | null
+  getViewNode(viewRef: number): ViewNode | null
+  getStateManager(): StateManager
+  clear(): void
 }
 ```
 
-### State Manager (Reactive)
+### StateManager (Reactive)
 ```typescript
+interface SerializedView {
+  id: string
+  type: string
+  props: Record<string, any>
+  children: SerializedView[]
+}
+
+interface ViewState {
+  version: number
+  root: SerializedView | null
+}
+
 class StateManager {
-  setRootView(node: ViewNode): void;
-  notifyUpdate(): void;                    // Increments version
-  subscribe(callback: () => void): void;   // ArkUI subscribes
-  getState(): ViewState;                   // { version, root }
+  setRootView(node: ViewNode): void
+  notifyUpdate(): void                    // Increments version
+  subscribe(callback: () => void): void   // ArkUI subscribes
+  unsubscribe(callback: () => void): void
+  getState(): ViewState                   // Serialized view tree
+  clear(): void
+}
+```
+
+### LifecycleBridge
+```typescript
+class LifecycleBridge {
+  constructor(interpreter: Interpreter, heap: Heap)
+  createActivity(mainClass: string): number  // Calls <init> + onCreate
+  resumeActivity(): void                     // Calls onStart + onResume
+  pauseActivity(): void                      // Calls onPause + onStop
+  destroyActivity(): void                    // Calls onDestroy
+  getActivityRef(): number | null
+  getMainClassName(): string | null
+  isActivityCreated(): boolean
+}
+```
+
+### Lifecycle Mapping
+```
+OpenHarmony Ability    Android Activity         Action
+onCreate(want)      →  <init> + onCreate()     Create instance, call onCreate
+onForeground()      →  onStart() + onResume()  Call onStart, then onResume
+onBackground()      →  onPause() + onStop()    Call onPause, then onStop
+onDestroy()         →  onDestroy()             Call onDestroy
+```
+
+---
+
+## Component 9: CraftRuntime
+
+**Location:** `src/runtime.ts`
+
+High-level API that orchestrates all components.
+
+```typescript
+class CraftRuntime {
+  constructor()
+
+  // APK loading
+  async loadAPKFromPath(apkPath: string): Promise<void>
+  loadAPK(apkData: Uint8Array): void
+
+  // Activity lifecycle
+  createActivity(activityClass?: string): number
+  resumeActivity(): void
+  pauseActivity(): void
+  destroyActivity(): void
+
+  // UI state
+  getViewState(): ViewState
+  subscribeToViewUpdates(callback: () => void): void
+  unsubscribeFromViewUpdates(callback: () => void): void
+
+  // Component access
+  getUIBridge(): UIBridge
+  getStateManager(): StateManager
+  getLifecycleBridge(): LifecycleBridge | null
+  getInterpreter(): Interpreter | null
+  getHeap(): Heap
+  getManifest(): ManifestInfo | null
+  getMainActivityClass(): string | null
+
+  // Cleanup
+  shutdown(): void
 }
 ```
 
 ---
 
-## Component 8: OpenHarmony Host (Stage 5)
+## Component 10: OpenHarmony Host (Stage 5)
 
 **Location:** `src/oh/`
 
@@ -339,6 +583,62 @@ struct CraftPage {
 
 ---
 
+## Component 11: Error Hierarchy
+
+**Location:** `src/core/errors.ts`, `src/interpreter/errors.ts`
+
+### Core Errors
+```typescript
+class CraftError extends Error { readonly code: string }
+class ParseError extends CraftError { readonly offset?: number }
+class ValidationError extends CraftError
+class NotFoundError extends CraftError
+```
+
+### Interpreter Errors
+```typescript
+class InterpreterError extends Error
+class NullPointerException extends InterpreterError
+class NoSuchMethodError extends InterpreterError
+class AbstractMethodError extends InterpreterError
+class ClassNotFoundException extends InterpreterError
+class VerifyError extends InterpreterError
+class ArrayIndexOutOfBoundsException extends InterpreterError
+class StringIndexOutOfBoundsException extends InterpreterError
+class ArithmeticException extends InterpreterError
+class IllegalArgumentException extends InterpreterError
+```
+
+---
+
+## Component 12: Shim Registry & Dispatch
+
+**Location:** `src/interpreter/shim_registry.ts`, `src/interpreter/shim_init.ts`
+
+### ShimRegistry
+```typescript
+type ShimMethod = (
+  interpreter: InterpreterRef,
+  heap: Heap,
+  thisRef: number,
+  args: Value[]
+) => Value
+
+class ShimRegistry {
+  register(className: string, methodName: string,
+           descriptor: string, handler: ShimMethod): void
+  hasMethod(className: string, methodName: string, descriptor: string): boolean
+  isShimClass(className: string): boolean
+  invoke(method: ResolvedMethod, interpreter: InterpreterRef,
+         heap: Heap, args: Value[]): Value
+  getShimClasses(): string[]
+}
+
+function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
+```
+
+---
+
 ## Testing Requirements
 
 ### Unit Test Coverage
@@ -360,7 +660,7 @@ struct CraftPage {
 | UIBridge | `test/unit/bridge/ui_bridge.test.ts` | 17 | View mapping |
 | StateManager | `test/unit/bridge/state_manager.test.ts` | 17 | Reactive state |
 | LifecycleBridge | `test/unit/bridge/lifecycle_bridge.test.ts` | 13 | Lifecycle mapping |
-| **Total Unit** | — | **319** | — |
+| **Total Unit** | -- | **319** | -- |
 
 ### Integration Test Coverage
 
@@ -375,9 +675,9 @@ struct CraftPage {
 | Static Field | `test/integration/interpreter/static_field.test.ts` | 1 | Static field access |
 | Super Call | `test/integration/interpreter/super_call.test.ts` | 1 | Super method invocation |
 | StringBuilder | `test/integration/interpreter/string_builder.test.ts` | 1 | String building |
-| Activity Lifecycle | `test/integration/android/activity_lifecycle.test.ts` | 6 | onCreate → TextView → setContentView |
+| Activity Lifecycle | `test/integration/android/activity_lifecycle.test.ts` | 6 | onCreate, TextView, setContentView |
 | UI Integration | `test/integration/bridge/ui_integration.test.ts` | 8 | UI Bridge integration |
-| **Total Integration** | — | **30** | — |
+| **Total Integration** | -- | **30** | -- |
 
 **Total: 357 tests across 27 test suites**
 
@@ -397,32 +697,32 @@ struct CraftPage {
 
 ### Exit Criteria (Per Stage)
 
-**Stage 1:**
-- [ ] APK can be loaded and parsed
-- [ ] DEX can be loaded and parsed
-- [ ] MainActivity class can be found
-- [ ] All Stage 1 tests pass
+**Stage 1:** ✅
+- APK can be loaded and parsed
+- DEX can be loaded and parsed
+- MainActivity class can be found
 
-**Stage 2:**
-- [ ] Opcodes execute correctly
-- [ ] Method invocation works
-- [ ] Heap management functional
-- [ ] Hello World bytecode executes
-- [ ] All Stage 1+2 tests pass
+**Stage 2:** ✅
+- Opcodes execute correctly
+- Method invocation works
+- Heap management functional
+- Hello World bytecode executes
 
-**Stage 3:**
-- [ ] All 7 Android shim classes implemented
-- [ ] Superclass chains correct
-- [ ] Activity lifecycle methods callable
-- [ ] TextView can store/retrieve text
-- [ ] All Stage 1+2+3 tests pass
+**Stage 3:** ✅
+- All 7 Android shim classes implemented
+- Superclass chains correct
+- Activity lifecycle methods callable
+- TextView can store/retrieve text
 
-**Stage 4:**
-- [ ] UI Bridge maps Views to ViewNodes
-- [ ] State Manager triggers ArkUI updates
-- [ ] CraftAbility launches without error
-- [ ] "Hello World" text renders on screen
-- [ ] All tests pass (no regressions)
+**Stage 4:** ✅
+- UI Bridge maps Views to ViewNodes
+- State Manager triggers ArkUI updates
+- Lifecycle bridge maps OH Ability to Android Activity
+
+**Stage 5:** ✅ Code Complete
+- CraftAbility launches without error
+- CraftPage renders view tree
+- Awaiting device testing
 
 ---
 
@@ -433,11 +733,12 @@ struct CraftPage {
 1. **Create shim file:** `src/shim/android/widget/button.ts`
 2. **Implement constructor and methods:**
    ```typescript
-   export function registerButtonShim(registry: ShimRegistry): void {
+   export function registerButtonShim(registry: ShimRegistry, uiBridge?: UIBridge): void {
      registry.register('Landroid/widget/Button;', '<init>',
        '(Landroid/content/Context;)V', (interp, heap, thisRef, args) => {
          heap.setField(thisRef, 'mContext', args[0]);
          heap.setField(thisRef, 'mText', NULL_VALUE);
+         if (uiBridge) uiBridge.registerView(thisRef, 'Button');
          return NULL_VALUE;
        });
    }
@@ -445,20 +746,23 @@ struct CraftPage {
 3. **Register in index:** Add to `src/shim/android/index.ts`
 4. **Add to ClassLoader:** Update `isKnownBaseClass()` and `getShimSuperClass()`
 5. **Write tests:** `test/unit/shim/button.test.ts`
-6. **Add ArkUI renderer (Stage 4):** Add case in `CraftPage.renderView()`
+6. **Add ArkUI renderer:** Add case in `CraftPage.renderView()`
 
 ### Adding a New Opcode
 
-1. **Add handler:** `src/interpreter/opcodes.ts`
+1. **Add handler in** `src/interpreter/opcodes.ts`:
    ```typescript
-   export function handle_new_instance(frame: Frame, opcode: number): void {
-     const classIdx = frame.code[frame.pc + 1];
-     // Implementation
-   }
+   table.register(0xNN, {
+     name: 'opcode-name',
+     format: '22c',
+     width: 2,
+     handler: (ctx: ExecutionContext, insn: number) => {
+       // Implementation
+       ctx.frame.pc += 2;
+     }
+   });
    ```
-2. **Register:** Add to opcode dispatch table
-3. **Write tests:** `test/unit/interpreter/opcodes/new_instance.test.ts`
-4. **Update count:** Document in CLAUDE.md opcode list
+2. **Write tests:** Add to `test/unit/interpreter/opcodes.test.ts`
 
 ---
 
@@ -469,8 +773,8 @@ struct CraftPage {
 | APK Load | <1s | User experience |
 | Activity Start | <500ms | Acceptable for PoC |
 | TextView Render | <100ms | ArkUI native speed |
-| Opcode Execution | ~1μs/opcode | Interpreted overhead |
-| Heap Allocation | <10μs | Map lookup cost |
+| Opcode Execution | ~1us/opcode | Interpreted overhead |
+| Heap Allocation | <10us | Map lookup cost |
 
 **Bottlenecks Identified:**
 - String operations (frequent intern lookups)
@@ -478,7 +782,7 @@ struct CraftPage {
 - Frame creation (allocate locals/stack arrays)
 
 **Optimization Opportunities (Post-PoC):**
-- Cache method resolutions
+- Cache method resolutions (MethodResolver exists but unused)
 - Inline simple opcodes
 - Use typed arrays for stack/locals
 
@@ -486,12 +790,12 @@ struct CraftPage {
 
 ## References
 
-- **Full Detailed Spec:** [CRAFT_SPECIFICATION.md](CRAFT_SPECIFICATION.md) - Comprehensive 1400+ line specification
 - **Architecture Overview:** [architecture.md](architecture.md) - System design and data flow
 - **Implementation Plan:** [implementation_plan.md](implementation_plan.md) - Stage-by-stage roadmap
+- **Deployment:** [stage_5_status.md](stage_5_status.md) - Current deployment status
 
 ---
 
-**Status:** Stages 1-5 Code Complete | Awaiting APK recompilation & device testing
-**Last Updated:** 2026-02-17
-**Version:** 0.1.0
+**Status:** Stages 1-5 Code Complete | Awaiting device testing
+**Last Updated:** 2026-02-24
+**Version:** 0.2.0

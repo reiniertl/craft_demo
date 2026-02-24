@@ -27,7 +27,7 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 
 **Deployment Status:** ✅ You can build & install the HAP today | ⚠️ Won't see "Hello World" until APK is recompiled
 
-📋 **See [STAGE_5_STATUS.md](docs/STAGE_5_STATUS.md) for complete deployment guide and what requires human intervention**
+📋 **See [Stage 5 Status](docs/stage_5_status.md) for complete deployment guide and what requires human intervention**
 
 ---
 
@@ -38,7 +38,7 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 1. **Read the overview:** [Requirements](docs/requirements.md) - Project goals and constraints
 2. **Understand the architecture:** [Architecture](docs/architecture.md) - System design
 3. **Review implementation plan:** [Implementation Plan](docs/implementation_plan.md) - Stage-by-stage roadmap
-4. **Check current progress:** [Stage 5 Status](docs/STAGE_5_STATUS.md) - Deployment guide and current status
+4. **Check current progress:** [Stage 5 Status](docs/stage_5_status.md) - Deployment guide and current status
 
 ### For Claude Code / AI Agents
 
@@ -328,7 +328,6 @@ This project is currently in proof-of-concept stage with AI-assisted development
 - **[Documentation Index](docs/index.md)** - Complete navigation
 - **[Architecture](docs/architecture.md)** - System design
 - **[Specification](docs/specification.md)** - Component specs
-- **[CRAFT_SPECIFICATION.md](docs/CRAFT_SPECIFICATION.md)** - Comprehensive 1400+ line detailed spec
 
 ### External References
 - [Dalvik Executable Format](https://source.android.com/devices/tech/dalvik/dex-format)

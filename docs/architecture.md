@@ -291,4 +291,3 @@ interface Frame {
 ---
 
 **For detailed component specifications, see:** [specification.md](specification.md)
-**For full implementation details, see:** [CRAFT_SPECIFICATION.md](CRAFT_SPECIFICATION.md) (comprehensive 1400+ line spec)

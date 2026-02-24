@@ -13,23 +13,22 @@ Stage 4: UI Bridge & OpenHarmony host ✅
 Stage 5: Integration & Polish ✅ Code Complete | ⚠️ Needs OH/HarmonyOS Device
 
 **Deployment Ready:** HAP built & signed | APK rebuilt & verified on Android | Need OH/HarmonyOS device for testing
-**Details:** See `docs/STAGE_5_STATUS.md` for complete deployment guide
+**Details:** See `docs/stage_5_status.md` for complete deployment guide
 
-## 📚 Documentation (Reorganized 2026-02-12)
+## Documentation
 
-**All documentation now centralized in `docs/` with consistent snake_case naming:**
+**All documentation centralized in `docs/` with consistent snake_case naming:**
 
 - **Main entry:** `README.md` - Project overview
 - **Documentation hub:** `docs/index.md` - Complete navigation
 - **Requirements:** `docs/requirements.md` - Goals, constraints, success criteria
 - **Architecture:** `docs/architecture.md` - System design, data flow
-- **Specification:** `docs/specification.md` - Component specs
+- **Specification:** `docs/specification.md` - Component specs (12 components)
 - **Implementation plan:** `docs/implementation_plan.md` - 5-stage roadmap
 - **Stage plans:** `docs/stages/stage_N_plan.md` - Detailed planning for each stage
 - **Stage results:** `docs/stages/stage_N_results.md` - Completion reports
-- **Stage 4 complete:** `docs/stages/stage_4_complete.md` - UI Bridge completion report
-
-**File Naming Convention:** All docs use snake_case (stage_1_results.md, implementation_plan.md, etc.)
+- **Deployment:** `docs/stage_5_status.md` - Current deployment status
+- **Guides:** `docs/deployment_guide.md`, `docs/apk_build_guide.md`, `docs/hap_build_guide.md`, `docs/skills_guide.md`
 
 ## Quick Reference
 
@@ -60,7 +59,7 @@ npx tsc --noEmit
 
 ## Development Skills
 
-14 skills are available to accelerate development:
+13 development skills are available (see `tools/README.md`):
 
 **Core (original):**
 1. **`craft-test`** - Run tests with component filtering
@@ -83,14 +82,20 @@ npx tsc --noEmit
 12. **`apk-onboard`** - APK onboarding agent
 13. **`guard`** - Regression guard (TypeScript + tests + shims + opcodes)
 
-See `/mnt/d/craft/craft/tools/README.md` for comprehensive documentation.
-
 ## Project Structure
 
 ```
 src/
+├── index.ts        # Main export barrel
 ├── core/           # Utilities: LEB128, MUTF-8, errors, logging, types
+│   ├── errors.ts          # CraftError, ParseError, ValidationError
+│   ├── types.ts           # Value types, AccessFlags, TypeDescriptors
+│   └── utils.ts           # LEB128/MUTF-8 decoding, Logger, binary readers
 ├── parser/         # APK, DEX, Manifest parsers (portable TypeScript)
+│   ├── apk_parser.ts      # ZIP extraction (STORE only)
+│   ├── dex_parser.ts      # DEX file parsing
+│   ├── dex_types.ts       # DEX format type definitions
+│   └── manifest_parser.ts # Binary XML parsing
 ├── interpreter/    # Bytecode interpreter (Stage 2)
 │   ├── interpreter.ts     # Main execution loop
 │   ├── heap.ts            # Object allocation and field access
@@ -101,6 +106,7 @@ src/
 │   ├── opcodes.ts         # 82 Dalvik opcode implementations
 │   ├── shim_registry.ts   # Shim method registry
 │   ├── shim_init.ts       # Shim initialization (java.lang + android.*)
+│   ├── tracer.ts          # Execution tracer (debugging)
 │   ├── types.ts           # Interpreter type definitions
 │   └── errors.ts          # Interpreter exception classes
 ├── shim/
@@ -138,18 +144,26 @@ tools/
 ├── gen_opcode.ts            # Opcode handler generator
 ├── dex_dumper.ts            # DEX file inspector
 ├── analyze_apk.ts           # APK requirements analyzer
-└── generate_test_fixtures.ts # Test fixture generator
+├── trace_exec.ts            # Bytecode execution tracer
+├── coverage_map.ts          # Opcode & shim coverage reporter
+├── validate_shims.ts        # Shim consistency checker
+├── heap_dump.ts             # Runtime heap inspector
+├── gen_fixture.ts           # Test fixture builder
+├── gen_integration_test.ts  # Integration test scaffolder
+├── apk_onboard.ts           # APK onboarding agent
+└── regression_guard.ts      # Regression guard
 
 test/
 ├── fixtures/       # hello_world.apk, .dex, manifest_binary.xml
-├── unit/           # 357 tests (58+201+35+55+8 integration)
-│   ├── interpreter/  # heap, frame, opcodes, shim_registry, interpreter
+├── helpers/        # shim_test_utils.ts, value_matchers.ts
+├── unit/           # 319 unit tests
+│   ├── interpreter/  # heap, frame, opcodes, shim_registry, interpreter, tracer
 │   ├── shim/         # java.lang.* and android.* shim tests
-│   └── bridge/       # UIBridge, StateManager, LifecycleBridge tests (Stage 4)
-└── integration/    # (included in unit count above)
+│   └── bridge/       # UIBridge, StateManager, LifecycleBridge tests
+└── integration/    # 30 integration tests (8 APK + 8 interpreter + 6 activity + 8 bridge)
     ├── interpreter/  # Interpreter integration tests
     ├── android/      # Activity lifecycle integration tests
-    └── bridge/       # UI Bridge integration tests (Stage 4)
+    └── bridge/       # UI Bridge integration tests
 ```
 
 ## Key Files
@@ -220,6 +234,8 @@ const result = interp.invoke('Lcom/example/Test;', 'main', '()V', []);
 
 ## Documentation
 
-- `docs/specification.md` - Component specifications
-- `docs/stages/stage_2_plan.md` - Interpreter implementation plan
-- `docs/stages/stage_3_plan.md` - Android API shim implementation plan
+- `docs/specification.md` - Component specifications (12 components, all API signatures)
+- `docs/architecture.md` - System design and data flow
+- `docs/stage_5_status.md` - Current deployment status
+- `docs/stages/stage_N_plan.md` - Stage planning docs
+- `docs/stages/stage_N_results.md` - Stage completion reports
