@@ -1,15 +1,15 @@
-# Stage 5 Status: Code Complete, Deployment Ready
+# Stage 5 Status: Complete - Device Tested
 
-**Date:** 2026-02-23 (updated)
-**Overall Status:** ✅ Code 100% Complete | ✅ APK Rebuilt & Verified on Android | ⚠️ Needs OH/HarmonyOS Device Testing
+**Date:** 2026-02-24 (updated)
+**Overall Status:** ✅ Code 100% Complete | ✅ APK Rebuilt & Verified on Android | ✅ HarmonyOS Device Testing Successful
 
 ---
 
 ## Executive Summary
 
-All code for Stage 5 is complete. The CRAFT runtime, OpenHarmony UIAbility host, and dynamic ArkUI rendering page are fully implemented with 357 tests passing.
+Stage 5 is fully complete. The CRAFT runtime, OpenHarmony UIAbility host, and dynamic ArkUI rendering page are fully implemented with 357 tests passing.
 
-The Hello World APK has been recompiled (Feb 18) with full TextView creation and verified working on an Android device. The HAP is built and signed. The only remaining step is deploying to an OpenHarmony or HarmonyOS device for end-to-end validation.
+The Hello World APK has been recompiled (Feb 18) with full TextView creation and verified working on an Android device. The HAP was built, signed, and successfully tested on a HarmonyOS device on Feb 24.
 
 ---
 
@@ -69,14 +69,13 @@ public class MainActivity extends Activity {
 
 ---
 
-## What's Remaining ⚠️
+## Device Testing ✅
 
-### Device Testing
-**Status:** ⚠️ Needs OpenHarmony or HarmonyOS device/emulator
-**Priority:** HIGH
+### HarmonyOS Device Test (Feb 24)
+**Status:** ✅ Successfully tested on HarmonyOS device
 
 ```bash
-# Deploy to device
+# Deploy commands used
 hdc install src/oh/entry/build/default/outputs/default/entry-default-signed.hap
 hdc file send test/fixtures/hello_world.apk /data/app/hello_world.apk
 hdc shell aa start -a EntryAbility -b com.craft.runtime \
@@ -84,21 +83,13 @@ hdc shell aa start -a EntryAbility -b com.craft.runtime \
 hdc hilog -T CRAFT
 ```
 
-**Expected result with current APK:**
+**Results:**
 - ✅ HAP installs and launches
 - ✅ APK loads, parses, and interprets bytecode
 - ✅ Activity.onCreate() runs
 - ✅ TextView created, setText("Hello World") called
 - ✅ setContentView() triggers UI Bridge
 - ✅ "Hello World" appears on screen (24sp, black text)
-
-### HarmonyOS Build (Optional)
-To build for HarmonyOS instead of OpenHarmony:
-1. Open `src/oh/` in DevEco Studio
-2. Configure signing for the `charlotte` product
-3. Build: `hvigorw assembleHap -p product=charlotte`
-
-For Hello World, both platforms should be fully compatible (same API surface).
 
 ---
 
@@ -110,6 +101,6 @@ For Hello World, both platforms should be fully compatible (same API surface).
 | Hello World APK | ✅ Complete | Rebuilt Feb 18, verified on Android |
 | OpenHarmony HAP | ✅ Built | 476 KB signed HAP |
 | HarmonyOS Build Config | ✅ Configured | Needs signing cert |
-| Device Testing | ⚠️ Pending | Need OH or HarmonyOS device |
+| Device Testing | ✅ Complete | Tested on HarmonyOS device Feb 24 |
 
 **Last Updated:** 2026-02-24

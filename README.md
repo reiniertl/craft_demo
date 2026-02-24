@@ -6,7 +6,7 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 
 ## Project Status
 
-**Current Stage:** 5 - Code Complete, Deployment Ready (Pending APK & Device)
+**Current Stage:** 5 - Complete (All Stages Done)
 
 | Stage | Component | Status | Tests |
 |-------|-----------|--------|-------|
@@ -14,18 +14,15 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 | **2** | Bytecode Interpreter & java.lang Shims | ✅ Complete | 118 / 118 |
 | **3** | Android API Shim Layer | ✅ Complete | 35 / 35 |
 | **4** | UI Bridge & OpenHarmony Host | ✅ Complete | 55 / 55 |
-| **5** | Integration & Polish | ✅ Code Complete | 357 / 357 |
+| **5** | Integration & Polish | ✅ Complete | 357 / 357 |
 
 **Total:** 357 tests passing | 0 TypeScript errors | 0 regressions | 82 opcodes implemented
 
 **Stage 5 Status:**
 - ✅ All code implementation complete (EntryAbility.ets, CraftPage.ets, runtime integration)
-- ✅ HAP buildable and deployable
-- ✅ Full OpenHarmony integration ready
-- ⚠️ **Blocked:** Test APK needs recompilation (current is Stage 1 stub without TextView)
-- ⚠️ **Blocked:** Device testing requires OpenHarmony device/emulator
-
-**Deployment Status:** ✅ You can build & install the HAP today | ⚠️ Won't see "Hello World" until APK is recompiled
+- ✅ HAP built, signed, and deployed
+- ✅ APK rebuilt with full TextView creation
+- ✅ HarmonyOS device testing successful (Feb 24)
 
 📋 **See [Stage 5 Status](docs/stage_5_status.md) for complete deployment guide and what requires human intervention**
 
@@ -159,7 +156,7 @@ Android APK → DEX Parser → Bytecode Interpreter → Android API Shims
 
 **Tests:** 55 passing (34 bridge + 13 lifecycle + 8 integration) | **Files:** 8 source, 4 test
 
-### ✅ Stage 5: Integration & Polish (Code Complete)
+### ✅ Stage 5: Integration & Polish (Complete)
 
 **Deliverables:**
 - OpenHarmony host implementation (EntryAbility.ets, CraftPage.ets)
@@ -168,7 +165,7 @@ Android APK → DEX Parser → Bytecode Interpreter → Android API Shims
 - Comprehensive deployment documentation
 - Development tools and skills
 
-**Status:** Code complete | ⚠️ Blocked on APK recompilation & device testing
+**Status:** Complete | Tested on HarmonyOS device Feb 24
 
 ---
 
@@ -245,7 +242,7 @@ npm run dex-dump test/fixtures/hello_world.dex      # Inspect DEX
 
 | Metric | Value |
 |--------|-------|
-| **Stages Complete** | 5 / 5 (Code Complete) |
+| **Stages Complete** | 5 / 5 ✅ |
 | **Tests Passing** | 357 / 357 (100%) |
 | **TypeScript Errors** | 0 |
 | **Regressions** | 0 |
@@ -349,6 +346,6 @@ MIT
 
 ---
 
-**Status:** 5 of 5 stages code complete | 357 tests passing | APK built & verified | Awaiting OpenHarmony device testing
+**Status:** 5 of 5 stages complete | 357 tests passing | APK built & verified | HarmonyOS device tested ✅
 **Last Updated:** 2026-02-24
 **Version:** 0.1.0
