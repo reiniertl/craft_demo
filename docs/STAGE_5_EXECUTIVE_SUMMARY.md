@@ -16,13 +16,13 @@
 | 2 | Bytecode Interpreter | ✅ Complete | 115/115 | 100% |
 | 3 | Android API Shims | ✅ Complete | 35/35 | 100% |
 | 4 | UI Bridge & Runtime | ✅ Complete | 55/55 | 100% |
-| 5 | Integration & Polish | ✅ Code Complete | 266/266 | 100% (code) |
+| 5 | Integration & Polish | ✅ Code Complete | 357/357 | 100% (code) |
 
 **Quality Metrics:**
-- ✅ 266/266 tests passing (100%)
+- ✅ 357/357 tests passing (100%)
 - ✅ 0 TypeScript errors
 - ✅ 0 regressions
-- ✅ 28 opcodes implemented
+- ✅ 82 opcodes implemented
 - ✅ 12 Android/Java classes implemented (5 java.lang + 7 android)
 - ✅ 65 methods implemented (30 java.lang + 35 android)
 - ✅ UI Bridge complete with reactive state management
@@ -62,7 +62,7 @@
 - **DEX Parser:** Complete format support (header, strings, types, classes, methods, code)
 - **Manifest Parser:** Binary XML parsing with package and activity extraction
 - **Class Loader:** Superclass resolution and method lookup
-- **Bytecode Interpreter:** 28 opcodes with frame-based execution
+- **Bytecode Interpreter:** 82 opcodes with frame-based execution
 - **Heap Manager:** Object allocation, field storage, string interning
 - **Java Lang Shims:** Object, String, StringBuilder, System, Class
 - **Android API Shims:** Activity, Context, View, ViewGroup, TextView, Bundle
@@ -73,7 +73,7 @@
 
 ### Development Infrastructure
 - **5 Development Skills:** craft-test, gen-shim, gen-opcode, dex-dump, analyze-apk
-- **Test Framework:** Jest with 266 comprehensive tests
+- **Test Framework:** Jest with 357 comprehensive tests
 - **Build System:** TypeScript with strict mode
 - **Documentation:** 15+ markdown files with architecture, specs, and guides
 
@@ -187,7 +187,7 @@
 ### ✅ GREEN - Ready to Proceed
 
 - [x] All previous stages complete
-- [x] 266/266 tests passing
+- [x] 357/357 tests passing
 - [x] Zero TypeScript errors
 - [x] Core architecture validated
 - [x] UI Bridge tested and working
@@ -299,7 +299,7 @@
    - Host layer: OpenHarmony integration
 
 2. **Comprehensive Testing**
-   - 266 tests across all components
+   - 357 tests across all components
    - Unit tests for each layer
    - Integration tests for workflows
    - Zero regressions maintained

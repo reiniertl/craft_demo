@@ -14,9 +14,9 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 | **2** | Bytecode Interpreter & java.lang Shims | ✅ Complete | 118 / 118 |
 | **3** | Android API Shim Layer | ✅ Complete | 35 / 35 |
 | **4** | UI Bridge & OpenHarmony Host | ✅ Complete | 55 / 55 |
-| **5** | Integration & Polish | ✅ Code Complete | 274 / 274 |
+| **5** | Integration & Polish | ✅ Code Complete | 357 / 357 |
 
-**Total:** 274 tests passing | 0 TypeScript errors | 0 regressions | 28 opcodes implemented
+**Total:** 357 tests passing | 0 TypeScript errors | 0 regressions | 82 opcodes implemented
 
 **Stage 5 Status:**
 - ✅ All code implementation complete (EntryAbility.ets, CraftPage.ets, runtime integration)
@@ -99,7 +99,7 @@ Android APK → DEX Parser → Bytecode Interpreter → Android API Shims
 │   │   ├── core/              # Core types & utilities
 │   │   ├── oh/                # OpenHarmony host (EntryAbility, CraftPage)
 │   │   └── runtime.ts         # High-level CRAFT API
-│   ├── test/                  # Test suite (274 tests)
+│   ├── test/                  # Test suite (357 tests)
 │   │   ├── unit/              # Unit tests
 │   │   ├── integration/       # Integration tests
 │   │   └── fixtures/          # Test APKs & data
@@ -128,7 +128,7 @@ Android APK → DEX Parser → Bytecode Interpreter → Android API Shims
 ### ✅ Stage 2: Bytecode Interpreter (Complete)
 
 **Deliverables:**
-- 28 Dalvik opcodes implemented
+- 82 Dalvik opcodes implemented
 - Frame-based execution (locals, stack, PC)
 - Heap with object allocation and field storage
 - java.lang shims (Object, String, StringBuilder, System, Class)
@@ -205,7 +205,7 @@ npx tsc --noEmit
 ### Testing
 
 ```bash
-# Run all 274 tests
+# Run all 357 tests
 npm test
 
 # Run with coverage
@@ -246,10 +246,10 @@ npm run dex-dump test/fixtures/hello_world.dex      # Inspect DEX
 | Metric | Value |
 |--------|-------|
 | **Stages Complete** | 5 / 5 (Code Complete) |
-| **Tests Passing** | 274 / 274 (100%) |
+| **Tests Passing** | 357 / 357 (100%) |
 | **TypeScript Errors** | 0 |
 | **Regressions** | 0 |
-| **Opcodes Implemented** | 28 |
+| **Opcodes Implemented** | 82 |
 | **Java Classes Shimmed** | 5 (java.lang.*) |
 | **Android Classes Shimmed** | 7 (android.*) |
 | **Total Methods Shimmed** | 65 (30 java.lang + 35 android) |
@@ -264,7 +264,7 @@ npm run dex-dump test/fixtures/hello_world.dex      # Inspect DEX
 ### Bytecode Interpretation
 
 CRAFT implements a frame-based Dalvik bytecode interpreter with:
-- **28 opcodes:** move, const, return, return-wide, instance-of, new-instance, field access, invocation
+- **82 opcodes:** move, const, const-wide, return, goto, if-test, if-testz, check-cast, instance-of, new-instance, new-array, array-length, aget/aput, field access, invocation (including range variants)
 - **Virtual dispatch:** Correct superclass chain resolution (Activity → ContextWrapper → Context → Object)
 - **Heap management:** Reference-based object storage with field access
 - **String interning:** Efficient string pool for constants
@@ -350,6 +350,6 @@ MIT
 
 ---
 
-**Status:** 5 of 5 stages code complete | 274 tests passing | APK built & verified | Awaiting OpenHarmony device testing
-**Last Updated:** 2026-02-19
+**Status:** 5 of 5 stages code complete | 357 tests passing | APK built & verified | Awaiting OpenHarmony device testing
+**Last Updated:** 2026-02-24
 **Version:** 0.1.0

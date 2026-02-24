@@ -39,7 +39,7 @@ Create a compatibility layer enabling OpenHarmony to run Android APKs natively. 
 - ✅ **Stage 3 Complete:** Android API shims (Activity, Context, View, TextView, Bundle)
 - ✅ **Stage 4 Complete:** UI Bridge, State Manager, Lifecycle Bridge, Runtime integration
 - 🚧 **Stage 5 In Progress:** OpenHarmony host implementation and device testing
-- **Tests:** 266/266 passing | 0 TypeScript errors | 0 regressions
+- **Tests:** 357/357 passing | 0 TypeScript errors | 0 regressions
 
 ### 1.2 Constraints
 - **No JIT/AOT** - Pure bytecode interpretation only
@@ -648,7 +648,7 @@ class Interpreter {
 | invoke-direct | 0x70 | 35c | ✅ Implemented | 2 |
 | invoke-static | 0x71 | 35c | ✅ Implemented | 2 |
 
-**Total:** 28 opcodes implemented
+**Total:** 82 opcodes implemented
 
 #### 4.3.5 Opcode Implementation Example
 

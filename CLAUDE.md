@@ -4,7 +4,7 @@ CRAFT (Compatibility Runtime for Android Framework Translation) - An Android APK
 
 ## Current Stage: 5 Code Complete, Awaiting Device Testing
 
-**Status:** 274 tests passing | 0 TypeScript errors | 0 regressions | Code 100% Complete
+**Status:** 357 tests passing | 0 TypeScript errors | 0 regressions | Code 100% Complete
 
 Stage 1: APK/DEX/Manifest parsing ✅
 Stage 2: Bytecode interpretation ✅
@@ -98,7 +98,7 @@ src/
 │   ├── class_loader.ts    # Class and method resolution
 │   ├── method_resolver.ts # Virtual dispatch with caching
 │   ├── opcode_table.ts    # Opcode dispatch table
-│   ├── opcodes.ts         # 28 essential opcode implementations
+│   ├── opcodes.ts         # 82 Dalvik opcode implementations
 │   ├── shim_registry.ts   # Shim method registry
 │   ├── shim_init.ts       # Shim initialization (java.lang + android.*)
 │   ├── types.ts           # Interpreter type definitions
@@ -142,7 +142,7 @@ tools/
 
 test/
 ├── fixtures/       # hello_world.apk, .dex, manifest_binary.xml
-├── unit/           # 274 tests (58+118+35+55+8 integration)
+├── unit/           # 357 tests (58+201+35+55+8 integration)
 │   ├── interpreter/  # heap, frame, opcodes, shim_registry, interpreter
 │   ├── shim/         # java.lang.* and android.* shim tests
 │   └── bridge/       # UIBridge, StateManager, LifecycleBridge tests (Stage 4)
@@ -162,7 +162,7 @@ test/
 | `src/interpreter/interpreter.ts` | Main bytecode execution loop |
 | `src/interpreter/heap.ts` | Object/array/string allocation |
 | `src/interpreter/class_loader.ts` | Class/method/field resolution |
-| `src/interpreter/opcodes.ts` | 28 essential Dalvik opcodes |
+| `src/interpreter/opcodes.ts` | 82 Dalvik opcode implementations |
 | `src/interpreter/shim_registry.ts` | TypeScript shim method dispatch |
 | `src/shim/android/app/activity.ts` | Activity lifecycle shim (+ UIBridge) |
 | `src/shim/android/widget/textview.ts` | TextView shim (+ UIBridge) |

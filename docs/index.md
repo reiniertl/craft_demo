@@ -26,7 +26,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 | **Stage 4** | UI Bridge to ArkUI | [Plan](stages/stage_4_plan.md) | [Results](stages/stage_4_complete.md) | ✅ Complete (55 tests) |
 | **Stage 5** | OpenHarmony Host | [Plan](stages/stage_5_plan.md) | [Status](STAGE_5_STATUS.md) | ✅ Code Complete |
 
-**Current Status:** 266 tests passing | 0 TypeScript errors | 0 regressions | Code 100% Complete
+**Current Status:** 357 tests passing | 0 TypeScript errors | 0 regressions | Code 100% Complete
 **Deployment:** ✅ HAP buildable | ⚠️ Needs APK recompilation & device testing - [Details](STAGE_5_STATUS.md)
 
 ---
@@ -47,7 +47,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 ### Implementation Codebase
 - **Location:** `/mnt/d/craft/craft/`
 - **Main Entry:** `src/index.ts` - CRAFT runtime entry point
-- **Tests:** `test/` - 266 comprehensive tests across all stages
+- **Tests:** `test/` - 357 comprehensive tests across all stages
 
 ### For AI Agents (Claude Code)
 - [🤖 CLAUDE.md](../craft/CLAUDE.md) - Project context, architecture, and current stage
@@ -59,7 +59,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 - **File naming:** `snake_case` for all markdown files
 - **Stage docs:** `stage_N_plan.md` (planning) → `stage_N_results.md` (completion report)
 - **Status icons:** ✅ Complete | 🚧 In Progress | ⏳ Planned
-- **Test counts:** Always show breakdown by stage (e.g., "266 tests: 58 + 118 + 35 + 55")
+- **Test counts:** Always show breakdown by stage (e.g., "357 tests: 58 + 201 + 35 + 55 + 8 integration")
 
 ---
 
@@ -72,5 +72,5 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 
 ---
 
-**Last Updated:** 2026-02-17
+**Last Updated:** 2026-02-24
 **Version:** 0.1.0

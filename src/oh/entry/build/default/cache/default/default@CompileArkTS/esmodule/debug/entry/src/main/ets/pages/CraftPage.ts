@@ -4,10 +4,12 @@ if (!("finalizeConstruction" in ViewPU.prototype)) {
 interface CraftPage_Params {
     runtime?: CraftRuntime | null;
     activityRef?: number;
+    craftError?: string;
     viewTree?: SerializedView | null;
     updateCounter?: number;
     errorMessage?: string;
     isLoading?: boolean;
+    diagTimer?: number;
 }
 import type { CraftRuntime, SerializedView } from '../craft/index';
 import hilog from "@ohos:hilog";
@@ -21,10 +23,12 @@ class CraftPage extends ViewPU {
         }
         this.__runtime = this.createStorageLink('craftRuntime', null, "runtime");
         this.__activityRef = this.createStorageLink('activityRef', 0, "activityRef");
+        this.__craftError = this.createStorageLink('craftError', '', "craftError");
         this.__viewTree = new ObservedPropertyObjectPU(null, this, "viewTree");
         this.__updateCounter = new ObservedPropertySimplePU(0, this, "updateCounter");
         this.__errorMessage = new ObservedPropertySimplePU('', this, "errorMessage");
         this.__isLoading = new ObservedPropertySimplePU(true, this, "isLoading");
+        this.diagTimer = -1;
         this.setInitiallyProvidedValue(params);
         this.finalizeConstruction();
     }
@@ -41,12 +45,16 @@ class CraftPage extends ViewPU {
         if (params.isLoading !== undefined) {
             this.isLoading = params.isLoading;
         }
+        if (params.diagTimer !== undefined) {
+            this.diagTimer = params.diagTimer;
+        }
     }
     updateStateVars(params: CraftPage_Params) {
     }
     purgeVariableDependenciesOnElmtId(rmElmtId) {
         this.__runtime.purgeDependencyOnElmtId(rmElmtId);
         this.__activityRef.purgeDependencyOnElmtId(rmElmtId);
+        this.__craftError.purgeDependencyOnElmtId(rmElmtId);
         this.__viewTree.purgeDependencyOnElmtId(rmElmtId);
         this.__updateCounter.purgeDependencyOnElmtId(rmElmtId);
         this.__errorMessage.purgeDependencyOnElmtId(rmElmtId);
@@ -55,6 +63,7 @@ class CraftPage extends ViewPU {
     aboutToBeDeleted() {
         this.__runtime.aboutToBeDeleted();
         this.__activityRef.aboutToBeDeleted();
+        this.__craftError.aboutToBeDeleted();
         this.__viewTree.aboutToBeDeleted();
         this.__updateCounter.aboutToBeDeleted();
         this.__errorMessage.aboutToBeDeleted();
@@ -75,6 +84,13 @@ class CraftPage extends ViewPU {
     }
     set activityRef(newValue: number) {
         this.__activityRef.set(newValue);
+    }
+    private __craftError: ObservedPropertyAbstractPU<string>;
+    get craftError() {
+        return this.__craftError.get();
+    }
+    set craftError(newValue: string) {
+        this.__craftError.set(newValue);
     }
     private __viewTree: ObservedPropertyObjectPU<SerializedView | null>;
     get viewTree() {
@@ -104,8 +120,10 @@ class CraftPage extends ViewPU {
     set isLoading(newValue: boolean) {
         this.__isLoading.set(newValue);
     }
+    private diagTimer: number;
     aboutToAppear(): void {
         hilog.info(DOMAIN, TAG, '[CraftPage][INFO] aboutToAppear');
+        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] runtime available: %{public}s', String(this.runtime !== null));
         if (!this.runtime) {
             this.errorMessage = 'Runtime not available';
             this.isLoading = false;
@@ -115,6 +133,7 @@ class CraftPage extends ViewPU {
         try {
             // Subscribe to UI updates from StateManager
             const stateManager = this.runtime.getUIBridge().getStateManager();
+            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Subscribed to state updates');
             stateManager.subscribe(() => {
                 hilog.info(DOMAIN, TAG, '[CraftPage][INFO] State update received');
                 const state = stateManager.getState();
@@ -133,6 +152,19 @@ class CraftPage extends ViewPU {
                 this.isLoading = false;
                 hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Initial state loaded');
             }
+            // Diagnostic timeout: if still loading after 3 seconds, show status
+            this.diagTimer = setTimeout(() => {
+                if (this.isLoading) {
+                    hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Still loading after 3s, craftError=%{public}s', this.craftError);
+                    if (this.craftError) {
+                        this.errorMessage = this.craftError;
+                    }
+                    else {
+                        this.errorMessage = 'Activity creation timed out. Check hdc hilog -T CRAFT for details.';
+                    }
+                    this.isLoading = false;
+                }
+            }, 3000) as number;
         }
         catch (error) {
             const msg = error instanceof Error ? error.message : String(error);
@@ -143,7 +175,10 @@ class CraftPage extends ViewPU {
     }
     aboutToDisappear(): void {
         hilog.info(DOMAIN, TAG, '[CraftPage][INFO] aboutToDisappear');
-        // Unsubscribe handled by runtime shutdown
+        if (this.diagTimer !== -1) {
+            clearTimeout(this.diagTimer);
+            this.diagTimer = -1;
+        }
     }
     initialRender() {
         this.observeComponentCreation2((elmtId, isInitialRender) => {

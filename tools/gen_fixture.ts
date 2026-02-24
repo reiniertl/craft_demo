@@ -25,7 +25,7 @@ Scenarios:
   static-init        Class with <clinit> static initializer
   array-ops          Array creation, fill, access, bounds error
   string-ops         String creation, StringBuilder usage
-  all-opcodes        Uses all 28 implemented opcodes in one method
+  all-opcodes        Uses key implemented opcodes (82 total)
 
 Examples:
   npm run gen-fixture -- --list

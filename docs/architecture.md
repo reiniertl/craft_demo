@@ -74,7 +74,7 @@ This document describes the system architecture for running Android APKs on Open
 ### 4. Bytecode Interpreter (Stage 2)
 - **Purpose:** Execute Dalvik bytecode instructions
 - **Capabilities:**
-  - 28 opcodes (nop, move, const, return, instance-of, new-instance, field access, invocation)
+  - 82 opcodes (move, const, const-wide, return, goto, if-test, if-testz, check-cast, instance-of, new-instance, new-array, array ops, field access, invocation including range variants)
   - Frame-based execution (local variables, operand stack)
   - Method invocation (invoke-direct, invoke-virtual, invoke-static, invoke-super)
 - **Implementation:**
@@ -248,7 +248,7 @@ interface Frame {
 ## Performance Characteristics
 
 **Current Status (Stages 1-5):**
-- Test suite: 266 tests in ~5 seconds
+- Test suite: 357 tests in ~5 seconds
 - Zero TypeScript compilation errors
 - Heap allocation: ~1000 objects for Hello World scenario
 - Opcode execution: ~500 instructions for Hello World

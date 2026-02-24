@@ -256,7 +256,7 @@ npm run gen-fixture string-ops -- --output test/fixtures/my_strings.ts
 - `static-init` - Class with `<clinit>` static initializer
 - `array-ops` - Array creation, fill, access patterns
 - `string-ops` - String creation, const-string usage
-- `all-opcodes` - Uses key implemented opcodes
+- `all-opcodes` - Uses key implemented opcodes (82 total)
 
 ---
 
@@ -342,9 +342,9 @@ npm run guard -- --fix
 [CRAFT][Guard][Info] Running regression guard...
 
 ✅ TypeScript: 0 errors
-✅ Tests: 274 passed, 0 failed
+✅ Tests: 357 passed, 0 failed
 ✅ Shims: All registered, 0 issues
-✅ Opcodes: 28 registered
+✅ Opcodes: 82 registered
 
 [CRAFT][Guard][Success] All checks passed!
 ```

@@ -18,14 +18,17 @@ const TAG = 'CRAFT';
 struct CraftPage {
     @StorageLink('craftRuntime') runtime: CraftRuntime | null = null;
     @StorageLink('activityRef') activityRef: number = 0;
+    @StorageLink('craftError') craftError: string = '';
 
     @State viewTree: SerializedView | null = null;
     @State updateCounter: number = 0;
     @State errorMessage: string = '';
     @State isLoading: boolean = true;
+    private diagTimer: number = -1;
 
     aboutToAppear(): void {
         hilog.info(DOMAIN, TAG, '[CraftPage][INFO] aboutToAppear');
+        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] runtime available: %{public}s', String(this.runtime !== null));
 
         if (!this.runtime) {
             this.errorMessage = 'Runtime not available';
@@ -37,6 +40,7 @@ struct CraftPage {
         try {
             // Subscribe to UI updates from StateManager
             const stateManager = this.runtime.getUIBridge().getStateManager();
+            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Subscribed to state updates');
 
             stateManager.subscribe(() => {
                 hilog.info(DOMAIN, TAG, '[CraftPage][INFO] State update received');
@@ -60,6 +64,19 @@ struct CraftPage {
                 hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Initial state loaded');
             }
 
+            // Diagnostic timeout: if still loading after 3 seconds, show status
+            this.diagTimer = setTimeout(() => {
+                if (this.isLoading) {
+                    hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Still loading after 3s, craftError=%{public}s', this.craftError);
+                    if (this.craftError) {
+                        this.errorMessage = this.craftError;
+                    } else {
+                        this.errorMessage = 'Activity creation timed out. Check hdc hilog -T CRAFT for details.';
+                    }
+                    this.isLoading = false;
+                }
+            }, 3000) as number;
+
         } catch (error) {
             const msg = error instanceof Error ? error.message : String(error);
             this.errorMessage = `Setup failed: ${msg}`;
@@ -70,7 +87,10 @@ struct CraftPage {
 
     aboutToDisappear(): void {
         hilog.info(DOMAIN, TAG, '[CraftPage][INFO] aboutToDisappear');
-        // Unsubscribe handled by runtime shutdown
+        if (this.diagTimer !== -1) {
+            clearTimeout(this.diagTimer);
+            this.diagTimer = -1;
+        }
     }
 
     build() {

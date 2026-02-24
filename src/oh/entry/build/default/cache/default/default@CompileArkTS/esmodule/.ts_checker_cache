@@ -101,13 +101,14 @@
       "error": false
     },
     "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\entryability\\EntryAbility.ets": {
-      "mtimeMs": 1771604320574.7307,
+      "mtimeMs": 1771962062396.2983,
       "children": [
         "C:\\Users\\Bluezone1\\AppData\\Local\\OpenHarmony\\Sdk\\12\\ets\\api\\@ohos.app.ability.UIAbility.d.ts",
         "C:\\Users\\Bluezone1\\AppData\\Local\\OpenHarmony\\Sdk\\12\\ets\\api\\@ohos.app.ability.AbilityConstant.d.ts",
         "C:\\Users\\Bluezone1\\AppData\\Local\\OpenHarmony\\Sdk\\12\\ets\\api\\@ohos.app.ability.Want.d.ts",
         "C:\\Users\\Bluezone1\\AppData\\Local\\OpenHarmony\\Sdk\\12\\ets\\api\\@ohos.window.d.ts",
         "C:\\Users\\Bluezone1\\AppData\\Local\\OpenHarmony\\Sdk\\12\\ets\\api\\@ohos.hilog.d.ts",
+        "C:\\Users\\Bluezone1\\AppData\\Local\\OpenHarmony\\Sdk\\12\\ets\\api\\@ohos.file.fs.d.ts",
         "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts"
       ],
       "parent": [],
@@ -1501,7 +1502,8 @@
         "C:\\Users\\Bluezone1\\AppData\\Local\\OpenHarmony\\Sdk\\12\\ets\\api\\@ohos.util.stream.d.ts"
       ],
       "parent": [
-        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts"
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\runtime.ts",
+        "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\entryability\\EntryAbility.ets"
       ],
       "error": false
     },
@@ -1625,7 +1627,7 @@
       "error": false
     },
     "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcodes.ts": {
-      "mtimeMs": 1771356758762.3108,
+      "mtimeMs": 1771965049150.163,
       "children": [
         "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\opcode_table.ts",
         "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\interpreter\\errors.ts"
@@ -1839,7 +1841,7 @@
       "error": false
     },
     "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\pages\\CraftPage.ets": {
-      "mtimeMs": 1771604335483.9114,
+      "mtimeMs": 1771960023197.453,
       "children": [
         "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\ets\\craft\\index.ts",
         "C:\\Users\\Bluezone1\\AppData\\Local\\OpenHarmony\\Sdk\\12\\ets\\api\\@ohos.hilog.d.ts"

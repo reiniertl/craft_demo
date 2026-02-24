@@ -15,7 +15,7 @@ This document provides technical specifications for all CRAFT components.
 | APK Parsing | Extract and parse AndroidManifest.xml, DEX files, resources | ✅ Stage 1 |
 | DEX Parsing | Parse DEX file format (header, strings, types, classes, code) | ✅ Stage 1 |
 | Class Loading | Load classes with correct superclass chains | ✅ Stages 1-2 |
-| Bytecode Interpretation | Execute Dalvik bytecode (28 opcodes implemented) | ✅ Stage 2 |
+| Bytecode Interpretation | Execute Dalvik bytecode (82 opcodes implemented) | ✅ Stage 2 |
 | java.lang Shims | Provide Object, String, StringBuilder, System, Class | ✅ Stage 2 |
 | Android API Shims | Provide Activity, Context, TextView, View, Bundle | ✅ Stage 3 |
 | UI Bridge | Map Android Views to ArkUI components | ✅ Stage 4 |
@@ -351,7 +351,7 @@ struct CraftPage {
 | Errors | `test/unit/errors.test.ts` | 5 | Error classes |
 | Heap | `test/unit/interpreter/heap.test.ts` | 19 | Allocate, fields, strings |
 | Frame | `test/unit/interpreter/frame.test.ts` | 10 | Locals, stack, calls |
-| Opcodes | `test/unit/interpreter/opcodes.test.ts` | 27 | All 28 opcodes |
+| Opcodes | `test/unit/interpreter/opcodes.test.ts` | 110 | All 82 opcodes |
 | Interpreter | `test/unit/interpreter/interpreter.test.ts` | 6 | Main execution loop |
 | ClassLoader | `test/unit/interpreter/class_loader.test.ts` | 11 | Class/method resolution |
 | ShimRegistry | `test/unit/interpreter/shim_registry.test.ts` | 6 | Register, invoke |
@@ -360,7 +360,7 @@ struct CraftPage {
 | UIBridge | `test/unit/bridge/ui_bridge.test.ts` | 17 | View mapping |
 | StateManager | `test/unit/bridge/state_manager.test.ts` | 17 | Reactive state |
 | LifecycleBridge | `test/unit/bridge/lifecycle_bridge.test.ts` | 13 | Lifecycle mapping |
-| **Total Unit** | — | **236** | — |
+| **Total Unit** | — | **319** | — |
 
 ### Integration Test Coverage
 
@@ -379,7 +379,7 @@ struct CraftPage {
 | UI Integration | `test/integration/bridge/ui_integration.test.ts` | 8 | UI Bridge integration |
 | **Total Integration** | — | **30** | — |
 
-**Total: 266 tests across 26 test suites**
+**Total: 357 tests across 27 test suites**
 
 ---
 
@@ -389,7 +389,7 @@ struct CraftPage {
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| Test Pass Rate | 100% | 266/266 | ✅ |
+| Test Pass Rate | 100% | 357/357 | ✅ |
 | TypeScript Errors | 0 | 0 | ✅ |
 | Regression Rate | 0% | 0% | ✅ |
 | Code Coverage | >80% | ~85% | ✅ |

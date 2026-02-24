@@ -3,6 +3,7 @@ import AbilityConstant from '@ohos.app.ability.AbilityConstant';
 import Want from '@ohos.app.ability.Want';
 import window from '@ohos.window';
 import hilog from '@ohos.hilog';
+import fs from '@ohos.file.fs';
 import { CraftRuntime } from '../craft/runtime';
 
 const DOMAIN = 0x0000;
@@ -71,7 +72,7 @@ export default class CraftAbility extends UIAbility {
         }
     }
 
-    async onWindowStageCreate(windowStage: window.WindowStage): Promise<void> {
+    onWindowStageCreate(windowStage: window.WindowStage): void {
         hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] onWindowStageCreate');
 
         try {
@@ -80,6 +81,7 @@ export default class CraftAbility extends UIAbility {
             }
 
             // Load APK - either from filesystem or bundled rawfile
+            // All operations are synchronous to avoid lifecycle timing issues.
             hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Loading APK...');
             if (this.useBundledApk) {
                 const rawData = this.context.resourceManager.getRawFileContentSync('hello_world.apk');
@@ -87,43 +89,54 @@ export default class CraftAbility extends UIAbility {
                 this.runtime.loadAPK(apkData);
                 hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Bundled APK loaded (%{public}d bytes)', apkData.length);
             } else {
-                await this.runtime.loadAPKFromPath(this.apkPath);
-                hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] APK loaded from path');
+                // Read external APK synchronously (no dynamic import needed)
+                const file = fs.openSync(this.apkPath, fs.OpenMode.READ_ONLY);
+                const stat = fs.statSync(this.apkPath);
+                const buf = new ArrayBuffer(stat.size);
+                fs.readSync(file.fd, buf);
+                fs.closeSync(file);
+                this.runtime.loadAPK(new Uint8Array(buf));
+                hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] APK loaded from path (%{public}d bytes)', stat.size);
             }
 
-            // Create Activity instance (uses main activity from manifest)
-            hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Creating Activity...');
-            this.activityRef = this.runtime.createActivity();
-            hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Activity created: ref=%{public}d', this.activityRef);
+            // Share runtime with page via AppStorage BEFORE loading page.
+            // CraftPage.aboutToAppear() runs during loadContent, so the runtime
+            // must already be in AppStorage for the page to subscribe to state.
+            AppStorage.setOrCreate('craftRuntime', this.runtime);
+            hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Runtime stored in AppStorage');
 
-            // Load CraftPage (will subscribe to state updates)
+            // Load CraftPage - page subscribes to state updates in aboutToAppear()
             windowStage.loadContent('pages/CraftPage', (err) => {
-                if (err.code) {
+                if (err && err.code) {
                     hilog.error(DOMAIN, TAG, '[CraftAbility][ERROR] Failed to load page: %{public}s', JSON.stringify(err));
+                    AppStorage.setOrCreate('craftError', `Page load failed: ${JSON.stringify(err)}`);
                     return;
                 }
 
                 hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] CraftPage loaded');
 
-                // Share runtime with page via AppStorage
-                AppStorage.setOrCreate('craftRuntime', this.runtime);
-                AppStorage.setOrCreate('activityRef', this.activityRef);
-
-                // Now call Activity.onCreate() - this will trigger UI updates
-                hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Calling Activity.onCreate()...');
+                // Create Activity AFTER page is loaded and subscribed to state.
+                // createActivity() calls Activity.onCreate() which calls
+                // setContentView(), firing state notifications to CraftPage.
                 try {
-                    // createActivity already calls onCreate, just resume
+                    hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Creating Activity...');
+                    this.activityRef = this.runtime!.createActivity();
+                    AppStorage.setOrCreate('activityRef', this.activityRef);
+                    hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Activity created: ref=%{public}d', this.activityRef);
+
                     this.runtime!.resumeActivity();
                     hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Activity resumed');
                 } catch (error) {
                     const msg = error instanceof Error ? error.message : String(error);
-                    hilog.error(DOMAIN, TAG, '[CraftAbility][ERROR] onCreate failed: %{public}s', msg);
+                    hilog.error(DOMAIN, TAG, '[CraftAbility][ERROR] Activity creation failed: %{public}s', msg);
+                    AppStorage.setOrCreate('craftError', msg);
                 }
             });
 
         } catch (error) {
             const msg = error instanceof Error ? error.message : String(error);
             hilog.error(DOMAIN, TAG, '[CraftAbility][ERROR] Setup failed: %{public}s', msg);
+            AppStorage.setOrCreate('craftError', msg);
         }
     }
 
