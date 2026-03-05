@@ -57,7 +57,29 @@
       "Bash(git config:*)",
       "Bash(git credential-manager:*)",
       "Bash(grep:*)",
-      "Bash(du:*)"
+      "Bash(du:*)",
+      "Bash(git status:*)",
+      "Bash(done)",
+      "Bash(cat:*)",
+      "Bash(/tmp/audit.txt:*)",
+      "Bash(/tmp/opcodes_audit.txt:*)",
+      "Bash(git mv:*)",
+      "Bash(git rm:*)",
+      "Bash(git -C /mnt/d/craft/craft status)",
+      "Bash(git -C /mnt/d/craft/craft diff --stat HEAD)",
+      "Bash(git -C /mnt/d/craft/craft log --oneline -5)",
+      "Bash(git -C /mnt/d/craft/craft add:*)",
+      "Bash(git -C:*)",
+      "Bash(cmd.exe /c \"D:\\\\craft\\\\craft\\\\build_apk.bat\")",
+      "Bash(cmd.exe /c build_apk.bat)",
+      "Bash(git stash:*)",
+      "Bash(while read f)",
+      "Bash(do)",
+      "Bash(rel=\"$f#$OH/\")",
+      "Bash(if [ ! -f \"$SRC/$rel\" ])",
+      "Bash(then)",
+      "Bash(fi)",
+      "Bash(git diff:*)"
     ]
   }
 }
