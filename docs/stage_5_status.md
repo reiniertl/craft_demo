@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-Stage 5 is fully complete. The CRAFT runtime, OpenHarmony UIAbility host, and dynamic ArkUI rendering page are fully implemented with 357 tests passing.
+Stage 5 is fully complete. The CRAFT runtime, OpenHarmony UIAbility host, and dynamic ArkUI rendering page are fully implemented with 554 tests passing.
 
 The Hello World APK has been recompiled (Feb 18) with full TextView creation and verified working on an Android device. The HAP was built, signed, and successfully tested on a HarmonyOS device on Feb 24.
 
@@ -17,12 +17,12 @@ The Hello World APK has been recompiled (Feb 18) with full TextView creation and
 
 ### 1. Complete TypeScript Runtime (Stages 1-4)
 **Status:** ✅ 100% Complete
-**Tests:** 357 passing (100%)
+**Tests:** 554 passing (100%)
 
 - ✅ APK Parser (ZIP extraction, manifest parsing)
 - ✅ DEX Parser (full DEX format support)
-- ✅ Bytecode Interpreter (82 opcodes including Tier 1 coverage)
-- ✅ Android API Shims (Activity, Context, View, TextView, Bundle)
+- ✅ Bytecode Interpreter (218 opcodes — full Dalvik instruction set)
+- ✅ Android API Shims (Activity, Context, View, ViewGroup, LinearLayout, TextView, Bundle)
 - ✅ UI Bridge (ViewNode mapping, reactive state)
 - ✅ Lifecycle Bridge (Activity ↔ Ability mapping)
 - ✅ CraftRuntime (high-level API wrapper)
@@ -36,17 +36,26 @@ The Hello World APK has been recompiled (Feb 18) with full TextView creation and
 package com.example.helloworld;
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        TextView textView = new TextView(this);
-        textView.setText("Hello World");
-        textView.setTextSize(24.0f);
-        textView.setTextColor(0xFF000000);
-        setContentView(textView);
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(1); // VERTICAL
+
+        TextView title = new TextView(this);
+        title.setText("CRAFT Demo");
+        title.setTextSize(28.0f);
+        title.setTextColor(0xFF1A237E);
+        layout.addView(title);
+
+        // Version via StringBuilder, arithmetic, conditional branching
+        // ... (see test/fixtures/MainActivity.java for full source)
+
+        setContentView(layout);
     }
 }
 ```
@@ -97,7 +106,7 @@ hdc hilog -T CRAFT
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| TypeScript Runtime | ✅ Complete | 357 tests, 0 errors |
+| TypeScript Runtime | ✅ Complete | 554 tests, 0 errors |
 | Hello World APK | ✅ Complete | Rebuilt Feb 18, verified on Android |
 | OpenHarmony HAP | ✅ Built | 476 KB signed HAP |
 | HarmonyOS Build Config | ✅ Configured | Needs signing cert |

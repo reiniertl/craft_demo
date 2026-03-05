@@ -1,4 +1,5 @@
 import type { ShimRegistry } from '../../../interpreter/shim_registry';
+import type { UIBridge } from '../../../bridge/ui_bridge';
 import { NULL_VALUE, intValue } from "@bundle:com.craft.runtime/entry/ets/craft/core/types";
 const VIEW_GROUP_CLASS = 'Landroid/view/ViewGroup;';
 /** Internal storage for ViewGroup children, keyed by heap reference */
@@ -11,7 +12,7 @@ function getChildren(ref: number): number[] {
     }
     return children;
 }
-export function registerViewGroupShim(registry: ShimRegistry): void {
+export function registerViewGroupShim(registry: ShimRegistry, uiBridge?: UIBridge): void {
     // <init>(Landroid/content/Context;)V
     registry.register(VIEW_GROUP_CLASS, '<init>', '(Landroid/content/Context;)V', (_interp, heap, thisRef, args) => {
         // Initialize View fields
@@ -19,6 +20,10 @@ export function registerViewGroupShim(registry: ShimRegistry): void {
         heap.setField(thisRef, 'mId', intValue(-1));
         heap.setField(thisRef, 'mVisibility', intValue(0));
         getChildren(thisRef);
+        // Register with UI bridge
+        if (uiBridge) {
+            uiBridge.registerView(thisRef, 'ViewGroup');
+        }
         return NULL_VALUE;
     });
     // addView(Landroid/view/View;)V
@@ -29,6 +34,10 @@ export function registerViewGroupShim(registry: ShimRegistry): void {
         }).ref;
         const children = getChildren(thisRef);
         children.push(childRef);
+        // Notify UI bridge of hierarchy change
+        if (uiBridge) {
+            uiBridge.addChildView(thisRef, childRef);
+        }
         return NULL_VALUE;
     });
     // getChildCount()I

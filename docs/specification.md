@@ -15,9 +15,9 @@ This document provides technical specifications for all CRAFT components. All in
 | APK Parsing | Extract and parse AndroidManifest.xml, DEX files, resources | ✅ Stage 1 |
 | DEX Parsing | Parse DEX file format (header, strings, types, classes, code) | ✅ Stage 1 |
 | Class Loading | Load classes with correct superclass chains | ✅ Stages 1-2 |
-| Bytecode Interpretation | Execute Dalvik bytecode (82 opcodes implemented) | ✅ Stage 2 |
+| Bytecode Interpretation | Execute Dalvik bytecode (218 opcodes implemented) | ✅ Stage 2 |
 | java.lang Shims | Provide Object, String, StringBuilder, System, Class | ✅ Stage 2 |
-| Android API Shims | Provide Activity, Context, TextView, View, Bundle | ✅ Stage 3 |
+| Android API Shims | Provide Activity, Context, TextView, LinearLayout, View, Bundle | ✅ Stage 3 |
 | UI Bridge | Map Android Views to ArkUI components | ✅ Stage 4 |
 | OpenHarmony Host | Wrap as UIAbility with lifecycle bridging | ✅ Stage 5 |
 
@@ -227,7 +227,7 @@ class Interpreter {
 4. Loops: fetch opcode at `frame.pc` → dispatch via `OpcodeTable` → handler advances `pc`
 5. On `return-*`, pops frame and stores result for caller's `move-result`
 
-### Opcodes Implemented (82)
+### Opcodes Implemented (218)
 
 | Category | Opcodes | Count |
 |----------|---------|-------|
@@ -238,20 +238,40 @@ class Interpreter {
 | **Const** | const/4, const/16, const, const/high16, const-wide/16, const-wide/32, const-wide, const-wide/high16 | 8 |
 | **String/Class** | const-string, const-string/jumbo, const-class, check-cast | 4 |
 | **Type Check** | instance-of | 1 |
-| **Array** | array-length, new-array, aget, aget-wide, aget-object, aget-boolean, aget-byte, aget-char, aget-short, aput, aput-wide, aput-object, aput-boolean, aput-byte, aput-char, aput-short | 16 |
-| **Object** | new-instance | 1 |
-| **Instance Fields** | iget, iget-object, iput, iput-object | 4 |
-| **Static Fields** | sget, sget-object, sput, sput-object | 4 |
+| **Monitor** | monitor-enter, monitor-exit | 2 |
+| **Array** | array-length, new-instance, new-array, filled-new-array, filled-new-array/range, fill-array-data | 6 |
+| **Array Access** | aget(-wide/-object/-boolean/-byte/-char/-short), aput(-wide/-object/-boolean/-byte/-char/-short) | 14 |
 | **Throw** | throw | 1 |
 | **Goto** | goto, goto/16, goto/32 | 3 |
-| **Comparison** | if-eq, if-ne, if-lt, if-ge, if-gt, if-le, if-eqz, if-nez, if-ltz, if-gez, if-gtz, if-lez | 12 |
+| **Switch** | packed-switch, sparse-switch | 2 |
+| **Comparison** | cmpl-float, cmpg-float, cmpl-double, cmpg-double, cmp-long | 5 |
+| **If Tests** | if-eq, if-ne, if-lt, if-ge, if-gt, if-le, if-eqz, if-nez, if-ltz, if-gez, if-gtz, if-lez | 12 |
+| **Instance Fields** | iget, iget-wide, iget-object, iget-boolean, iget-byte, iget-char, iget-short, iput, iput-wide, iput-object, iput-boolean, iput-byte, iput-char, iput-short | 14 |
+| **Static Fields** | sget, sget-wide, sget-object, sget-boolean, sget-byte, sget-char, sget-short, sput, sput-wide, sput-object, sput-boolean, sput-byte, sput-char, sput-short | 14 |
 | **Invocation** | invoke-virtual, invoke-super, invoke-direct, invoke-static, invoke-interface, invoke-virtual/range, invoke-super/range, invoke-direct/range, invoke-static/range, invoke-interface/range | 10 |
+| **Unary** | neg-int, not-int, neg-long, not-long, neg-float, neg-double | 6 |
+| **Conversion** | int-to-long, int-to-float, int-to-double, long-to-int, long-to-float, long-to-double, float-to-int, float-to-long, float-to-double, double-to-int, double-to-long, double-to-float, int-to-byte, int-to-char, int-to-short | 15 |
+| **Int Arithmetic** | add/sub/mul/div/rem/and/or/xor/shl/shr/ushr-int (3-register) | 11 |
+| **Long Arithmetic** | add/sub/mul/div/rem/and/or/xor/shl/shr/ushr-long (3-register) | 11 |
+| **Float Arithmetic** | add/sub/mul/div/rem-float (3-register) | 5 |
+| **Double Arithmetic** | add/sub/mul/div/rem-double (3-register) | 5 |
+| **Int 2addr** | add/sub/mul/div/rem/and/or/xor/shl/shr/ushr-int/2addr | 11 |
+| **Long 2addr** | add/sub/mul/div/rem/and/or/xor/shl/shr/ushr-long/2addr | 11 |
+| **Float 2addr** | add/sub/mul/div/rem-float/2addr | 5 |
+| **Double 2addr** | add/sub/mul/div/rem-double/2addr | 5 |
+| **Int lit16** | add-int/lit16, rsub-int, mul/div/rem/and/or/xor-int/lit16 | 8 |
+| **Int lit8** | add/rsub/mul/div/rem/and/or/xor/shl/shr/ushr-int/lit8 | 11 |
+
+**Coverage:** 218 of 218 defined non-reserved opcodes (100% of practical Dalvik instruction set). Only 6 extended opcodes (invoke-polymorphic, invoke-custom, const-method-handle, const-method-type) are excluded as they require Java 8+ MethodHandle support not used by standard Android apps.
 
 ### Verification
-- ✅ Executes arithmetic operations (42 + 1 = 43)
-- ✅ Executes conditionals (if-eq branches correctly)
+- ✅ Executes arithmetic operations (42 + 13 = 55 computed at runtime)
+- ✅ Executes conditionals (if-gt branches correctly)
 - ✅ Executes method calls (invoke-direct, invoke-virtual)
+- ✅ Executes switch statements (packed and sparse)
+- ✅ Executes type conversions (int↔long↔float↔double)
 - ✅ Executes Hello World onCreate bytecode
+- ✅ Executes multi-view layout with StringBuilder chaining
 
 ---
 
@@ -651,16 +671,19 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 | Errors | `test/unit/errors.test.ts` | 5 | Error classes |
 | Heap | `test/unit/interpreter/heap.test.ts` | 19 | Allocate, fields, strings |
 | Frame | `test/unit/interpreter/frame.test.ts` | 10 | Locals, stack, calls |
-| Opcodes | `test/unit/interpreter/opcodes.test.ts` | 110 | All 82 opcodes |
+| Opcodes | `test/unit/interpreter/opcodes.test.ts` | 110 | Core opcodes |
+| Arithmetic Opcodes | `test/unit/interpreter/arithmetic_opcodes.test.ts` | 21 | Arithmetic opcodes |
+| Remaining Opcodes | `test/unit/interpreter/remaining_opcodes.test.ts` | 160 | All remaining opcodes |
+| LinearLayout | `test/unit/shim/linear_layout.test.ts` | 8 | LinearLayout shim |
 | Interpreter | `test/unit/interpreter/interpreter.test.ts` | 6 | Main execution loop |
 | ClassLoader | `test/unit/interpreter/class_loader.test.ts` | 11 | Class/method resolution |
 | ShimRegistry | `test/unit/interpreter/shim_registry.test.ts` | 6 | Register, invoke |
 | java.lang Shims | `test/unit/shim/java_lang.test.ts` | 31 | Object, String, StringBuilder, etc. |
-| Android Shims | `test/unit/shim/android_api.test.ts` | 29 | All 7 Android classes |
+| Android Shims | `test/unit/shim/android_api.test.ts` | 29 | All 8 Android classes |
 | UIBridge | `test/unit/bridge/ui_bridge.test.ts` | 17 | View mapping |
 | StateManager | `test/unit/bridge/state_manager.test.ts` | 17 | Reactive state |
 | LifecycleBridge | `test/unit/bridge/lifecycle_bridge.test.ts` | 13 | Lifecycle mapping |
-| **Total Unit** | -- | **319** | -- |
+| **Total Unit** | -- | **508** | -- |
 
 ### Integration Test Coverage
 
@@ -676,10 +699,11 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 | Super Call | `test/integration/interpreter/super_call.test.ts` | 1 | Super method invocation |
 | StringBuilder | `test/integration/interpreter/string_builder.test.ts` | 1 | String building |
 | Activity Lifecycle | `test/integration/android/activity_lifecycle.test.ts` | 6 | onCreate, TextView, setContentView |
+| Multi-View Layout | `test/integration/android/multi_view_layout.test.ts` | 8 | LinearLayout, arithmetic, conditional |
 | UI Integration | `test/integration/bridge/ui_integration.test.ts` | 8 | UI Bridge integration |
-| **Total Integration** | -- | **30** | -- |
+| **Total Integration** | -- | **38** | -- |
 
-**Total: 357 tests across 27 test suites**
+**Total: 554 tests across 31 test suites**
 
 ---
 

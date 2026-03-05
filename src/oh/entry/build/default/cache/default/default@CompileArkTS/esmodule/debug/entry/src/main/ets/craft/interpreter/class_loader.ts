@@ -173,6 +173,9 @@ export class ClassLoader {
             'Landroid/view/View;': 'Ljava/lang/Object;',
             'Landroid/view/ViewGroup;': 'Landroid/view/View;',
             'Landroid/widget/TextView;': 'Landroid/view/View;',
+            'Landroid/widget/LinearLayout;': 'Landroid/view/ViewGroup;',
+            'Landroid/widget/Button;': 'Landroid/widget/TextView;',
+            'Landroid/view/View$OnClickListener;': 'Ljava/lang/Object;',
         };
         if (descriptor in superMap) {
             return superMap[descriptor] ?? null;
@@ -196,6 +199,9 @@ export class ClassLoader {
             'Landroid/view/View;',
             'Landroid/view/ViewGroup;',
             'Landroid/widget/TextView;',
+            'Landroid/widget/LinearLayout;',
+            'Landroid/widget/Button;',
+            'Landroid/view/View$OnClickListener;',
         ];
         return known.includes(descriptor);
     }

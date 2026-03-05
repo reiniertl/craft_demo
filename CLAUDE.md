@@ -4,7 +4,7 @@ CRAFT (Compatibility Runtime for Android Framework Translation) - An Android APK
 
 ## Current Stage: 5 Complete - All Stages Done
 
-**Status:** 357 tests passing | 0 TypeScript errors | 0 regressions | Device Tested ✅
+**Status:** 554 tests passing | 0 TypeScript errors | 0 regressions | Device Tested ✅
 
 Stage 1: APK/DEX/Manifest parsing ✅
 Stage 2: Bytecode interpretation ✅
@@ -121,8 +121,9 @@ src/
 │       ├── os/bundle.ts         # android.os.Bundle
 │       ├── content/context.ts   # android.content.Context + ContextWrapper
 │       ├── view/view.ts         # android.view.View
-│       ├── view/view_group.ts   # android.view.ViewGroup
+│       ├── view/view_group.ts   # android.view.ViewGroup (+ UIBridge)
 │       ├── widget/textview.ts   # android.widget.TextView (+ UIBridge)
+│       ├── widget/linear_layout.ts # android.widget.LinearLayout (+ UIBridge)
 │       ├── app/activity.ts      # android.app.Activity (+ UIBridge)
 │       └── index.ts             # Registration
 ├── bridge/         # UI Bridge (Stage 4)
@@ -156,11 +157,11 @@ tools/
 test/
 ├── fixtures/       # hello_world.apk, .dex, manifest_binary.xml
 ├── helpers/        # shim_test_utils.ts, value_matchers.ts
-├── unit/           # 319 unit tests
+├── unit/           # 508 unit tests
 │   ├── interpreter/  # heap, frame, opcodes, shim_registry, interpreter, tracer
 │   ├── shim/         # java.lang.* and android.* shim tests
 │   └── bridge/       # UIBridge, StateManager, LifecycleBridge tests
-└── integration/    # 30 integration tests (8 APK + 8 interpreter + 6 activity + 8 bridge)
+└── integration/    # 38 integration tests (8 APK + 8 interpreter + 6 activity + 8 bridge + 8 multi-view)
     ├── interpreter/  # Interpreter integration tests
     ├── android/      # Activity lifecycle integration tests
     └── bridge/       # UI Bridge integration tests
@@ -176,10 +177,11 @@ test/
 | `src/interpreter/interpreter.ts` | Main bytecode execution loop |
 | `src/interpreter/heap.ts` | Object/array/string allocation |
 | `src/interpreter/class_loader.ts` | Class/method/field resolution |
-| `src/interpreter/opcodes.ts` | 82 Dalvik opcode implementations |
+| `src/interpreter/opcodes.ts` | 218 Dalvik opcode implementations |
 | `src/interpreter/shim_registry.ts` | TypeScript shim method dispatch |
 | `src/shim/android/app/activity.ts` | Activity lifecycle shim (+ UIBridge) |
 | `src/shim/android/widget/textview.ts` | TextView shim (+ UIBridge) |
+| `src/shim/android/widget/linear_layout.ts` | LinearLayout shim (+ UIBridge) |
 | `src/bridge/ui_bridge.ts` | View → ViewNode mapping |
 | `src/bridge/state_manager.ts` | Reactive state for ArkUI |
 | `src/bridge/lifecycle_bridge.ts` | Activity ↔ Ability lifecycle |
@@ -205,6 +207,7 @@ java.lang.Object
 └── android.view.View
       ├── android.widget.TextView
       └── android.view.ViewGroup
+            └── android.widget.LinearLayout
 ```
 
 ## Interpreter Entry Point

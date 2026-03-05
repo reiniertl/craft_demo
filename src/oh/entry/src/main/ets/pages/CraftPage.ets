@@ -11,7 +11,11 @@ const TAG = 'CRAFT';
  * 1. Retrieves CraftRuntime from AppStorage
  * 2. Subscribes to StateManager updates
  * 3. Renders ViewNode tree as ArkUI components
- * 4. Maps Android View types to ArkUI equivalents
+ * 4. Maps Android View types to ArkUI equivalents:
+ *    - TextView → Text
+ *    - Button → Button (with click handling via UIBridge)
+ *    - LinearLayout → Column (vertical) or Row (horizontal)
+ *    - ViewGroup → Column
  */
 @Entry
 @Component
@@ -96,16 +100,12 @@ struct CraftPage {
     build() {
         Column() {
             if (this.isLoading) {
-                // Loading state
                 this.loadingView();
             } else if (this.errorMessage) {
-                // Error state
                 this.errorView();
             } else if (this.viewTree !== null) {
-                // Render Android view tree
                 this.renderView(this.viewTree);
             } else {
-                // No content yet
                 this.emptyView();
             }
         }
@@ -168,10 +168,13 @@ struct CraftPage {
     renderView(view: SerializedView) {
         if (view.type === 'TextView') {
             this.renderTextView(view);
+        } else if (view.type === 'Button') {
+            this.renderButton(view);
+        } else if (view.type === 'LinearLayout') {
+            this.renderLinearLayout(view);
         } else if (view.type === 'ViewGroup') {
             this.renderViewGroup(view);
         } else {
-            // Unknown view type - render as text for debugging
             Text(`Unknown View: ${view.type}`)
                 .fontSize(14)
                 .fontColor('#FF0000')
@@ -189,6 +192,23 @@ struct CraftPage {
     }
 
     /**
+     * Extract viewRef from SerializedView id ('view_123' → 123)
+     */
+    private getViewRef(view: SerializedView): number {
+        return parseInt(view.id.replace('view_', ''));
+    }
+
+    /**
+     * Handle click on a view - dispatches through UIBridge
+     */
+    private handleClick(view: SerializedView): void {
+        if (!this.runtime) return;
+        const viewRef = this.getViewRef(view);
+        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Click on viewRef=%{public}d', viewRef);
+        this.runtime.getUIBridge().dispatchClick(viewRef);
+    }
+
+    /**
      * Render TextView as ArkUI Text component
      */
     @Builder
@@ -196,17 +216,58 @@ struct CraftPage {
         Text(this.getViewPropString(view, 'text', ''))
             .fontSize(this.getViewPropNumber(view, 'textSize', 14))
             .fontColor(this.intToColor(this.getViewPropNumber(view, 'textColor', 0xFF000000)))
+            .padding(4)
     }
 
     /**
-     * Render ViewGroup as ArkUI Column
+     * Render Button as ArkUI Button component with click handling
+     */
+    @Builder
+    renderButton(view: SerializedView) {
+        Button(this.getViewPropString(view, 'text', ''))
+            .fontSize(this.getViewPropNumber(view, 'textSize', 14))
+            .fontColor(this.intToColor(this.getViewPropNumber(view, 'textColor', 0xFF000000)))
+            .layoutWeight(1)
+            .height(56)
+            .margin(2)
+            .onClick(() => {
+                this.handleClick(view);
+            })
+    }
+
+    /**
+     * Render LinearLayout as Column (vertical) or Row (horizontal)
+     */
+    @Builder
+    renderLinearLayout(view: SerializedView) {
+        if (this.getViewPropNumber(view, 'orientation', 0) === 1) {
+            // VERTICAL
+            Column() {
+                ForEach(view.children, (child: SerializedView) => {
+                    this.renderView(child);
+                }, (child: SerializedView) => `${child.id}_${this.updateCounter}`)
+            }
+            .width('100%')
+        } else {
+            // HORIZONTAL
+            Row() {
+                ForEach(view.children, (child: SerializedView) => {
+                    this.renderView(child);
+                }, (child: SerializedView) => `${child.id}_${this.updateCounter}`)
+            }
+            .width('100%')
+        }
+    }
+
+    /**
+     * Render ViewGroup as ArkUI Column (fallback)
      */
     @Builder
     renderViewGroup(view: SerializedView) {
         Column() {
             ForEach(view.children, (child: SerializedView) => {
                 this.renderView(child);
-            }, (child: SerializedView) => child.id)
+            }, (child: SerializedView) => `${child.id}_${this.updateCounter}`)
         }
     }
 

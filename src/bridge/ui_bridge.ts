@@ -147,6 +147,23 @@ export class UIBridge {
   }
 
   /**
+   * Dispatch a click event to a view (entry point for ArkUI)
+   * @param viewRef Heap reference to the View object
+   * @returns true if a click handler was invoked
+   */
+  dispatchClick(viewRef: number): boolean {
+    const node = this.viewMap.get(viewRef);
+    if (!node) return false;
+
+    const onClick = node.properties.get('onClick');
+    if (typeof onClick === 'function') {
+      onClick();
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Clear all views (for cleanup/reset)
    */
   clear(): void {

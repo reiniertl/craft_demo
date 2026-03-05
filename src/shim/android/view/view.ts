@@ -4,6 +4,7 @@
  */
 
 import { ShimRegistry } from '../../../interpreter/shim_registry';
+import { UIBridge } from '../../../bridge/ui_bridge';
 import { Value, NULL_VALUE, intValue, objectRef } from '../../../core/types';
 
 const VIEW_CLASS = 'Landroid/view/View;';
@@ -13,7 +14,7 @@ export const VISIBLE = 0;
 export const INVISIBLE = 4;
 export const GONE = 8;
 
-export function registerViewShim(registry: ShimRegistry): void {
+export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): void {
 
   // <init>(Landroid/content/Context;)V
   registry.register(VIEW_CLASS, '<init>',
@@ -61,6 +62,52 @@ export function registerViewShim(registry: ShimRegistry): void {
   registry.register(VIEW_CLASS, 'getVisibility', '()I',
     (_interp, heap, thisRef, _args) => {
       return heap.getField(thisRef, 'mVisibility');
+    }
+  );
+
+  // setOnClickListener(Landroid/view/View$OnClickListener;)V
+  registry.register(VIEW_CLASS, 'setOnClickListener',
+    '(Landroid/view/View$OnClickListener;)V',
+    (interp, heap, thisRef, args) => {
+      const listenerRef = args[0];
+      heap.setField(thisRef, 'mOnClickListener', listenerRef);
+
+      if (uiBridge && listenerRef.type === 'object' && listenerRef.ref !== 0) {
+        const callback = () => {
+          const listenerClass = heap.getClassDescriptor(listenerRef.ref);
+          if (listenerClass) {
+            interp.invoke(
+              listenerClass,
+              'onClick',
+              '(Landroid/view/View;)V',
+              [listenerRef, objectRef(thisRef)]
+            );
+          }
+        };
+        uiBridge.updateViewProperty(thisRef, 'onClick', callback);
+      }
+
+      return NULL_VALUE;
+    }
+  );
+
+  // performClick()Z
+  registry.register(VIEW_CLASS, 'performClick', '()Z',
+    (interp, heap, thisRef, _args) => {
+      const listenerRef = heap.getField(thisRef, 'mOnClickListener');
+      if (listenerRef.type === 'object' && listenerRef.ref !== 0) {
+        const listenerClass = heap.getClassDescriptor(listenerRef.ref);
+        if (listenerClass) {
+          interp.invoke(
+            listenerClass,
+            'onClick',
+            '(Landroid/view/View;)V',
+            [listenerRef, objectRef(thisRef)]
+          );
+          return intValue(1);
+        }
+      }
+      return intValue(0);
     }
   );
 }

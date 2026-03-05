@@ -4,6 +4,7 @@
  */
 
 import { ShimRegistry } from '../../../interpreter/shim_registry';
+import { UIBridge } from '../../../bridge/ui_bridge';
 import { Value, NULL_VALUE, intValue, objectRef } from '../../../core/types';
 
 const VIEW_GROUP_CLASS = 'Landroid/view/ViewGroup;';
@@ -20,7 +21,7 @@ function getChildren(ref: number): number[] {
   return children;
 }
 
-export function registerViewGroupShim(registry: ShimRegistry): void {
+export function registerViewGroupShim(registry: ShimRegistry, uiBridge?: UIBridge): void {
 
   // <init>(Landroid/content/Context;)V
   registry.register(VIEW_GROUP_CLASS, '<init>',
@@ -31,6 +32,12 @@ export function registerViewGroupShim(registry: ShimRegistry): void {
       heap.setField(thisRef, 'mId', intValue(-1));
       heap.setField(thisRef, 'mVisibility', intValue(0));
       getChildren(thisRef);
+
+      // Register with UI bridge
+      if (uiBridge) {
+        uiBridge.registerView(thisRef, 'ViewGroup');
+      }
+
       return NULL_VALUE;
     }
   );
@@ -42,6 +49,12 @@ export function registerViewGroupShim(registry: ShimRegistry): void {
       const childRef = (args[0] as { type: 'object'; ref: number }).ref;
       const children = getChildren(thisRef);
       children.push(childRef);
+
+      // Notify UI bridge of hierarchy change
+      if (uiBridge) {
+        uiBridge.addChildView(thisRef, childRef);
+      }
+
       return NULL_VALUE;
     }
   );

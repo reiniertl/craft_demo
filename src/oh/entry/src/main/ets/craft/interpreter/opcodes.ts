@@ -23,6 +23,33 @@ function getIntValue(v: { type: string; value?: number | bigint; ref?: number })
   return 0;
 }
 
+/** Helper: get long (bigint) value from a register */
+function getLongValue(v: { type: string; value?: number | bigint; ref?: number }): bigint {
+  if (v.type === 'long') return (v as { type: 'long'; value: bigint }).value;
+  if (v.type === 'int') return BigInt((v as { type: 'int'; value: number }).value);
+  return 0n;
+}
+
+/** Helper: get float value from a register */
+function getFloatValue(v: { type: string; value?: number | bigint; ref?: number }): number {
+  if (v.type === 'float') return (v as { type: 'float'; value: number }).value;
+  if (v.type === 'int') return (v as { type: 'int'; value: number }).value;
+  return 0;
+}
+
+/** Helper: get double value from a register */
+function getDoubleValue(v: { type: string; value?: number | bigint; ref?: number }): number {
+  if (v.type === 'double') return (v as { type: 'double'; value: number }).value;
+  if (v.type === 'float') return (v as { type: 'float'; value: number }).value;
+  if (v.type === 'int') return (v as { type: 'int'; value: number }).value;
+  return 0;
+}
+
+/** Helper: truncate float to 32-bit precision */
+function fround(v: number): number {
+  return Math.fround(v);
+}
+
 /** Helper: sign-extend 8-bit value */
 function signExtend8(value: number): number {
   return (value << 24) >> 24;
@@ -550,6 +577,119 @@ export function registerEssentialOpcodes(table: OpcodeTable): void {
     },
   });
 
+  // 0x1d - monitor-enter vAA (no-op in single-threaded runtime)
+  table.register(0x1d, {
+    name: 'monitor-enter',
+    format: '11x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const objRef = ctx.frame.registers[vA];
+      if (objRef.type === 'null') {
+        throw new NullPointerException('monitor-enter on null');
+      }
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x1e - monitor-exit vAA (no-op in single-threaded runtime)
+  table.register(0x1e, {
+    name: 'monitor-exit',
+    format: '11x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const objRef = ctx.frame.registers[vA];
+      if (objRef.type === 'null') {
+        throw new NullPointerException('monitor-exit on null');
+      }
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x24 - filled-new-array {vC, vD, vE, vF, vG}, type@BBBB
+  table.register(0x24, {
+    name: 'filled-new-array',
+    format: '35c',
+    width: 3,
+    handler: (ctx, insn) => {
+      const code = ctx.frame.method.code!.insns;
+      const typeIdx = code[ctx.frame.pc + 1];
+      const regWord = code[ctx.frame.pc + 2];
+      const regs = getRegisters_35c(insn, regWord);
+      const typeDescriptor = ctx.dex.getTypeName(typeIdx);
+      const elementType = typeDescriptor.substring(1);
+      const ref = ctx.heap.allocateArray(elementType, regs.length);
+      for (let i = 0; i < regs.length; i++) {
+        ctx.heap.setArrayElement(ref, i, ctx.frame.registers[regs[i]]);
+      }
+      ctx.interpreter.returnFromMethod({ type: 'object', ref });
+      ctx.frame.pc += 3;
+    },
+  });
+
+  // 0x25 - filled-new-array/range {vCCCC .. v(CCCC+AA-1)}, type@BBBB
+  table.register(0x25, {
+    name: 'filled-new-array/range',
+    format: '3rc',
+    width: 3,
+    handler: (ctx, insn) => {
+      const count = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const typeIdx = code[ctx.frame.pc + 1];
+      const vC = code[ctx.frame.pc + 2];
+      const typeDescriptor = ctx.dex.getTypeName(typeIdx);
+      const elementType = typeDescriptor.substring(1);
+      const ref = ctx.heap.allocateArray(elementType, count);
+      for (let i = 0; i < count; i++) {
+        ctx.heap.setArrayElement(ref, i, ctx.frame.registers[vC + i]);
+      }
+      ctx.interpreter.returnFromMethod({ type: 'object', ref });
+      ctx.frame.pc += 3;
+    },
+  });
+
+  // 0x26 - fill-array-data vAA, +BBBBBBBB
+  table.register(0x26, {
+    name: 'fill-array-data',
+    format: '31t',
+    width: 3,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const low = code[ctx.frame.pc + 1];
+      const high = code[ctx.frame.pc + 2];
+      const offset = signExtend32(low, high);
+      const payloadPC = ctx.frame.pc + offset;
+      // Payload format: ident(0x0300), element_width(16), size(32), data...
+      const elementWidth = code[payloadPC + 1];
+      const sizeLow = code[payloadPC + 2];
+      const sizeHigh = code[payloadPC + 3];
+      const size = (sizeHigh << 16) | sizeLow;
+      const arrRef = ctx.frame.registers[vA];
+      if (arrRef.type === 'null') throw new NullPointerException('fill-array-data on null');
+      const ref = (arrRef as { type: 'object'; ref: number }).ref;
+      let dataOffset = payloadPC + 4;
+      for (let i = 0; i < size; i++) {
+        let value = 0;
+        if (elementWidth === 1) {
+          // Byte: packed 2 per 16-bit word
+          const wordIdx = dataOffset + Math.floor(i / 2);
+          value = (i % 2 === 0) ? (code[wordIdx] & 0xff) : ((code[wordIdx] >> 8) & 0xff);
+          value = (value << 24) >> 24; // sign extend
+        } else if (elementWidth === 2) {
+          value = signExtend16(code[dataOffset + i]);
+        } else if (elementWidth === 4) {
+          const lo = code[dataOffset + i * 2];
+          const hi = code[dataOffset + i * 2 + 1];
+          value = ((hi << 16) | lo) | 0;
+        }
+        ctx.heap.setArrayElement(ref, i, { type: 'int', value });
+      }
+      ctx.frame.pc += 3;
+    },
+  });
+
   // 0x27 - throw vAA
   table.register(0x27, {
     name: 'throw',
@@ -601,6 +741,205 @@ export function registerEssentialOpcodes(table: OpcodeTable): void {
       const high = code[ctx.frame.pc + 2];
       const offset = signExtend32(low, high);
       ctx.frame.pc += offset;
+    },
+  });
+
+  // 0x2b - packed-switch vAA, +BBBBBBBB
+  table.register(0x2b, {
+    name: 'packed-switch',
+    format: '31t',
+    width: 3,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const low = code[ctx.frame.pc + 1];
+      const high = code[ctx.frame.pc + 2];
+      const offset = signExtend32(low, high);
+      const payloadPC = ctx.frame.pc + offset;
+      // Payload: ident(0x0100), size(16), first_key(32), targets(32 each)
+      const size = code[payloadPC + 1];
+      const firstKeyLow = code[payloadPC + 2];
+      const firstKeyHigh = code[payloadPC + 3];
+      const firstKey = signExtend32(firstKeyLow, firstKeyHigh);
+      const testVal = getIntValue(ctx.frame.registers[vA]);
+      const index = testVal - firstKey;
+      if (index >= 0 && index < size) {
+        const targetBase = payloadPC + 4;
+        const targetLow = code[targetBase + index * 2];
+        const targetHigh = code[targetBase + index * 2 + 1];
+        const target = signExtend32(targetLow, targetHigh);
+        ctx.frame.pc += target;
+      } else {
+        ctx.frame.pc += 3;
+      }
+    },
+  });
+
+  // 0x2c - sparse-switch vAA, +BBBBBBBB
+  table.register(0x2c, {
+    name: 'sparse-switch',
+    format: '31t',
+    width: 3,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const low = code[ctx.frame.pc + 1];
+      const high = code[ctx.frame.pc + 2];
+      const offset = signExtend32(low, high);
+      const payloadPC = ctx.frame.pc + offset;
+      // Payload: ident(0x0200), size(16), keys(32 each), targets(32 each)
+      const size = code[payloadPC + 1];
+      const testVal = getIntValue(ctx.frame.registers[vA]);
+      const keysBase = payloadPC + 2;
+      const targetsBase = keysBase + size * 2;
+      let matched = false;
+      for (let i = 0; i < size; i++) {
+        const keyLow = code[keysBase + i * 2];
+        const keyHigh = code[keysBase + i * 2 + 1];
+        const key = signExtend32(keyLow, keyHigh);
+        if (key === testVal) {
+          const targetLow = code[targetsBase + i * 2];
+          const targetHigh = code[targetsBase + i * 2 + 1];
+          const target = signExtend32(targetLow, targetHigh);
+          ctx.frame.pc += target;
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        ctx.frame.pc += 3;
+      }
+    },
+  });
+
+  // ─── Comparison Opcodes ───
+
+  // 0x2d - cmpl-float vAA, vBB, vCC (NaN → -1)
+  table.register(0x2d, {
+    name: 'cmpl-float',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getFloatValue(ctx.frame.registers[vB]);
+      const c = getFloatValue(ctx.frame.registers[vC]);
+      let result: number;
+      if (isNaN(b) || isNaN(c)) {
+        result = -1;
+      } else if (b > c) {
+        result = 1;
+      } else if (b === c) {
+        result = 0;
+      } else {
+        result = -1;
+      }
+      ctx.frame.registers[vA] = { type: 'int', value: result };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x2e - cmpg-float vAA, vBB, vCC (NaN → 1)
+  table.register(0x2e, {
+    name: 'cmpg-float',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getFloatValue(ctx.frame.registers[vB]);
+      const c = getFloatValue(ctx.frame.registers[vC]);
+      let result: number;
+      if (isNaN(b) || isNaN(c)) {
+        result = 1;
+      } else if (b > c) {
+        result = 1;
+      } else if (b === c) {
+        result = 0;
+      } else {
+        result = -1;
+      }
+      ctx.frame.registers[vA] = { type: 'int', value: result };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x2f - cmpl-double vAA, vBB, vCC (NaN → -1)
+  table.register(0x2f, {
+    name: 'cmpl-double',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getDoubleValue(ctx.frame.registers[vB]);
+      const c = getDoubleValue(ctx.frame.registers[vC]);
+      let result: number;
+      if (isNaN(b) || isNaN(c)) {
+        result = -1;
+      } else if (b > c) {
+        result = 1;
+      } else if (b === c) {
+        result = 0;
+      } else {
+        result = -1;
+      }
+      ctx.frame.registers[vA] = { type: 'int', value: result };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x30 - cmpg-double vAA, vBB, vCC (NaN → 1)
+  table.register(0x30, {
+    name: 'cmpg-double',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getDoubleValue(ctx.frame.registers[vB]);
+      const c = getDoubleValue(ctx.frame.registers[vC]);
+      let result: number;
+      if (isNaN(b) || isNaN(c)) {
+        result = 1;
+      } else if (b > c) {
+        result = 1;
+      } else if (b === c) {
+        result = 0;
+      } else {
+        result = -1;
+      }
+      ctx.frame.registers[vA] = { type: 'int', value: result };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x31 - cmp-long vAA, vBB, vCC
+  table.register(0x31, {
+    name: 'cmp-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getLongValue(ctx.frame.registers[vB]);
+      const c = getLongValue(ctx.frame.registers[vC]);
+      let result: number;
+      if (b > c) result = 1;
+      else if (b === c) result = 0;
+      else result = -1;
+      ctx.frame.registers[vA] = { type: 'int', value: result };
+      ctx.frame.pc += 2;
     },
   });
 
@@ -1115,6 +1454,25 @@ export function registerEssentialOpcodes(table: OpcodeTable): void {
     },
   });
 
+  // 0x53 - iget-wide vA, vB, field@CCCC
+  table.register(0x53, {
+    name: 'iget-wide',
+    format: '22c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      const objRef = ctx.frame.registers[vB];
+      if (objRef.type === 'null') throw new NullPointerException('iget-wide on null reference');
+      const value = ctx.heap.getField((objRef as { type: 'object'; ref: number }).ref, field.name);
+      ctx.frame.registers[vA] = value;
+      ctx.frame.pc += 2;
+    },
+  });
+
   // 0x54 - iget-object vA, vB, field@CCCC
   table.register(0x54, {
     name: 'iget-object',
@@ -1138,6 +1496,78 @@ export function registerEssentialOpcodes(table: OpcodeTable): void {
         field.name
       );
       ctx.frame.registers[vA] = value;
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x55 - iget-boolean vA, vB, field@CCCC
+  table.register(0x55, {
+    name: 'iget-boolean',
+    format: '22c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      const objRef = ctx.frame.registers[vB];
+      if (objRef.type === 'null') throw new NullPointerException('iget-boolean on null reference');
+      ctx.frame.registers[vA] = ctx.heap.getField((objRef as { type: 'object'; ref: number }).ref, field.name);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x56 - iget-byte vA, vB, field@CCCC
+  table.register(0x56, {
+    name: 'iget-byte',
+    format: '22c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      const objRef = ctx.frame.registers[vB];
+      if (objRef.type === 'null') throw new NullPointerException('iget-byte on null reference');
+      ctx.frame.registers[vA] = ctx.heap.getField((objRef as { type: 'object'; ref: number }).ref, field.name);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x57 - iget-char vA, vB, field@CCCC
+  table.register(0x57, {
+    name: 'iget-char',
+    format: '22c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      const objRef = ctx.frame.registers[vB];
+      if (objRef.type === 'null') throw new NullPointerException('iget-char on null reference');
+      ctx.frame.registers[vA] = ctx.heap.getField((objRef as { type: 'object'; ref: number }).ref, field.name);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x58 - iget-short vA, vB, field@CCCC
+  table.register(0x58, {
+    name: 'iget-short',
+    format: '22c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      const objRef = ctx.frame.registers[vB];
+      if (objRef.type === 'null') throw new NullPointerException('iget-short on null reference');
+      ctx.frame.registers[vA] = ctx.heap.getField((objRef as { type: 'object'; ref: number }).ref, field.name);
       ctx.frame.pc += 2;
     },
   });
@@ -1196,6 +1626,96 @@ export function registerEssentialOpcodes(table: OpcodeTable): void {
     },
   });
 
+  // 0x5a - iput-wide vA, vB, field@CCCC
+  table.register(0x5a, {
+    name: 'iput-wide',
+    format: '22c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      const objRef = ctx.frame.registers[vB];
+      if (objRef.type === 'null') throw new NullPointerException('iput-wide on null reference');
+      ctx.heap.setField((objRef as { type: 'object'; ref: number }).ref, field.name, ctx.frame.registers[vA]);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x5c - iput-boolean vA, vB, field@CCCC
+  table.register(0x5c, {
+    name: 'iput-boolean',
+    format: '22c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      const objRef = ctx.frame.registers[vB];
+      if (objRef.type === 'null') throw new NullPointerException('iput-boolean on null reference');
+      ctx.heap.setField((objRef as { type: 'object'; ref: number }).ref, field.name, ctx.frame.registers[vA]);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x5d - iput-byte vA, vB, field@CCCC
+  table.register(0x5d, {
+    name: 'iput-byte',
+    format: '22c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      const objRef = ctx.frame.registers[vB];
+      if (objRef.type === 'null') throw new NullPointerException('iput-byte on null reference');
+      ctx.heap.setField((objRef as { type: 'object'; ref: number }).ref, field.name, ctx.frame.registers[vA]);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x5e - iput-char vA, vB, field@CCCC
+  table.register(0x5e, {
+    name: 'iput-char',
+    format: '22c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      const objRef = ctx.frame.registers[vB];
+      if (objRef.type === 'null') throw new NullPointerException('iput-char on null reference');
+      ctx.heap.setField((objRef as { type: 'object'; ref: number }).ref, field.name, ctx.frame.registers[vA]);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x5f - iput-short vA, vB, field@CCCC
+  table.register(0x5f, {
+    name: 'iput-short',
+    format: '22c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      const objRef = ctx.frame.registers[vB];
+      if (objRef.type === 'null') throw new NullPointerException('iput-short on null reference');
+      ctx.heap.setField((objRef as { type: 'object'; ref: number }).ref, field.name, ctx.frame.registers[vA]);
+      ctx.frame.pc += 2;
+    },
+  });
+
   // 0x60 - sget vAA, field@BBBB
   table.register(0x60, {
     name: 'sget',
@@ -1215,6 +1735,22 @@ export function registerEssentialOpcodes(table: OpcodeTable): void {
     },
   });
 
+  // 0x61 - sget-wide vAA, field@BBBB
+  table.register(0x61, {
+    name: 'sget-wide',
+    format: '21c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      ctx.classLoader.initializeClass(field.classDescriptor);
+      ctx.frame.registers[vA] = ctx.classLoader.getStaticField(field);
+      ctx.frame.pc += 2;
+    },
+  });
+
   // 0x62 - sget-object vAA, field@BBBB
   table.register(0x62, {
     name: 'sget-object',
@@ -1230,6 +1766,70 @@ export function registerEssentialOpcodes(table: OpcodeTable): void {
 
       const value = ctx.classLoader.getStaticField(field);
       ctx.frame.registers[vA] = value;
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x63 - sget-boolean vAA, field@BBBB
+  table.register(0x63, {
+    name: 'sget-boolean',
+    format: '21c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      ctx.classLoader.initializeClass(field.classDescriptor);
+      ctx.frame.registers[vA] = ctx.classLoader.getStaticField(field);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x64 - sget-byte vAA, field@BBBB
+  table.register(0x64, {
+    name: 'sget-byte',
+    format: '21c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      ctx.classLoader.initializeClass(field.classDescriptor);
+      ctx.frame.registers[vA] = ctx.classLoader.getStaticField(field);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x65 - sget-char vAA, field@BBBB
+  table.register(0x65, {
+    name: 'sget-char',
+    format: '21c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      ctx.classLoader.initializeClass(field.classDescriptor);
+      ctx.frame.registers[vA] = ctx.classLoader.getStaticField(field);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x66 - sget-short vAA, field@BBBB
+  table.register(0x66, {
+    name: 'sget-short',
+    format: '21c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      ctx.classLoader.initializeClass(field.classDescriptor);
+      ctx.frame.registers[vA] = ctx.classLoader.getStaticField(field);
       ctx.frame.pc += 2;
     },
   });
@@ -1265,6 +1865,86 @@ export function registerEssentialOpcodes(table: OpcodeTable): void {
       const field = ctx.classLoader.resolveField(fieldIdx);
       ctx.classLoader.initializeClass(field.classDescriptor);
 
+      ctx.classLoader.setStaticField(field, ctx.frame.registers[vA]);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x68 - sput-wide vAA, field@BBBB
+  table.register(0x68, {
+    name: 'sput-wide',
+    format: '21c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      ctx.classLoader.initializeClass(field.classDescriptor);
+      ctx.classLoader.setStaticField(field, ctx.frame.registers[vA]);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x6a - sput-boolean vAA, field@BBBB
+  table.register(0x6a, {
+    name: 'sput-boolean',
+    format: '21c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      ctx.classLoader.initializeClass(field.classDescriptor);
+      ctx.classLoader.setStaticField(field, ctx.frame.registers[vA]);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x6b - sput-byte vAA, field@BBBB
+  table.register(0x6b, {
+    name: 'sput-byte',
+    format: '21c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      ctx.classLoader.initializeClass(field.classDescriptor);
+      ctx.classLoader.setStaticField(field, ctx.frame.registers[vA]);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x6c - sput-char vAA, field@BBBB
+  table.register(0x6c, {
+    name: 'sput-char',
+    format: '21c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      ctx.classLoader.initializeClass(field.classDescriptor);
+      ctx.classLoader.setStaticField(field, ctx.frame.registers[vA]);
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x6d - sput-short vAA, field@BBBB
+  table.register(0x6d, {
+    name: 'sput-short',
+    format: '21c',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const fieldIdx = code[ctx.frame.pc + 1];
+      const field = ctx.classLoader.resolveField(fieldIdx);
+      ctx.classLoader.initializeClass(field.classDescriptor);
       ctx.classLoader.setStaticField(field, ctx.frame.registers[vA]);
       ctx.frame.pc += 2;
     },
@@ -1497,6 +2177,1625 @@ export function registerEssentialOpcodes(table: OpcodeTable): void {
       const args = ctx.frame.registers.slice(vC, vC + count);
       ctx.frame.pc += 3;
       ctx.interpreter.invokeMethod(method, args);
+    },
+  });
+
+  // ─── Unary Operations ───
+
+  // 0x7b - neg-int vA, vB
+  table.register(0x7b, {
+    name: 'neg-int',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'int', value: (-getIntValue(ctx.frame.registers[vB])) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x7c - not-int vA, vB
+  table.register(0x7c, {
+    name: 'not-int',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'int', value: (~getIntValue(ctx.frame.registers[vB])) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x7d - neg-long vA, vB
+  table.register(0x7d, {
+    name: 'neg-long',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, -getLongValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x7e - not-long vA, vB
+  table.register(0x7e, {
+    name: 'not-long',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, ~getLongValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x7f - neg-float vA, vB
+  table.register(0x7f, {
+    name: 'neg-float',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'float', value: -getFloatValue(ctx.frame.registers[vB]) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x80 - neg-double vA, vB
+  table.register(0x80, {
+    name: 'neg-double',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'double', value: -getDoubleValue(ctx.frame.registers[vB]) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // ─── Type Conversion Operations ───
+
+  // 0x81 - int-to-long vA, vB
+  table.register(0x81, {
+    name: 'int-to-long',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt(getIntValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x82 - int-to-float vA, vB
+  table.register(0x82, {
+    name: 'int-to-float',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(getIntValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x83 - int-to-double vA, vB
+  table.register(0x83, {
+    name: 'int-to-double',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'double', value: getIntValue(ctx.frame.registers[vB]) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x84 - long-to-int vA, vB
+  table.register(0x84, {
+    name: 'long-to-int',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'int', value: Number(BigInt.asIntN(32, getLongValue(ctx.frame.registers[vB]))) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x85 - long-to-float vA, vB
+  table.register(0x85, {
+    name: 'long-to-float',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(Number(getLongValue(ctx.frame.registers[vB]))) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x86 - long-to-double vA, vB
+  table.register(0x86, {
+    name: 'long-to-double',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'double', value: Number(getLongValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x87 - float-to-int vA, vB
+  table.register(0x87, {
+    name: 'float-to-int',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const f = getFloatValue(ctx.frame.registers[vB]);
+      let result: number;
+      if (isNaN(f)) result = 0;
+      else if (f >= 2147483647) result = 2147483647;
+      else if (f <= -2147483648) result = -2147483648;
+      else result = Math.trunc(f) | 0;
+      ctx.frame.registers[vA] = { type: 'int', value: result };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x88 - float-to-long vA, vB
+  table.register(0x88, {
+    name: 'float-to-long',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const f = getFloatValue(ctx.frame.registers[vB]);
+      let result: bigint;
+      if (isNaN(f)) result = 0n;
+      else if (f >= 9223372036854775807) result = 9223372036854775807n;
+      else if (f <= -9223372036854775808) result = -9223372036854775808n;
+      else result = BigInt(Math.trunc(f));
+      ctx.frame.registers[vA] = { type: 'long', value: result };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x89 - float-to-double vA, vB
+  table.register(0x89, {
+    name: 'float-to-double',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'double', value: getFloatValue(ctx.frame.registers[vB]) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x8a - double-to-int vA, vB
+  table.register(0x8a, {
+    name: 'double-to-int',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const d = getDoubleValue(ctx.frame.registers[vB]);
+      let result: number;
+      if (isNaN(d)) result = 0;
+      else if (d >= 2147483647) result = 2147483647;
+      else if (d <= -2147483648) result = -2147483648;
+      else result = Math.trunc(d) | 0;
+      ctx.frame.registers[vA] = { type: 'int', value: result };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x8b - double-to-long vA, vB
+  table.register(0x8b, {
+    name: 'double-to-long',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const d = getDoubleValue(ctx.frame.registers[vB]);
+      let result: bigint;
+      if (isNaN(d)) result = 0n;
+      else if (d >= 9223372036854775807) result = 9223372036854775807n;
+      else if (d <= -9223372036854775808) result = -9223372036854775808n;
+      else result = BigInt(Math.trunc(d));
+      ctx.frame.registers[vA] = { type: 'long', value: result };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x8c - double-to-float vA, vB
+  table.register(0x8c, {
+    name: 'double-to-float',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(getDoubleValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x8d - int-to-byte vA, vB
+  table.register(0x8d, {
+    name: 'int-to-byte',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'int', value: (getIntValue(ctx.frame.registers[vB]) << 24) >> 24 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x8e - int-to-char vA, vB
+  table.register(0x8e, {
+    name: 'int-to-char',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'int', value: getIntValue(ctx.frame.registers[vB]) & 0xffff };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0x8f - int-to-short vA, vB
+  table.register(0x8f, {
+    name: 'int-to-short',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'int', value: (getIntValue(ctx.frame.registers[vB]) << 16) >> 16 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // ─── Integer Arithmetic (3-register forms) ───
+
+  // 0x90 - add-int vAA, vBB, vCC
+  table.register(0x90, {
+    name: 'add-int',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      const c = getIntValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b + c) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x91 - sub-int vAA, vBB, vCC
+  table.register(0x91, {
+    name: 'sub-int',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      const c = getIntValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b - c) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x92 - mul-int vAA, vBB, vCC
+  table.register(0x92, {
+    name: 'mul-int',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      const c = getIntValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'int', value: Math.imul(b, c) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x93 - div-int vAA, vBB, vCC
+  table.register(0x93, {
+    name: 'div-int',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      const c = getIntValue(ctx.frame.registers[vC]);
+      if (c === 0) throw new InterpreterError('ArithmeticException: divide by zero');
+      ctx.frame.registers[vA] = { type: 'int', value: (b / c) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x94 - rem-int vAA, vBB, vCC
+  table.register(0x94, {
+    name: 'rem-int',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      const c = getIntValue(ctx.frame.registers[vC]);
+      if (c === 0) throw new InterpreterError('ArithmeticException: divide by zero');
+      ctx.frame.registers[vA] = { type: 'int', value: (b % c) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x95 - and-int vAA, vBB, vCC
+  table.register(0x95, {
+    name: 'and-int',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      const c = getIntValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b & c) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x96 - or-int vAA, vBB, vCC
+  table.register(0x96, {
+    name: 'or-int',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      const c = getIntValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b | c) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x97 - xor-int vAA, vBB, vCC
+  table.register(0x97, {
+    name: 'xor-int',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      const c = getIntValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b ^ c) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x98 - shl-int vAA, vBB, vCC
+  table.register(0x98, {
+    name: 'shl-int',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      const c = getIntValue(ctx.frame.registers[vC]) & 0x1f;
+      ctx.frame.registers[vA] = { type: 'int', value: (b << c) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x99 - shr-int vAA, vBB, vCC
+  table.register(0x99, {
+    name: 'shr-int',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      const c = getIntValue(ctx.frame.registers[vC]) & 0x1f;
+      ctx.frame.registers[vA] = { type: 'int', value: (b >> c) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x9a - ushr-int vAA, vBB, vCC
+  table.register(0x9a, {
+    name: 'ushr-int',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      const c = getIntValue(ctx.frame.registers[vC]) & 0x1f;
+      ctx.frame.registers[vA] = { type: 'int', value: (b >>> c) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // ─── Long Arithmetic (3-register forms) ───
+
+  // 0x9b - add-long vAA, vBB, vCC
+  table.register(0x9b, {
+    name: 'add-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getLongValue(ctx.frame.registers[vB]);
+      const c = getLongValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, b + c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x9c - sub-long vAA, vBB, vCC
+  table.register(0x9c, {
+    name: 'sub-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getLongValue(ctx.frame.registers[vB]);
+      const c = getLongValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, b - c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x9d - mul-long vAA, vBB, vCC
+  table.register(0x9d, {
+    name: 'mul-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getLongValue(ctx.frame.registers[vB]);
+      const c = getLongValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, b * c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x9e - div-long vAA, vBB, vCC
+  table.register(0x9e, {
+    name: 'div-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getLongValue(ctx.frame.registers[vB]);
+      const c = getLongValue(ctx.frame.registers[vC]);
+      if (c === 0n) throw new InterpreterError('ArithmeticException: divide by zero');
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, b / c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0x9f - rem-long vAA, vBB, vCC
+  table.register(0x9f, {
+    name: 'rem-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getLongValue(ctx.frame.registers[vB]);
+      const c = getLongValue(ctx.frame.registers[vC]);
+      if (c === 0n) throw new InterpreterError('ArithmeticException: divide by zero');
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, b % c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xa0 - and-long vAA, vBB, vCC
+  table.register(0xa0, {
+    name: 'and-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getLongValue(ctx.frame.registers[vB]);
+      const c = getLongValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, b & c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xa1 - or-long vAA, vBB, vCC
+  table.register(0xa1, {
+    name: 'or-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getLongValue(ctx.frame.registers[vB]);
+      const c = getLongValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, b | c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xa2 - xor-long vAA, vBB, vCC
+  table.register(0xa2, {
+    name: 'xor-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getLongValue(ctx.frame.registers[vB]);
+      const c = getLongValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, b ^ c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xa3 - shl-long vAA, vBB, vCC
+  table.register(0xa3, {
+    name: 'shl-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getLongValue(ctx.frame.registers[vB]);
+      const c = BigInt(getIntValue(ctx.frame.registers[vC]) & 0x3f);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, b << c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xa4 - shr-long vAA, vBB, vCC
+  table.register(0xa4, {
+    name: 'shr-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getLongValue(ctx.frame.registers[vB]);
+      const c = BigInt(getIntValue(ctx.frame.registers[vC]) & 0x3f);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, b >> c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xa5 - ushr-long vAA, vBB, vCC
+  table.register(0xa5, {
+    name: 'ushr-long',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = BigInt.asUintN(64, getLongValue(ctx.frame.registers[vB]));
+      const c = BigInt(getIntValue(ctx.frame.registers[vC]) & 0x3f);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, b >> c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // ─── Float Arithmetic (3-register forms) ───
+
+  // 0xa6 - add-float vAA, vBB, vCC
+  table.register(0xa6, {
+    name: 'add-float',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getFloatValue(ctx.frame.registers[vB]);
+      const c = getFloatValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(b + c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xa7 - sub-float vAA, vBB, vCC
+  table.register(0xa7, {
+    name: 'sub-float',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getFloatValue(ctx.frame.registers[vB]);
+      const c = getFloatValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(b - c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xa8 - mul-float vAA, vBB, vCC
+  table.register(0xa8, {
+    name: 'mul-float',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getFloatValue(ctx.frame.registers[vB]);
+      const c = getFloatValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(b * c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xa9 - div-float vAA, vBB, vCC
+  table.register(0xa9, {
+    name: 'div-float',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getFloatValue(ctx.frame.registers[vB]);
+      const c = getFloatValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(b / c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xaa - rem-float vAA, vBB, vCC
+  table.register(0xaa, {
+    name: 'rem-float',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getFloatValue(ctx.frame.registers[vB]);
+      const c = getFloatValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(b % c) };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // ─── Double Arithmetic (3-register forms) ───
+
+  // 0xab - add-double vAA, vBB, vCC
+  table.register(0xab, {
+    name: 'add-double',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getDoubleValue(ctx.frame.registers[vB]);
+      const c = getDoubleValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'double', value: b + c };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xac - sub-double vAA, vBB, vCC
+  table.register(0xac, {
+    name: 'sub-double',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getDoubleValue(ctx.frame.registers[vB]);
+      const c = getDoubleValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'double', value: b - c };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xad - mul-double vAA, vBB, vCC
+  table.register(0xad, {
+    name: 'mul-double',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getDoubleValue(ctx.frame.registers[vB]);
+      const c = getDoubleValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'double', value: b * c };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xae - div-double vAA, vBB, vCC
+  table.register(0xae, {
+    name: 'div-double',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getDoubleValue(ctx.frame.registers[vB]);
+      const c = getDoubleValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'double', value: b / c };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xaf - rem-double vAA, vBB, vCC
+  table.register(0xaf, {
+    name: 'rem-double',
+    format: '23x',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const vC = (code[ctx.frame.pc + 1] >> 8) & 0xff;
+      const b = getDoubleValue(ctx.frame.registers[vB]);
+      const c = getDoubleValue(ctx.frame.registers[vC]);
+      ctx.frame.registers[vA] = { type: 'double', value: b % c };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // ─── Integer Arithmetic (2-address forms) ───
+
+  // 0xb0 - add-int/2addr vA, vB
+  table.register(0xb0, {
+    name: 'add-int/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const a = getIntValue(ctx.frame.registers[vA]);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (a + b) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xb1 - sub-int/2addr vA, vB
+  table.register(0xb1, {
+    name: 'sub-int/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const a = getIntValue(ctx.frame.registers[vA]);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (a - b) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xb2 - mul-int/2addr vA, vB
+  table.register(0xb2, {
+    name: 'mul-int/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const a = getIntValue(ctx.frame.registers[vA]);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: Math.imul(a, b) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xb3 - div-int/2addr vA, vB
+  table.register(0xb3, {
+    name: 'div-int/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const a = getIntValue(ctx.frame.registers[vA]);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      if (b === 0) throw new InterpreterError('ArithmeticException: divide by zero');
+      ctx.frame.registers[vA] = { type: 'int', value: (a / b) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xb4 - rem-int/2addr vA, vB
+  table.register(0xb4, {
+    name: 'rem-int/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const a = getIntValue(ctx.frame.registers[vA]);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      if (b === 0) throw new InterpreterError('ArithmeticException: divide by zero');
+      ctx.frame.registers[vA] = { type: 'int', value: (a % b) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xb5 - and-int/2addr vA, vB
+  table.register(0xb5, {
+    name: 'and-int/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'int', value: (getIntValue(ctx.frame.registers[vA]) & getIntValue(ctx.frame.registers[vB])) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xb6 - or-int/2addr vA, vB
+  table.register(0xb6, {
+    name: 'or-int/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'int', value: (getIntValue(ctx.frame.registers[vA]) | getIntValue(ctx.frame.registers[vB])) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xb7 - xor-int/2addr vA, vB
+  table.register(0xb7, {
+    name: 'xor-int/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'int', value: (getIntValue(ctx.frame.registers[vA]) ^ getIntValue(ctx.frame.registers[vB])) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xb8 - shl-int/2addr vA, vB
+  table.register(0xb8, {
+    name: 'shl-int/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const a = getIntValue(ctx.frame.registers[vA]);
+      const b = getIntValue(ctx.frame.registers[vB]) & 0x1f;
+      ctx.frame.registers[vA] = { type: 'int', value: (a << b) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xb9 - shr-int/2addr vA, vB
+  table.register(0xb9, {
+    name: 'shr-int/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const a = getIntValue(ctx.frame.registers[vA]);
+      const b = getIntValue(ctx.frame.registers[vB]) & 0x1f;
+      ctx.frame.registers[vA] = { type: 'int', value: (a >> b) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xba - ushr-int/2addr vA, vB
+  table.register(0xba, {
+    name: 'ushr-int/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const a = getIntValue(ctx.frame.registers[vA]);
+      const b = getIntValue(ctx.frame.registers[vB]) & 0x1f;
+      ctx.frame.registers[vA] = { type: 'int', value: (a >>> b) | 0 };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // ─── Long Arithmetic (2-address forms) ───
+
+  // 0xbb - add-long/2addr vA, vB
+  table.register(0xbb, {
+    name: 'add-long/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, getLongValue(ctx.frame.registers[vA]) + getLongValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xbc - sub-long/2addr vA, vB
+  table.register(0xbc, {
+    name: 'sub-long/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, getLongValue(ctx.frame.registers[vA]) - getLongValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xbd - mul-long/2addr vA, vB
+  table.register(0xbd, {
+    name: 'mul-long/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, getLongValue(ctx.frame.registers[vA]) * getLongValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xbe - div-long/2addr vA, vB
+  table.register(0xbe, {
+    name: 'div-long/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const b = getLongValue(ctx.frame.registers[vB]);
+      if (b === 0n) throw new InterpreterError('ArithmeticException: divide by zero');
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, getLongValue(ctx.frame.registers[vA]) / b) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xbf - rem-long/2addr vA, vB
+  table.register(0xbf, {
+    name: 'rem-long/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const b = getLongValue(ctx.frame.registers[vB]);
+      if (b === 0n) throw new InterpreterError('ArithmeticException: divide by zero');
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, getLongValue(ctx.frame.registers[vA]) % b) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xc0 - and-long/2addr vA, vB
+  table.register(0xc0, {
+    name: 'and-long/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, getLongValue(ctx.frame.registers[vA]) & getLongValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xc1 - or-long/2addr vA, vB
+  table.register(0xc1, {
+    name: 'or-long/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, getLongValue(ctx.frame.registers[vA]) | getLongValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xc2 - xor-long/2addr vA, vB
+  table.register(0xc2, {
+    name: 'xor-long/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, getLongValue(ctx.frame.registers[vA]) ^ getLongValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xc3 - shl-long/2addr vA, vB
+  table.register(0xc3, {
+    name: 'shl-long/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const shift = BigInt(getIntValue(ctx.frame.registers[vB]) & 0x3f);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, getLongValue(ctx.frame.registers[vA]) << shift) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xc4 - shr-long/2addr vA, vB
+  table.register(0xc4, {
+    name: 'shr-long/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const shift = BigInt(getIntValue(ctx.frame.registers[vB]) & 0x3f);
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, getLongValue(ctx.frame.registers[vA]) >> shift) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xc5 - ushr-long/2addr vA, vB
+  table.register(0xc5, {
+    name: 'ushr-long/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      const shift = BigInt(getIntValue(ctx.frame.registers[vB]) & 0x3f);
+      const unsigned = BigInt.asUintN(64, getLongValue(ctx.frame.registers[vA]));
+      ctx.frame.registers[vA] = { type: 'long', value: BigInt.asIntN(64, unsigned >> shift) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // ─── Float Arithmetic (2-address forms) ───
+
+  // 0xc6 - add-float/2addr vA, vB
+  table.register(0xc6, {
+    name: 'add-float/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(getFloatValue(ctx.frame.registers[vA]) + getFloatValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xc7 - sub-float/2addr vA, vB
+  table.register(0xc7, {
+    name: 'sub-float/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(getFloatValue(ctx.frame.registers[vA]) - getFloatValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xc8 - mul-float/2addr vA, vB
+  table.register(0xc8, {
+    name: 'mul-float/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(getFloatValue(ctx.frame.registers[vA]) * getFloatValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xc9 - div-float/2addr vA, vB
+  table.register(0xc9, {
+    name: 'div-float/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(getFloatValue(ctx.frame.registers[vA]) / getFloatValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xca - rem-float/2addr vA, vB
+  table.register(0xca, {
+    name: 'rem-float/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'float', value: fround(getFloatValue(ctx.frame.registers[vA]) % getFloatValue(ctx.frame.registers[vB])) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // ─── Double Arithmetic (2-address forms) ───
+
+  // 0xcb - add-double/2addr vA, vB
+  table.register(0xcb, {
+    name: 'add-double/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'double', value: getDoubleValue(ctx.frame.registers[vA]) + getDoubleValue(ctx.frame.registers[vB]) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xcc - sub-double/2addr vA, vB
+  table.register(0xcc, {
+    name: 'sub-double/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'double', value: getDoubleValue(ctx.frame.registers[vA]) - getDoubleValue(ctx.frame.registers[vB]) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xcd - mul-double/2addr vA, vB
+  table.register(0xcd, {
+    name: 'mul-double/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'double', value: getDoubleValue(ctx.frame.registers[vA]) * getDoubleValue(ctx.frame.registers[vB]) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xce - div-double/2addr vA, vB
+  table.register(0xce, {
+    name: 'div-double/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'double', value: getDoubleValue(ctx.frame.registers[vA]) / getDoubleValue(ctx.frame.registers[vB]) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // 0xcf - rem-double/2addr vA, vB
+  table.register(0xcf, {
+    name: 'rem-double/2addr',
+    format: '12x',
+    width: 1,
+    handler: (ctx, insn) => {
+      const vA = getRegA_12x(insn);
+      const vB = getRegB_12x(insn);
+      ctx.frame.registers[vA] = { type: 'double', value: getDoubleValue(ctx.frame.registers[vA]) % getDoubleValue(ctx.frame.registers[vB]) };
+      ctx.frame.pc += 1;
+    },
+  });
+
+  // ─── Integer Arithmetic (lit16 forms) ───
+
+  // 0xd0 - add-int/lit16 vA, vB, #+CCCC
+  table.register(0xd0, {
+    name: 'add-int/lit16',
+    format: '22s',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const lit = signExtend16(code[ctx.frame.pc + 1]);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b + lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xd1 - rsub-int vA, vB, #+CCCC
+  table.register(0xd1, {
+    name: 'rsub-int',
+    format: '22s',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const lit = signExtend16(code[ctx.frame.pc + 1]);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (lit - b) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xd2 - mul-int/lit16 vA, vB, #+CCCC
+  table.register(0xd2, {
+    name: 'mul-int/lit16',
+    format: '22s',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const lit = signExtend16(code[ctx.frame.pc + 1]);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: Math.imul(b, lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xd3 - div-int/lit16 vA, vB, #+CCCC
+  table.register(0xd3, {
+    name: 'div-int/lit16',
+    format: '22s',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const lit = signExtend16(code[ctx.frame.pc + 1]);
+      if (lit === 0) throw new InterpreterError('ArithmeticException: divide by zero');
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b / lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xd4 - rem-int/lit16 vA, vB, #+CCCC
+  table.register(0xd4, {
+    name: 'rem-int/lit16',
+    format: '22s',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const lit = signExtend16(code[ctx.frame.pc + 1]);
+      if (lit === 0) throw new InterpreterError('ArithmeticException: divide by zero');
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b % lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xd5 - and-int/lit16 vA, vB, #+CCCC
+  table.register(0xd5, {
+    name: 'and-int/lit16',
+    format: '22s',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const lit = signExtend16(code[ctx.frame.pc + 1]);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b & lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xd6 - or-int/lit16 vA, vB, #+CCCC
+  table.register(0xd6, {
+    name: 'or-int/lit16',
+    format: '22s',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const lit = signExtend16(code[ctx.frame.pc + 1]);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b | lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xd7 - xor-int/lit16 vA, vB, #+CCCC
+  table.register(0xd7, {
+    name: 'xor-int/lit16',
+    format: '22s',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xf;
+      const vB = (insn >> 12) & 0xf;
+      const code = ctx.frame.method.code!.insns;
+      const lit = signExtend16(code[ctx.frame.pc + 1]);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b ^ lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // ─── Integer Arithmetic (lit8 forms) ───
+
+  // 0xd8 - add-int/lit8 vAA, vBB, #+CC
+  table.register(0xd8, {
+    name: 'add-int/lit8',
+    format: '22b',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const lit = signExtend8((code[ctx.frame.pc + 1] >> 8) & 0xff);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b + lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xd9 - rsub-int/lit8 vAA, vBB, #+CC
+  table.register(0xd9, {
+    name: 'rsub-int/lit8',
+    format: '22b',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const lit = signExtend8((code[ctx.frame.pc + 1] >> 8) & 0xff);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (lit - b) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xda - mul-int/lit8 vAA, vBB, #+CC
+  table.register(0xda, {
+    name: 'mul-int/lit8',
+    format: '22b',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const lit = signExtend8((code[ctx.frame.pc + 1] >> 8) & 0xff);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: Math.imul(b, lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xdb - div-int/lit8 vAA, vBB, #+CC
+  table.register(0xdb, {
+    name: 'div-int/lit8',
+    format: '22b',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const lit = signExtend8((code[ctx.frame.pc + 1] >> 8) & 0xff);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      if (lit === 0) throw new InterpreterError('ArithmeticException: divide by zero');
+      ctx.frame.registers[vA] = { type: 'int', value: (b / lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xdc - rem-int/lit8 vAA, vBB, #+CC
+  table.register(0xdc, {
+    name: 'rem-int/lit8',
+    format: '22b',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const lit = signExtend8((code[ctx.frame.pc + 1] >> 8) & 0xff);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      if (lit === 0) throw new InterpreterError('ArithmeticException: divide by zero');
+      ctx.frame.registers[vA] = { type: 'int', value: (b % lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xdd - and-int/lit8 vAA, vBB, #+CC
+  table.register(0xdd, {
+    name: 'and-int/lit8',
+    format: '22b',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const lit = signExtend8((code[ctx.frame.pc + 1] >> 8) & 0xff);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b & lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xde - or-int/lit8 vAA, vBB, #+CC
+  table.register(0xde, {
+    name: 'or-int/lit8',
+    format: '22b',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const lit = signExtend8((code[ctx.frame.pc + 1] >> 8) & 0xff);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b | lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xdf - xor-int/lit8 vAA, vBB, #+CC
+  table.register(0xdf, {
+    name: 'xor-int/lit8',
+    format: '22b',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const lit = signExtend8((code[ctx.frame.pc + 1] >> 8) & 0xff);
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b ^ lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xe0 - shl-int/lit8 vAA, vBB, #+CC
+  table.register(0xe0, {
+    name: 'shl-int/lit8',
+    format: '22b',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const lit = signExtend8((code[ctx.frame.pc + 1] >> 8) & 0xff) & 0x1f;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b << lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xe1 - shr-int/lit8 vAA, vBB, #+CC
+  table.register(0xe1, {
+    name: 'shr-int/lit8',
+    format: '22b',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const lit = signExtend8((code[ctx.frame.pc + 1] >> 8) & 0xff) & 0x1f;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b >> lit) | 0 };
+      ctx.frame.pc += 2;
+    },
+  });
+
+  // 0xe2 - ushr-int/lit8 vAA, vBB, #+CC
+  table.register(0xe2, {
+    name: 'ushr-int/lit8',
+    format: '22b',
+    width: 2,
+    handler: (ctx, insn) => {
+      const vA = (insn >> 8) & 0xff;
+      const code = ctx.frame.method.code!.insns;
+      const vB = code[ctx.frame.pc + 1] & 0xff;
+      const lit = signExtend8((code[ctx.frame.pc + 1] >> 8) & 0xff) & 0x1f;
+      const b = getIntValue(ctx.frame.registers[vB]);
+      ctx.frame.registers[vA] = { type: 'int', value: (b >>> lit) | 0 };
+      ctx.frame.pc += 2;
     },
   });
 }

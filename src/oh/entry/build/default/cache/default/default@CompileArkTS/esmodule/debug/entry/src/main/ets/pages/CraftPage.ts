@@ -191,25 +191,21 @@ class CraftPage extends ViewPU {
             If.create();
             if (this.isLoading) {
                 this.ifElseBranchUpdateFunction(0, () => {
-                    // Loading state
                     this.loadingView.bind(this)();
                 });
             }
             else if (this.errorMessage) {
                 this.ifElseBranchUpdateFunction(1, () => {
-                    // Error state
                     this.errorView.bind(this)();
                 });
             }
             else if (this.viewTree !== null) {
                 this.ifElseBranchUpdateFunction(2, () => {
-                    // Render Android view tree
                     this.renderView.bind(this)(ObservedObject.GetRawObject(this.viewTree));
                 });
             }
             else {
                 this.ifElseBranchUpdateFunction(3, () => {
-                    // No content yet
                     this.emptyView.bind(this)();
                 });
             }
@@ -286,22 +282,28 @@ class CraftPage extends ViewPU {
                     this.renderTextView.bind(this)(view);
                 });
             }
-            else if (view.type === 'ViewGroup') {
+            else if (view.type === 'Button') {
                 this.ifElseBranchUpdateFunction(1, () => {
+                    this.renderButton.bind(this)(view);
+                });
+            }
+            else if (view.type === 'LinearLayout') {
+                this.ifElseBranchUpdateFunction(2, () => {
+                    this.renderLinearLayout.bind(this)(view);
+                });
+            }
+            else if (view.type === 'ViewGroup') {
+                this.ifElseBranchUpdateFunction(3, () => {
                     this.renderViewGroup.bind(this)(view);
                 });
             }
             else {
-                this.ifElseBranchUpdateFunction(2, () => {
+                this.ifElseBranchUpdateFunction(4, () => {
                     this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        // Unknown view type - render as text for debugging
                         Text.create(`Unknown View: ${view.type}`);
-                        // Unknown view type - render as text for debugging
                         Text.fontSize(14);
-                        // Unknown view type - render as text for debugging
                         Text.fontColor('#FF0000');
                     }, Text);
-                    // Unknown view type - render as text for debugging
                     Text.pop();
                 });
             }
@@ -317,6 +319,22 @@ class CraftPage extends ViewPU {
         return (val !== undefined && val !== null) ? Number(val) : fallback;
     }
     /**
+     * Extract viewRef from SerializedView id ('view_123' → 123)
+     */
+    private getViewRef(view: SerializedView): number {
+        return parseInt(view.id.replace('view_', ''));
+    }
+    /**
+     * Handle click on a view - dispatches through UIBridge
+     */
+    private handleClick(view: SerializedView): void {
+        if (!this.runtime)
+            return;
+        const viewRef = this.getViewRef(view);
+        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Click on viewRef=%{public}d', viewRef);
+        this.runtime.getUIBridge().dispatchClick(viewRef);
+    }
+    /**
      * Render TextView as ArkUI Text component
      */
     renderTextView(view: SerializedView, parent = null) {
@@ -324,11 +342,80 @@ class CraftPage extends ViewPU {
             Text.create(this.getViewPropString(view, 'text', ''));
             Text.fontSize(this.getViewPropNumber(view, 'textSize', 14));
             Text.fontColor(this.intToColor(this.getViewPropNumber(view, 'textColor', 0xFF000000)));
+            Text.padding(4);
         }, Text);
         Text.pop();
     }
     /**
-     * Render ViewGroup as ArkUI Column
+     * Render Button as ArkUI Button component with click handling
+     */
+    renderButton(view: SerializedView, parent = null) {
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            Button.createWithLabel(this.getViewPropString(view, 'text', ''));
+            Button.fontSize(this.getViewPropNumber(view, 'textSize', 14));
+            Button.fontColor(this.intToColor(this.getViewPropNumber(view, 'textColor', 0xFF000000)));
+            Button.layoutWeight(1);
+            Button.height(56);
+            Button.margin(2);
+            Button.onClick(() => {
+                this.handleClick(view);
+            });
+        }, Button);
+        Button.pop();
+    }
+    /**
+     * Render LinearLayout as Column (vertical) or Row (horizontal)
+     */
+    renderLinearLayout(view: SerializedView, parent = null) {
+        this.observeComponentCreation2((elmtId, isInitialRender) => {
+            If.create();
+            if (this.getViewPropNumber(view, 'orientation', 0) === 1) {
+                this.ifElseBranchUpdateFunction(0, () => {
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        // VERTICAL
+                        Column.create();
+                        // VERTICAL
+                        Column.width('100%');
+                    }, Column);
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        ForEach.create();
+                        const forEachItemGenFunction = _item => {
+                            const child = _item;
+                            this.renderView.bind(this)(child);
+                        };
+                        this.forEachUpdateFunction(elmtId, view.children, forEachItemGenFunction, (child: SerializedView) => `${child.id}_${this.updateCounter}`, false, false);
+                    }, ForEach);
+                    ForEach.pop();
+                    // VERTICAL
+                    Column.pop();
+                });
+            }
+            else {
+                this.ifElseBranchUpdateFunction(1, () => {
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        // HORIZONTAL
+                        Row.create();
+                        // HORIZONTAL
+                        Row.width('100%');
+                    }, Row);
+                    this.observeComponentCreation2((elmtId, isInitialRender) => {
+                        ForEach.create();
+                        const forEachItemGenFunction = _item => {
+                            const child = _item;
+                            this.renderView.bind(this)(child);
+                        };
+                        this.forEachUpdateFunction(elmtId, view.children, forEachItemGenFunction, (child: SerializedView) => `${child.id}_${this.updateCounter}`, false, false);
+                    }, ForEach);
+                    ForEach.pop();
+                    // HORIZONTAL
+                    Row.pop();
+                });
+            }
+        }, If);
+        If.pop();
+    }
+    /**
+     * Render ViewGroup as ArkUI Column (fallback)
      */
     renderViewGroup(view: SerializedView, parent = null) {
         this.observeComponentCreation2((elmtId, isInitialRender) => {
@@ -340,7 +427,7 @@ class CraftPage extends ViewPU {
                 const child = _item;
                 this.renderView.bind(this)(child);
             };
-            this.forEachUpdateFunction(elmtId, view.children, forEachItemGenFunction, (child: SerializedView) => child.id, false, false);
+            this.forEachUpdateFunction(elmtId, view.children, forEachItemGenFunction, (child: SerializedView) => `${child.id}_${this.updateCounter}`, false, false);
         }, ForEach);
         ForEach.pop();
         Column.pop();

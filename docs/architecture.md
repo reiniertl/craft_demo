@@ -74,7 +74,7 @@ This document describes the system architecture for running Android APKs on Open
 ### 4. Bytecode Interpreter (Stage 2)
 - **Purpose:** Execute Dalvik bytecode instructions
 - **Capabilities:**
-  - 82 opcodes (move, const, const-wide, return, goto, if-test, if-testz, check-cast, instance-of, new-instance, new-array, array ops, field access, invocation including range variants)
+  - 218 opcodes (full Dalvik instruction set: move, const, return, goto, switch, comparisons, if-test, if-testz, check-cast, instance-of, new-instance, arrays, field access, invocation, unary/binary arithmetic for int/long/float/double, type conversions, monitor, literal forms)
   - Frame-based execution (local variables, operand stack)
   - Method invocation (invoke-direct, invoke-virtual, invoke-static, invoke-super)
 - **Implementation:**
@@ -92,6 +92,7 @@ This document describes the system architecture for running Android APKs on Open
   - `android.content.ContextWrapper` - Context wrapper
   - `android.view.View` - Base UI component
   - `android.view.ViewGroup` - Container for child views
+  - `android.widget.LinearLayout` - Linear container with orientation
   - `android.widget.TextView` - Text display component
   - `android.os.Bundle` - Key-value data storage
 - **Implementation:** `src/shim/android/` directory tree
@@ -248,7 +249,7 @@ interface Frame {
 ## Performance Characteristics
 
 **Current Status (Stages 1-5):**
-- Test suite: 357 tests in ~5 seconds
+- Test suite: 554 tests in ~5 seconds
 - Zero TypeScript compilation errors
 - Heap allocation: ~1000 objects for Hello World scenario
 - Opcode execution: ~500 instructions for Hello World
