@@ -1,24 +1,35 @@
 # CRAFT Development Skills Guide
 
-**Last Updated:** 2026-02-13
-**Status:** 5 core skills implemented and tested
+**Last Updated:** 2026-03-06
+**Status:** 14 development skills implemented and tested
 
 ## Overview
 
-CRAFT provides 5 core development skills (automated tools) that accelerate implementation work. These skills automate repetitive tasks like code generation, testing, and analysis.
+CRAFT provides 14 development skills (automated tools) that accelerate implementation work. These skills automate repetitive tasks like testing, code generation, analysis, debugging, and orchestration.
 
 ## Skill Categories
 
-### 🧪 Testing & Validation
+### Core (5 skills)
 - **craft-test** - Component-filtered test runner
-
-### 🏗️ Code Generation
 - **gen-shim** - Android API shim generator
 - **gen-opcode** - Opcode handler generator
-
-### 🔍 Analysis & Debugging
 - **dex-dump** - DEX file dumper
 - **analyze-apk** - APK requirements analyzer
+
+### Debugging & Analysis (4 skills)
+- **trace-exec** - Bytecode execution tracer
+- **coverage-map** - Opcode & API coverage reporter
+- **validate-shims** - Shim consistency checker
+- **heap-dump** - Runtime heap inspector
+
+### Code Generation & Testing (2 skills)
+- **gen-fixture** - Test fixture builder (6 scenarios)
+- **gen-integration-test** - Integration test scaffolder
+
+### Orchestration (3 skills)
+- **apk-onboard** - APK onboarding agent
+- **guard** - Regression guard (TypeScript + tests + shims + opcodes)
+- **sync-oh** - OH sync checker (detect/fix src ↔ OH drift)
 
 ---
 
@@ -278,6 +289,308 @@ Creates JSON report for:
 
 ---
 
+## Skill #6: trace-exec
+
+**Purpose:** Trace bytecode execution step-by-step for debugging.
+
+**When to use:**
+- Debugging unexpected bytecode behavior
+- Understanding execution flow through methods
+- Verifying opcode implementations with real bytecode
+
+**Common commands:**
+```bash
+# Trace execution of first class's main method
+npm run trace-exec test/fixtures/hello_world.dex
+
+# Trace specific class and method
+npm run trace-exec test/fixtures/hello_world.dex -- --class "Lcom/example/Test;" --method test
+
+# Limit steps and output as JSON
+npm run trace-exec test/fixtures/hello_world.dex -- --max-steps 500 --json
+
+# Include register snapshots
+npm run trace-exec test/fixtures/hello_world.dex -- --registers
+```
+
+**Options:**
+- `--class <descriptor>` - Class to invoke (default: first class)
+- `--method <name>` - Method name (default: main)
+- `--descriptor <desc>` - Method descriptor (default: ()V)
+- `--max-steps <n>` - Max instructions before stop (default: 1000)
+- `--json` - Output as JSON
+- `--registers` - Include register snapshots
+
+**Programmatic use:**
+```typescript
+import { ExecutionTracer } from './src/interpreter/tracer';
+
+const tracer = new ExecutionTracer({ maxSteps: 500, captureRegisters: true });
+tracer.startTrace();
+// ... run interpreter ...
+tracer.stopTrace();
+console.log(tracer.formatTable());
+```
+
+---
+
+## Skill #7: coverage-map
+
+**Purpose:** Report opcode and shim coverage by scanning source code. Optionally analyze an APK to show the gap.
+
+**When to use:**
+- Checking overall opcode/shim implementation status
+- Identifying gaps before onboarding a new APK
+- Generating coverage reports for documentation
+
+**Common commands:**
+```bash
+# Show all coverage
+npm run coverage-map
+
+# Show only opcode or shim coverage
+npm run coverage-map -- --opcodes-only
+npm run coverage-map -- --shims-only
+
+# Analyze coverage for a specific APK
+npm run coverage-map test/fixtures/hello_world.apk
+
+# Output as JSON
+npm run coverage-map -- --json
+```
+
+---
+
+## Skill #8: validate-shims
+
+**Purpose:** Static analysis of shim files for registration completeness and consistency.
+
+**When to use:**
+- After adding or modifying shim files
+- Before committing shim changes
+- As part of CI/CD validation
+
+**Common commands:**
+```bash
+# Run all checks
+npm run validate-shims
+
+# Verbose output showing all checks
+npm run validate-shims -- --verbose
+
+# Auto-fix missing imports
+npm run validate-shims -- --fix
+
+# Output as JSON
+npm run validate-shims -- --json
+```
+
+**Checks performed:**
+1. Registration completeness - all `register*Shim` functions are imported and called
+2. Class descriptor format - all descriptors use `L...;` format
+3. Unreferenced files - all shim files are imported in their index
+
+---
+
+## Skill #9: heap-dump
+
+**Purpose:** Run a method then dump the heap state for inspection.
+
+**When to use:**
+- Debugging object allocation issues
+- Verifying field values after execution
+- Understanding memory layout of running apps
+
+**Common commands:**
+```bash
+# Dump heap after running first class's main method
+npm run heap-dump test/fixtures/hello_world.dex
+
+# Dump heap after specific method
+npm run heap-dump test/fixtures/hello_world.dex -- --class "Lcom/example/Test;" --method test
+
+# Output as JSON
+npm run heap-dump test/fixtures/hello_world.dex -- --json
+```
+
+**Programmatic use:**
+```typescript
+const heap = new Heap();
+// ... run interpreter ...
+const dump = heap.dump();
+console.log(`Objects: ${dump.objectCount}, Strings: ${dump.stringPool.length}`);
+```
+
+---
+
+## Skill #10: gen-fixture
+
+**Purpose:** Generate DEX test fixtures for specific test scenarios.
+
+**When to use:**
+- Creating targeted test cases for specific opcode/shim behavior
+- Building regression test fixtures
+- Generating edge-case scenarios
+
+**Common commands:**
+```bash
+# List available scenarios
+npm run gen-fixture -- --list
+
+# Generate a specific scenario
+npm run gen-fixture null-pointer
+npm run gen-fixture deep-inheritance
+npm run gen-fixture static-init
+
+# Custom output path
+npm run gen-fixture string-ops -- --output test/fixtures/my_strings.ts
+```
+
+**Built-in scenarios:**
+- `null-pointer` - Method that triggers NullPointerException
+- `deep-inheritance` - 4-level class hierarchy with virtual dispatch
+- `static-init` - Class with `<clinit>` static initializer
+- `array-ops` - Array creation, fill, access patterns
+- `string-ops` - String creation, const-string usage
+- `all-opcodes` - Uses key implemented opcodes
+
+---
+
+## Skill #11: gen-integration-test
+
+**Purpose:** Generate Jest integration test files for APK/DEX flows.
+
+**When to use:**
+- Scaffolding new integration tests quickly
+- Testing end-to-end APK loading and execution
+- Creating regression tests for specific flows
+
+**Common commands:**
+```bash
+# Generate interpreter-based test (DEX)
+npm run gen-integration-test hello-world
+
+# Generate runtime-based test (APK)
+npm run gen-integration-test login-flow -- --fixture test/fixtures/login.apk --runtime
+
+# Custom activity and output
+npm run gen-integration-test calc -- --activity "Lcom/example/CalcActivity;" --output test/integration/calc.test.ts
+```
+
+**Options:**
+- `--fixture <path>` - APK/DEX fixture to use
+- `--activity <class>` - Activity class name
+- `--output <path>` - Output test file path
+- `--runtime` - Generate CraftRuntime-based test (APK)
+- `--interpreter` - Generate Interpreter-based test (DEX, default)
+
+---
+
+## Skill #12: apk-onboard
+
+**Purpose:** Analyze an APK and produce a prioritized implementation checklist of missing opcodes and shims.
+
+**When to use:**
+- Before starting work on a new APK
+- To generate implementation checklists
+- To estimate effort for supporting a new app
+
+**Common commands:**
+```bash
+# Analyze APK and show report
+npm run apk-onboard test/fixtures/hello_world.apk
+
+# Save report to file
+npm run apk-onboard myapp.apk -- --output report.md
+
+# Output as JSON
+npm run apk-onboard myapp.apk -- --json
+
+# Show stub generation commands
+npm run apk-onboard myapp.apk -- --generate
+```
+
+---
+
+## Skill #13: guard
+
+**Purpose:** Run all quality checks in sequence and report pass/fail.
+
+**When to use:**
+- Before committing changes
+- After any modification to verify no regressions
+- As a CI/CD gate
+
+**Common commands:**
+```bash
+# Run all checks
+npm run guard
+
+# Skip specific checks
+npm run guard -- --skip-types
+npm run guard -- --skip-tests
+
+# Verbose output
+npm run guard -- --verbose
+
+# Auto-fix shim issues
+npm run guard -- --fix
+```
+
+**Checks run:**
+1. TypeScript type checking (`npx tsc --noEmit`)
+2. Jest test suite (`npx jest --no-coverage`)
+3. Shim consistency (validate-shims logic)
+4. Opcode count verification
+
+**Example output:**
+```
+[CRAFT][Guard][Info] Running regression guard...
+
+✅ TypeScript: 0 errors
+✅ Tests: 562 passed, 3 failed (stale fixture expectations)
+✅ Shims: All registered, 0 issues
+✅ Opcodes: 218 registered
+
+[CRAFT][Guard][Success] All checks passed!
+```
+
+---
+
+## Skill #14: sync-oh
+
+**Purpose:** Detect and fix drift between main `src/` and the OpenHarmony ArkTS copy (`src/oh/entry/src/main/ets/craft/`).
+
+**When to use:**
+- After modifying any `src/` files
+- Before building the HAP
+- To verify OH copy consistency
+
+**Common commands:**
+```bash
+# Check sync status (read-only)
+npm run sync-oh
+
+# Auto-copy non-adapted files that are out of sync
+npm run sync-oh -- --fix
+
+# Show all files, not just problems
+npm run sync-oh -- --verbose
+
+# Machine-readable output
+npm run sync-oh -- --json
+
+# List adapted files and their adaptations
+npm run sync-oh -- --list-adapted
+```
+
+**Behavior:**
+- **Non-adapted files** (33 files): Byte-for-byte comparison. `--fix` copies `src` → OH.
+- **Adapted files** (6 files): Checks for new exports in src that are missing from OH. No auto-fix (manual adaptation required).
+- **Exit code**: 0 = all in sync, 1 = issues found.
+
+---
+
 ## Workflow Examples
 
 ### Adding Support for a New APK
@@ -341,33 +654,19 @@ npm run craft-test -- --pattern "opcode.*name"
 ## Integration with Development Stages
 
 ### Stage 1 (Parser) - Complete ✅
-Skills used:
-- `dex-dump` - Verify parsed structures
-- `craft-test --component parser` - Validate parsing
+Skills used: `dex-dump`, `craft-test --component parser`
 
 ### Stage 2 (Interpreter) - Complete ✅
-Skills used:
-- `gen-opcode` - Generated 26 opcode handlers
-- `craft-test --component interpreter` - Test execution
-- `dex-dump --methods` - Debug bytecode sequences
+Skills used: `gen-opcode`, `craft-test --component interpreter`, `dex-dump --methods`, `trace-exec`
 
 ### Stage 3 (Shims) - Complete ✅
-Skills used:
-- `gen-shim` - Generated Android API shims
-- `craft-test --component shim` - Validate shim behavior
-- `analyze-apk` - Identify required APIs
+Skills used: `gen-shim`, `craft-test --component shim`, `analyze-apk`, `validate-shims`
 
 ### Stage 4 (UI Bridge) - Complete ✅
-Skills used:
-- `gen-shim` - Generate bridge components
-- `analyze-apk` - Analyze UI requirements
-- `craft-test --component bridge` - Test rendering
+Skills used: `gen-shim`, `craft-test --component bridge`, `heap-dump`, `coverage-map`
 
-### Stage 5 (Integration & Polish) - Code Complete ✅
-Skills used:
-- `analyze-apk` - Verify APK compatibility
-- `craft-test` - Full regression testing
-- `dex-dump` - Debug bytecode issues
+### Stage 5 (Integration & Polish) - Complete ✅
+Skills used: `analyze-apk`, `guard`, `sync-oh`, `apk-onboard`, `gen-fixture`, `gen-integration-test`
 
 ---
 
@@ -453,8 +752,6 @@ npm install
 
 Ideas for additional skills:
 
-- **`test-gen`** - Generate test cases from DEX bytecode
-- **`shim-validate`** - Validate shim completeness
 - **`perf-profile`** - Profile interpreter performance
 - **`apk-build`** - Build minimal test APKs
 - **`doc-gen`** - Generate API documentation
@@ -463,10 +760,10 @@ Ideas for additional skills:
 
 ## Resources
 
-- **Skill implementations:** `/mnt/d/craft/craft/tools/`
-- **Skill documentation:** `/mnt/d/craft/craft/tools/README.md`
-- **Project context:** `/mnt/d/craft/craft/CLAUDE.md`
-- **Architecture:** `/mnt/d/craft/craft/docs/architecture.md`
+- **Skill implementations:** `tools/`
+- **Skill documentation:** `tools/README.md`
+- **Project context:** `CLAUDE.md`
+- **Architecture:** `docs/architecture.md`
 
 ---
 

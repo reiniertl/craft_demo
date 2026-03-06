@@ -19,7 +19,8 @@
     "gen-fixture": "ts-node tools/gen_fixture.ts",
     "gen-integration-test": "ts-node tools/gen_integration_test.ts",
     "apk-onboard": "ts-node tools/apk_onboard.ts",
-    "guard": "ts-node tools/regression_guard.ts"
+    "guard": "ts-node tools/regression_guard.ts",
+    "sync-oh": "ts-node tools/sync_oh.ts"
   },
   "keywords": [
     "android",

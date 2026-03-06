@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-Stage 5 is fully complete. The CRAFT runtime, OpenHarmony UIAbility host, and dynamic ArkUI rendering page are fully implemented with 554 tests passing.
+Stage 5 is fully complete. The CRAFT runtime, OpenHarmony UIAbility host, and dynamic ArkUI rendering page are fully implemented with 565 tests (562 passing).
 
 The Hello World APK has been recompiled (Feb 18) with full TextView creation and verified working on an Android device. The HAP was built, signed, and successfully tested on a HarmonyOS device on Feb 24.
 
@@ -17,12 +17,12 @@ The Hello World APK has been recompiled (Feb 18) with full TextView creation and
 
 ### 1. Complete TypeScript Runtime (Stages 1-4)
 **Status:** ✅ 100% Complete
-**Tests:** 554 passing (100%)
+**Tests:** 565 total (562 passing)
 
 - ✅ APK Parser (ZIP extraction, manifest parsing)
 - ✅ DEX Parser (full DEX format support)
 - ✅ Bytecode Interpreter (218 opcodes — full Dalvik instruction set)
-- ✅ Android API Shims (Activity, Context, View, ViewGroup, LinearLayout, TextView, Bundle)
+- ✅ Android API Shims (Activity, Context, View, ViewGroup, LinearLayout, TextView, Button, Bundle)
 - ✅ UI Bridge (ViewNode mapping, reactive state)
 - ✅ Lifecycle Bridge (Activity ↔ Ability mapping)
 - ✅ CraftRuntime (high-level API wrapper)
@@ -106,10 +106,10 @@ hdc hilog -T CRAFT
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| TypeScript Runtime | ✅ Complete | 554 tests, 0 errors |
+| TypeScript Runtime | ✅ Complete | 565 tests (562 passing) |
 | Hello World APK | ✅ Complete | Rebuilt Feb 18, verified on Android |
 | OpenHarmony HAP | ✅ Built | 476 KB signed HAP |
 | HarmonyOS Build Config | ✅ Configured | Needs signing cert |
 | Device Testing | ✅ Complete | Tested on HarmonyOS device Feb 24 |
 
-**Last Updated:** 2026-02-24
+**Last Updated:** 2026-03-06

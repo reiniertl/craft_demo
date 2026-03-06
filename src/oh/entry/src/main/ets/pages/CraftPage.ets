@@ -202,10 +202,21 @@ struct CraftPage {
      * Handle click on a view - dispatches through UIBridge
      */
     private handleClick(view: SerializedView): void {
-        if (!this.runtime) return;
-        const viewRef = this.getViewRef(view);
-        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Click on viewRef=%{public}d', viewRef);
-        this.runtime.getUIBridge().dispatchClick(viewRef);
+        if (!this.runtime) {
+            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Click ignored: runtime is null');
+            return;
+        }
+        try {
+            const viewRef = this.getViewRef(view);
+            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Click on viewRef=%{public}d type=%{public}s', viewRef, view.type);
+            const handled = this.runtime.getUIBridge().dispatchClick(viewRef);
+            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Click dispatched: handled=%{public}s', String(handled));
+        } catch (error) {
+            const msg = error instanceof Error ? error.message : String(error);
+            const stack = error instanceof Error && error.stack ? error.stack : '';
+            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Click handler failed: %{public}s', msg);
+            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Stack: %{public}s', stack);
+        }
     }
 
     /**

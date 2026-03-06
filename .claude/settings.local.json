@@ -79,7 +79,10 @@
       "Bash(if [ ! -f \"$SRC/$rel\" ])",
       "Bash(then)",
       "Bash(fi)",
-      "Bash(git diff:*)"
+      "Bash(git diff:*)",
+      "Bash(npm run sync-oh:*)",
+      "Bash(/tmp/analyze.sh:*)",
+      "Bash(chmod:*)"
     ]
   }
 }

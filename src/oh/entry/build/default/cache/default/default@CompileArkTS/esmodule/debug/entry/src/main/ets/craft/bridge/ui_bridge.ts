@@ -76,6 +76,7 @@ export class UIBridge {
      */
     setClickCallback(viewRef: number, callback: () => void): void {
         this.clickCallbacks.set(viewRef, callback);
+        console.info(`[CRAFT][UIBridge] setClickCallback: viewRef=${viewRef}, total=${this.clickCallbacks.size}`);
     }
     /**
      * Dispatch a click event to a view (entry point for ArkUI)
@@ -83,10 +84,20 @@ export class UIBridge {
      * @returns true if a click handler was invoked
      */
     dispatchClick(viewRef: number): boolean {
+        console.info(`[CRAFT][UIBridge] dispatchClick: viewRef=${viewRef}, has=${this.clickCallbacks.has(viewRef)}, keys=[${Array.from(this.clickCallbacks.keys()).join(',')}]`);
         const callback = this.clickCallbacks.get(viewRef);
         if (callback) {
-            callback();
-            return true;
+            try {
+                callback();
+                return true;
+            }
+            catch (error) {
+                const msg = error instanceof Error ? error.message : String(error);
+                const stack = error instanceof Error && error.stack ? error.stack : '';
+                console.error(`[CRAFT][UIBridge] dispatchClick callback error: ${msg}`);
+                console.error(`[CRAFT][UIBridge] stack: ${stack}`);
+                throw error; // Re-throw so CraftPage catches it
+            }
         }
         return false;
     }

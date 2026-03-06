@@ -4,7 +4,7 @@ CRAFT (Compatibility Runtime for Android Framework Translation) - An Android APK
 
 ## Current Stage: 5 Complete - All Stages Done
 
-**Status:** 554 tests passing | 0 TypeScript errors | 0 regressions | Device Tested ✅
+**Status:** 565 tests (562 passing, 3 stale fixture expectations) | 0 TypeScript errors | 0 regressions | Device Tested ✅
 
 Stage 1: APK/DEX/Manifest parsing ✅
 Stage 2: Bytecode interpretation ✅
@@ -52,6 +52,7 @@ npm run gen-fixture -- --list                         # List test fixture scenar
 npm run gen-integration-test my-test                  # Scaffold integration test
 npm run apk-onboard test/fixtures/hello_world.apk     # APK onboarding report
 npm run guard                                         # Full regression guard
+npm run sync-oh                                       # Check OH copy sync status
 
 # TypeScript check
 npx tsc --noEmit
@@ -59,7 +60,7 @@ npx tsc --noEmit
 
 ## Development Skills
 
-13 development skills are available (see `tools/README.md`):
+14 development skills are available (see `tools/README.md`):
 
 **Core (original):**
 1. **`craft-test`** - Run tests with component filtering
@@ -81,6 +82,7 @@ npx tsc --noEmit
 **Orchestration:**
 12. **`apk-onboard`** - APK onboarding agent
 13. **`guard`** - Regression guard (TypeScript + tests + shims + opcodes)
+14. **`sync-oh`** - OH sync checker (detect/fix src ↔ OH drift)
 
 ## Project Structure
 
@@ -103,7 +105,7 @@ src/
 │   ├── class_loader.ts    # Class and method resolution
 │   ├── method_resolver.ts # Virtual dispatch with caching
 │   ├── opcode_table.ts    # Opcode dispatch table
-│   ├── opcodes.ts         # 82 Dalvik opcode implementations
+│   ├── opcodes.ts         # 218 Dalvik opcode implementations
 │   ├── shim_registry.ts   # Shim method registry
 │   ├── shim_init.ts       # Shim initialization (java.lang + android.*)
 │   ├── tracer.ts          # Execution tracer (debugging)
@@ -124,6 +126,7 @@ src/
 │       ├── view/view_group.ts   # android.view.ViewGroup (+ UIBridge)
 │       ├── widget/textview.ts   # android.widget.TextView (+ UIBridge)
 │       ├── widget/linear_layout.ts # android.widget.LinearLayout (+ UIBridge)
+│       ├── widget/button.ts     # android.widget.Button (+ UIBridge)
 │       ├── app/activity.ts      # android.app.Activity (+ UIBridge)
 │       └── index.ts             # Registration
 ├── bridge/         # UI Bridge (Stage 4)
@@ -152,16 +155,17 @@ tools/
 ├── gen_fixture.ts           # Test fixture builder
 ├── gen_integration_test.ts  # Integration test scaffolder
 ├── apk_onboard.ts           # APK onboarding agent
-└── regression_guard.ts      # Regression guard
+├── regression_guard.ts      # Regression guard
+└── sync_oh.ts               # OH sync checker
 
 test/
 ├── fixtures/       # hello_world.apk, .dex, manifest_binary.xml
 ├── helpers/        # shim_test_utils.ts, value_matchers.ts
-├── unit/           # 508 unit tests
+├── unit/           # Unit tests (20 test files)
 │   ├── interpreter/  # heap, frame, opcodes, shim_registry, interpreter, tracer
-│   ├── shim/         # java.lang.* and android.* shim tests
+│   ├── shim/         # java.lang.*, android.*, button, linear_layout tests
 │   └── bridge/       # UIBridge, StateManager, LifecycleBridge tests
-└── integration/    # 38 integration tests (8 APK + 8 interpreter + 6 activity + 8 bridge + 8 multi-view)
+└── integration/    # Integration tests (12 test files + 1 helper)
     ├── interpreter/  # Interpreter integration tests
     ├── android/      # Activity lifecycle integration tests
     └── bridge/       # UI Bridge integration tests
@@ -182,6 +186,7 @@ test/
 | `src/shim/android/app/activity.ts` | Activity lifecycle shim (+ UIBridge) |
 | `src/shim/android/widget/textview.ts` | TextView shim (+ UIBridge) |
 | `src/shim/android/widget/linear_layout.ts` | LinearLayout shim (+ UIBridge) |
+| `src/shim/android/widget/button.ts` | Button shim (extends TextView, + UIBridge) |
 | `src/bridge/ui_bridge.ts` | View → ViewNode mapping |
 | `src/bridge/state_manager.ts` | Reactive state for ArkUI |
 | `src/bridge/lifecycle_bridge.ts` | Activity ↔ Ability lifecycle |
@@ -194,7 +199,7 @@ test/
 - **Register-based VM**: Dalvik register-based execution with frame stack
 - **Shim layer**: Java stdlib + Android API methods implemented in TypeScript
 - **Virtual dispatch**: Class hierarchy walking for invoke-virtual
-- **Android class hierarchy**: Activity > ContextWrapper > Context > Object; TextView > View > Object
+- **Android class hierarchy**: Activity > ContextWrapper > Context > Object; Button > TextView > View > Object; LinearLayout > ViewGroup > View > Object
 
 ## Android Class Hierarchy (Stage 3)
 
@@ -206,6 +211,7 @@ java.lang.Object
 │           └── android.app.Activity
 └── android.view.View
       ├── android.widget.TextView
+      │     └── android.widget.Button
       └── android.view.ViewGroup
             └── android.widget.LinearLayout
 ```

@@ -256,7 +256,7 @@ npm run gen-fixture string-ops -- --output test/fixtures/my_strings.ts
 - `static-init` - Class with `<clinit>` static initializer
 - `array-ops` - Array creation, fill, access patterns
 - `string-ops` - String creation, const-string usage
-- `all-opcodes` - Uses key implemented opcodes (82 total)
+- `all-opcodes` - Uses key implemented opcodes (218 total)
 
 ---
 
@@ -342,12 +342,51 @@ npm run guard -- --fix
 [CRAFT][Guard][Info] Running regression guard...
 
 ✅ TypeScript: 0 errors
-✅ Tests: 357 passed, 0 failed
+✅ Tests: 562 passed, 3 failed (stale fixture expectations)
 ✅ Shims: All registered, 0 issues
-✅ Opcodes: 82 registered
+✅ Opcodes: 218 registered
 
 [CRAFT][Guard][Success] All checks passed!
 ```
+
+---
+
+### 14. `sync-oh` - OH Sync Checker
+
+Detect and fix drift between main `src/` and the OpenHarmony ArkTS copy (`src/oh/entry/src/main/ets/craft/`).
+
+**Usage:**
+```bash
+# Check sync status (read-only)
+npm run sync-oh
+
+# Auto-copy non-adapted files that are out of sync
+npm run sync-oh -- --fix
+
+# Show all files, not just problems
+npm run sync-oh -- --verbose
+
+# Machine-readable output
+npm run sync-oh -- --json
+
+# List adapted files and their adaptations
+npm run sync-oh -- --list-adapted
+```
+
+**Behavior:**
+- **Non-adapted files** (33 files): Byte-for-byte comparison. `--fix` copies `src` → OH.
+- **Adapted files** (6 files): Checks for new exports in src that are missing from OH. No auto-fix (manual adaptation required).
+- **Exit code**: 0 = all in sync, 1 = issues found.
+
+**Adapted files** (intentional ArkTS differences):
+| File | Adaptation |
+|------|------------|
+| `bridge/ui_bridge.ts` | `Map<string, string\|number\|boolean>` instead of `any`; separate `clickCallbacks` map |
+| `bridge/state_manager.ts` | `Record<string, string\|number\|boolean>` instead of `any` |
+| `parser/apk_parser.ts` | Manual UTF-8 decoder instead of `TextDecoder`; no Node.js `fs` |
+| `parser/manifest_parser.ts` | Manual UTF-8 decoder instead of `TextDecoder` |
+| `shim/android/view/view.ts` | Uses `setClickCallback()` instead of `updateViewProperty('onClick', ...)` |
+| `runtime.ts` | OpenHarmony `rawfile` API instead of Node.js `fs` |
 
 ---
 
@@ -399,6 +438,7 @@ Custom Jest matchers auto-loaded via `setupFilesAfterEnv`:
 | Generate fixture | `npm run gen-fixture <scenario>` |
 | Scaffold test | `npm run gen-integration-test <name>` |
 | Onboard APK | `npm run apk-onboard <apk-file>` |
+| Sync OH copy | `npm run sync-oh` |
 
 ## Common Workflows
 
@@ -429,4 +469,4 @@ npm run gen-integration-test my-test -- --fixture test/fixtures/deep-inheritance
 
 ---
 
-**Last Updated:** 2026-02-17
+**Last Updated:** 2026-03-05

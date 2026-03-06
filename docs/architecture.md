@@ -27,7 +27,8 @@ This document describes the system architecture for running Android APKs on Open
 │  │          ↓                                              │    │
 │  │  ┌──────────────────────────────────────────────────┐   │    │
 │  │  │              Android API Shim Layer              │   │    │
-│  │  │   Activity │ Context │ TextView │ View │ Bundle  │   │    │
+│  │  │   Activity │ Context │ TextView │ Button │ View  │   │    │
+│  │  │   ViewGroup │ LinearLayout │ Bundle             │   │    │
 │  │  └──────────────────────────────────────────────────┘   │    │
 │  │          ↓                                              │    │
 │  │  ┌──────────────────────────────────────────────────┐   │    │
@@ -94,6 +95,8 @@ This document describes the system architecture for running Android APKs on Open
   - `android.view.ViewGroup` - Container for child views
   - `android.widget.LinearLayout` - Linear container with orientation
   - `android.widget.TextView` - Text display component
+  - `android.widget.Button` - Clickable button (extends TextView)
+  - `android.widget.LinearLayout` - Linear container with orientation
   - `android.os.Bundle` - Key-value data storage
 - **Implementation:** `src/shim/android/` directory tree
 
@@ -249,7 +252,7 @@ interface Frame {
 ## Performance Characteristics
 
 **Current Status (Stages 1-5):**
-- Test suite: 554 tests in ~5 seconds
+- Test suite: 565 tests in ~5 seconds
 - Zero TypeScript compilation errors
 - Heap allocation: ~1000 objects for Hello World scenario
 - Opcode execution: ~500 instructions for Hello World
@@ -292,3 +295,5 @@ interface Frame {
 ---
 
 **For detailed component specifications, see:** [specification.md](specification.md)
+
+**Last Updated:** 2026-03-06

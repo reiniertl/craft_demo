@@ -1,1 +1,5 @@
-{}
+{
+  "entry\\src\\main\\ets\\pages\\CraftPage.ets": [
+    "ohos.hilog"
+  ]
+}

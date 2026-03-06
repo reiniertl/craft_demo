@@ -17,7 +17,7 @@ This document provides technical specifications for all CRAFT components. All in
 | Class Loading | Load classes with correct superclass chains | ✅ Stages 1-2 |
 | Bytecode Interpretation | Execute Dalvik bytecode (218 opcodes implemented) | ✅ Stage 2 |
 | java.lang Shims | Provide Object, String, StringBuilder, System, Class | ✅ Stage 2 |
-| Android API Shims | Provide Activity, Context, TextView, LinearLayout, View, Bundle | ✅ Stage 3 |
+| Android API Shims | Provide Activity, Context, ContextWrapper, View, ViewGroup, TextView, Button, LinearLayout, Bundle | ✅ Stage 3 |
 | UI Bridge | Map Android Views to ArkUI components | ✅ Stage 4 |
 | OpenHarmony Host | Wrap as UIAbility with lifecycle bridging | ✅ Stage 5 |
 
@@ -384,7 +384,7 @@ Arguments are placed in the last N registers of the frame (Dalvik calling conven
 | `java.lang.Class` | 3 | getName, getSimpleName, toString |
 | `java.lang.System` | 3 | currentTimeMillis, identityHashCode, arraycopy |
 
-### Android Shim Classes (7 classes, 35 methods)
+### Android Shim Classes (9 classes, 41 methods)
 
 | Class | Methods | Purpose |
 |-------|---------|---------|
@@ -392,9 +392,11 @@ Arguments are placed in the last N registers of the frame (Dalvik calling conven
 | `android.content.Context` | 2 | Base application context |
 | `android.content.ContextWrapper` | 4 | Context wrapper |
 | `android.app.Activity` | 11 | Application lifecycle |
-| `android.view.View` | 6 | Base UI component |
+| `android.view.View` | 8 | Base UI component (incl. click handling) |
 | `android.view.ViewGroup` | 3 | View container |
 | `android.widget.TextView` | 5 | Text display |
+| `android.widget.LinearLayout` | 3 | Linear container with orientation |
+| `android.widget.Button` | 1 | Clickable button (extends TextView) |
 
 ### Shim Pattern
 ```typescript
@@ -679,11 +681,13 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 | ClassLoader | `test/unit/interpreter/class_loader.test.ts` | 11 | Class/method resolution |
 | ShimRegistry | `test/unit/interpreter/shim_registry.test.ts` | 6 | Register, invoke |
 | java.lang Shims | `test/unit/shim/java_lang.test.ts` | 31 | Object, String, StringBuilder, etc. |
-| Android Shims | `test/unit/shim/android_api.test.ts` | 29 | All 8 Android classes |
+| Android Shims | `test/unit/shim/android_api.test.ts` | 29 | All 9 Android classes |
+| Button | `test/unit/shim/button.test.ts` | 15 | Button shim |
+| Tracer | `test/unit/interpreter/tracer.test.ts` | 10 | Execution tracer |
 | UIBridge | `test/unit/bridge/ui_bridge.test.ts` | 17 | View mapping |
 | StateManager | `test/unit/bridge/state_manager.test.ts` | 17 | Reactive state |
 | LifecycleBridge | `test/unit/bridge/lifecycle_bridge.test.ts` | 13 | Lifecycle mapping |
-| **Total Unit** | -- | **508** | -- |
+| **Total Unit** | -- | **527** | -- |
 
 ### Integration Test Coverage
 
@@ -703,7 +707,7 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 | UI Integration | `test/integration/bridge/ui_integration.test.ts` | 8 | UI Bridge integration |
 | **Total Integration** | -- | **38** | -- |
 
-**Total: 554 tests across 31 test suites**
+**Total: 565 tests across 32 test suites**
 
 ---
 
@@ -713,7 +717,7 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| Test Pass Rate | 100% | 357/357 | ✅ |
+| Test Pass Rate | 100% | 562/565 | ✅ |
 | TypeScript Errors | 0 | 0 | ✅ |
 | Regression Rate | 0% | 0% | ✅ |
 | Code Coverage | >80% | ~85% | ✅ |
@@ -733,7 +737,7 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 - Hello World bytecode executes
 
 **Stage 3:** ✅
-- All 7 Android shim classes implemented
+- All 9 Android shim classes implemented
 - Superclass chains correct
 - Activity lifecycle methods callable
 - TextView can store/retrieve text
@@ -743,10 +747,10 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 - State Manager triggers ArkUI updates
 - Lifecycle bridge maps OH Ability to Android Activity
 
-**Stage 5:** ✅ Code Complete
+**Stage 5:** ✅ Complete — Device Tested
 - CraftAbility launches without error
 - CraftPage renders view tree
-- Awaiting device testing
+- Device tested on HarmonyOS (Feb 24)
 
 ---
 
@@ -754,23 +758,28 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 
 ### Adding a New View Component
 
-1. **Create shim file:** `src/shim/android/widget/button.ts`
+Example: Adding `android.widget.EditText` (extends `android.widget.TextView`)
+
+1. **Create shim file:** `src/shim/android/widget/edittext.ts`
 2. **Implement constructor and methods:**
    ```typescript
-   export function registerButtonShim(registry: ShimRegistry, uiBridge?: UIBridge): void {
-     registry.register('Landroid/widget/Button;', '<init>',
+   export function registerEditTextShim(registry: ShimRegistry, uiBridge?: UIBridge): void {
+     registry.register('Landroid/widget/EditText;', '<init>',
        '(Landroid/content/Context;)V', (interp, heap, thisRef, args) => {
-         heap.setField(thisRef, 'mContext', args[0]);
-         heap.setField(thisRef, 'mText', NULL_VALUE);
-         if (uiBridge) uiBridge.registerView(thisRef, 'Button');
+         // Call super (TextView) constructor
+         interp.invokeMethod(/* TextView.<init> */, [objectRef(thisRef), args[0]]);
+         heap.setField(thisRef, 'mHint', NULL_VALUE);
+         if (uiBridge) uiBridge.registerView(thisRef, 'EditText');
          return NULL_VALUE;
        });
    }
    ```
 3. **Register in index:** Add to `src/shim/android/index.ts`
 4. **Add to ClassLoader:** Update `isKnownBaseClass()` and `getShimSuperClass()`
-5. **Write tests:** `test/unit/shim/button.test.ts`
+5. **Write tests:** `test/unit/shim/edittext.test.ts`
 6. **Add ArkUI renderer:** Add case in `CraftPage.renderView()`
+
+> **Note:** Button shim is already implemented — see `src/shim/android/widget/button.ts` for a working example.
 
 ### Adding a New Opcode
 
@@ -820,6 +829,6 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 
 ---
 
-**Status:** Stages 1-5 Code Complete | Awaiting device testing
-**Last Updated:** 2026-02-24
-**Version:** 0.2.0
+**Status:** Stages 1-5 Complete | Device Tested Feb 24
+**Last Updated:** 2026-03-06
+**Version:** 0.3.0

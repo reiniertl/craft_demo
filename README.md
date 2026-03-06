@@ -14,9 +14,9 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 | **2** | Bytecode Interpreter & java.lang Shims | ✅ Complete | 118 / 118 |
 | **3** | Android API Shim Layer | ✅ Complete | 35 / 35 |
 | **4** | UI Bridge & OpenHarmony Host | ✅ Complete | 55 / 55 |
-| **5** | Integration & Polish | ✅ Complete | 357 / 357 |
+| **5** | Integration & Polish | ✅ Complete | 565 total |
 
-**Total:** 357 tests passing | 0 TypeScript errors | 0 regressions | 82 opcodes implemented
+**Total:** 565 tests (562 passing) | 0 TypeScript errors | 0 regressions | 218 opcodes implemented
 
 **Stage 5 Status:**
 - ✅ All code implementation complete (EntryAbility.ets, CraftPage.ets, runtime integration)
@@ -71,41 +71,35 @@ Android APK → DEX Parser → Bytecode Interpreter → Android API Shims
 ## Project Structure
 
 ```
-/mnt/d/craft/
+craft/
 ├── README.md                   # This file - project overview
-├── docs/                       # 📚 All documentation
+├── CLAUDE.md                   # AI agent context
+├── docs/                       # All documentation
 │   ├── index.md               # Navigation hub
 │   ├── requirements.md        # Project goals & success criteria
 │   ├── architecture.md        # System design & data flow
 │   ├── specification.md       # Component specifications
 │   ├── implementation_plan.md # 5-stage roadmap
+│   ├── skills_guide.md        # 14 development skills reference
+│   ├── deployment_guide.md    # HAP/device deployment
+│   ├── apk_build_guide.md     # Hello World APK building
+│   ├── hap_build_guide.md     # HAP building guide
+│   ├── stage_5_status.md      # Deployment status
 │   └── stages/                # Stage-specific docs
-│       ├── stage_1_results.md # APK/DEX parsing complete
-│       ├── stage_2_plan.md    # Interpreter design (196KB detailed spec)
-│       ├── stage_2_results.md # Interpreter complete
-│       ├── stage_3_plan.md    # Android API shims design
-│       ├── stage_3_results.md # Android API shims complete
-│       └── stage_4_plan.md    # UI Bridge & OpenHarmony host design
-│
-├── craft/                      # Implementation codebase
-│   ├── src/                   # Source code
-│   │   ├── parser/            # APK & DEX parsers
-│   │   ├── interpreter/       # Bytecode interpreter
-│   │   ├── shim/              # API shims (java.lang, android.*)
-│   │   ├── bridge/            # UI Bridge (View → ArkUI mapping)
-│   │   ├── core/              # Core types & utilities
-│   │   ├── oh/                # OpenHarmony host (EntryAbility, CraftPage)
-│   │   └── runtime.ts         # High-level CRAFT API
-│   ├── test/                  # Test suite (357 tests)
-│   │   ├── unit/              # Unit tests
-│   │   ├── integration/       # Integration tests
-│   │   └── fixtures/          # Test APKs & data
-│   ├── tools/                 # Development tools (6 skills)
-│   ├── CLAUDE.md              # AI agent context
-│   └── README.md              # Quick reference
-│
-├── android/                    # Android AOSP (reference only)
-└── oh/                         # OpenHarmony SDK (reference only)
+├── src/                        # Source code (39 files, ~8,990 lines)
+│   ├── parser/                # APK & DEX parsers
+│   ├── interpreter/           # Bytecode interpreter (218 opcodes)
+│   ├── shim/                  # API shims (java.lang + android.*)
+│   ├── bridge/                # UI Bridge (View → ArkUI mapping)
+│   ├── core/                  # Core types & utilities
+│   ├── runtime.ts             # High-level CRAFT API
+│   └── oh/                    # OpenHarmony HAP project
+├── test/                       # Test suite (565 tests, 34 files)
+│   ├── unit/                  # Unit tests
+│   ├── integration/           # Integration tests
+│   ├── helpers/               # Test utilities
+│   └── fixtures/              # Test APKs & data
+└── tools/                      # Development tools (14 skills)
 ```
 
 ---
@@ -125,19 +119,19 @@ Android APK → DEX Parser → Bytecode Interpreter → Android API Shims
 ### ✅ Stage 2: Bytecode Interpreter (Complete)
 
 **Deliverables:**
-- 82 Dalvik opcodes implemented
+- 218 Dalvik opcodes implemented (full instruction set)
 - Frame-based execution (locals, stack, PC)
 - Heap with object allocation and field storage
 - java.lang shims (Object, String, StringBuilder, System, Class)
-- Method invocation (direct, virtual, static, super)
+- Method invocation (direct, virtual, static, super, interface)
 
 **Tests:** 118 passing | **Files:** 13 source, 14 test
 
 ### ✅ Stage 3: Android API Shims (Complete)
 
 **Deliverables:**
-- 7 Android classes: Activity, Context, ContextWrapper, View, ViewGroup, TextView, Bundle
-- 35 Android methods implemented
+- 9 Android classes: Activity, Context, ContextWrapper, View, ViewGroup, TextView, Button, LinearLayout, Bundle
+- 41 Android methods implemented
 - Correct superclass chains for virtual dispatch
 - Activity lifecycle methods (onCreate, onStart, onResume, onPause, onStop, onDestroy)
 - TextView with text storage (setText, getText, setTextSize, setTextColor)
@@ -181,7 +175,7 @@ Android APK → DEX Parser → Bytecode Interpreter → Android API Shims
 ### Setup
 
 ```bash
-cd /mnt/d/craft/craft
+cd craft
 
 # Install dependencies (none currently - zero dependency project)
 npm install
@@ -202,7 +196,7 @@ npx tsc --noEmit
 ### Testing
 
 ```bash
-# Run all 357 tests
+# Run all tests
 npm test
 
 # Run with coverage
@@ -243,16 +237,16 @@ npm run dex-dump test/fixtures/hello_world.dex      # Inspect DEX
 | Metric | Value |
 |--------|-------|
 | **Stages Complete** | 5 / 5 ✅ |
-| **Tests Passing** | 357 / 357 (100%) |
+| **Tests** | 565 total (562 passing) |
 | **TypeScript Errors** | 0 |
 | **Regressions** | 0 |
-| **Opcodes Implemented** | 82 |
+| **Opcodes Implemented** | 218 |
 | **Java Classes Shimmed** | 5 (java.lang.*) |
-| **Android Classes Shimmed** | 7 (android.*) |
-| **Total Methods Shimmed** | 65 (30 java.lang + 35 android) |
-| **Source Files** | 36 |
-| **Test Files** | 26 |
-| **Total Lines of Code** | ~5,362 |
+| **Android Classes Shimmed** | 9 (android.*) |
+| **Total Methods Shimmed** | 71 (30 java.lang + 41 android) |
+| **Source Files** | 39 |
+| **Test Files** | 34 |
+| **Lines of Code** | ~22,905 (8,990 src + 8,999 test + 4,916 tools) |
 
 ---
 
@@ -261,7 +255,7 @@ npm run dex-dump test/fixtures/hello_world.dex      # Inspect DEX
 ### Bytecode Interpretation
 
 CRAFT implements a frame-based Dalvik bytecode interpreter with:
-- **82 opcodes:** move, const, const-wide, return, goto, if-test, if-testz, check-cast, instance-of, new-instance, new-array, array-length, aget/aput, field access, invocation (including range variants)
+- **218 opcodes:** Full Dalvik instruction set including move, const, return, goto, switch, comparisons, if-test, if-testz, check-cast, instance-of, arrays, field access (instance + static), invocation (5 types + range variants), unary/binary arithmetic (int/long/float/double), type conversions, literal forms
 - **Virtual dispatch:** Correct superclass chain resolution (Activity → ContextWrapper → Context → Object)
 - **Heap management:** Reference-based object storage with field access
 - **String interning:** Efficient string pool for constants
@@ -346,6 +340,6 @@ MIT
 
 ---
 
-**Status:** 5 of 5 stages complete | 357 tests passing | APK built & verified | HarmonyOS device tested ✅
-**Last Updated:** 2026-02-24
+**Status:** 5 of 5 stages complete | 565 tests (562 passing) | APK built & verified | HarmonyOS device tested ✅
+**Last Updated:** 2026-03-06
 **Version:** 0.1.0

@@ -2,14 +2,14 @@
 The main goal of this project is to create a compatibility layer between Android and Open Harmony. The compatibility layer (or translation layer) will allow Open Harmony to load, run, and service Andriod APKs using its native services and interfaces.
 
 ## Proof of Concept Stage
-**Status: Stages 1-5 Code Complete (Awaiting APK recompilation & device testing)**
+**Status: Stages 1-5 Complete — All Stages Done, Device Tested**
 
 We are implementing a PoC in which we want to load an Android App that shows the "Hello World" text on a window. Current progress:
 - ✅ Stage 1: APK/DEX parsing and class loading (58 tests)
 - ✅ Stage 2: Bytecode interpreter with java.lang shims (115 tests)
 - ✅ Stage 3: Android API shim layer (35 tests)
 - ✅ Stage 4: UI Bridge & OpenHarmony host (55 tests)
-- ✅ Stage 5: Integration & polish - Code complete (357 total)
+- ✅ Stage 5: Integration & polish - Complete (565 total)
 
 ## Requirements
 
@@ -32,12 +32,12 @@ We are implementing a PoC in which we want to load an Android App that shows the
 | APK file can be parsed and loaded | ✅ Complete | Stage 1 |
 | DEX bytecode can be interpreted | ✅ Complete | Stage 2 |
 | Android Activity lifecycle executes | ✅ Complete | Stage 3 |
-| APK runs as OpenHarmony Ability | ✅ Code Complete | Stage 5 |
-| "Hello World" renders via ArkUI | ⚠️ Needs device testing | Stage 5 |
+| APK runs as OpenHarmony Ability | ✅ Complete | Stage 5 |
+| "Hello World" renders via ArkUI | ✅ Complete | Stage 5 |
 | Pure interpretation (no JIT/AOT) | ✅ Complete | Stages 1-3 |
 | Zero regressions across stages | ✅ Maintained | All stages |
 
-**Current Achievement:** 357 tests passing (58 Stage 1 + 115 Stage 2 + 35 Stage 3 + 55 Stage 4 + 94 Stage 5)
+**Current Achievement:** 565 tests (562 passing) across all 5 stages — Device tested on HarmonyOS (Feb 24)
 
 ## Codebase
 - Open Harmony: `./oh`
