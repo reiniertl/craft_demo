@@ -39,7 +39,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 - [Deployment Guide](deployment_guide.md) - HAP/device deployment instructions
 - [APK Build Guide](apk_build_guide.md) - Building the Hello World APK
 - [HAP Build Guide](hap_build_guide.md) - Building the OpenHarmony HAP
-- [Skills Guide](skills_guide.md) - 14 development skills reference
+- [Tools Guide](tools_guide.md) - 14 development tools reference
 
 ### Extension
 - See [specification.md - Extension Guidelines](specification.md#extension-guidelines) for adding views, opcodes, and API classes

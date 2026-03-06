@@ -1,39 +1,39 @@
-# CRAFT Development Skills Guide
+# CRAFT Development Tools Guide
 
 **Last Updated:** 2026-03-06
-**Status:** 14 development skills implemented and tested
+**Status:** 14 development tools implemented and tested
 
 ## Overview
 
-CRAFT provides 14 development skills (automated tools) that accelerate implementation work. These skills automate repetitive tasks like testing, code generation, analysis, debugging, and orchestration.
+CRAFT provides 14 development tools that accelerate implementation work. These tools automate repetitive tasks like testing, code generation, analysis, debugging, and orchestration.
 
-## Skill Categories
+## Tool Categories
 
-### Core (5 skills)
+### Core (5 tools)
 - **craft-test** - Component-filtered test runner
 - **gen-shim** - Android API shim generator
 - **gen-opcode** - Opcode handler generator
 - **dex-dump** - DEX file dumper
 - **analyze-apk** - APK requirements analyzer
 
-### Debugging & Analysis (4 skills)
+### Debugging & Analysis (4 tools)
 - **trace-exec** - Bytecode execution tracer
 - **coverage-map** - Opcode & API coverage reporter
 - **validate-shims** - Shim consistency checker
 - **heap-dump** - Runtime heap inspector
 
-### Code Generation & Testing (2 skills)
+### Code Generation & Testing (2 tools)
 - **gen-fixture** - Test fixture builder (6 scenarios)
 - **gen-integration-test** - Integration test scaffolder
 
-### Orchestration (3 skills)
+### Orchestration (3 tools)
 - **apk-onboard** - APK onboarding agent
 - **guard** - Regression guard (TypeScript + tests + shims + opcodes)
 - **sync-oh** - OH sync checker (detect/fix src ↔ OH drift)
 
 ---
 
-## Skill #1: craft-test
+## Tool #1: craft-test
 
 **Purpose:** Run CRAFT-specific tests with component filtering and detailed output.
 
@@ -65,7 +65,7 @@ npm run craft-test -- --verbose
 
 ---
 
-## Skill #2: gen-shim
+## Tool #2: gen-shim
 
 **Purpose:** Generate Android API shim implementations with boilerplate code.
 
@@ -112,7 +112,7 @@ npm run gen-shim android.app.Dialog -- \
 
 ---
 
-## Skill #3: gen-opcode
+## Tool #3: gen-opcode
 
 **Purpose:** Generate Dalvik opcode handler implementations with format parsing.
 
@@ -155,7 +155,7 @@ npm run gen-opcode 0x32 if-eq 22t -- \
 
 ---
 
-## Skill #4: dex-dump
+## Tool #4: dex-dump
 
 **Purpose:** Dump and analyze DEX file contents for debugging.
 
@@ -203,7 +203,7 @@ npm run dex-dump test/fixtures/hello_world.dex -- --methods | grep -A 30 "onCrea
 
 ---
 
-## Skill #5: analyze-apk
+## Tool #5: analyze-apk
 
 **Purpose:** Analyze APK requirements including opcodes, APIs, and complexity.
 
@@ -289,7 +289,7 @@ Creates JSON report for:
 
 ---
 
-## Skill #6: trace-exec
+## Tool #6: trace-exec
 
 **Purpose:** Trace bytecode execution step-by-step for debugging.
 
@@ -334,7 +334,7 @@ console.log(tracer.formatTable());
 
 ---
 
-## Skill #7: coverage-map
+## Tool #7: coverage-map
 
 **Purpose:** Report opcode and shim coverage by scanning source code. Optionally analyze an APK to show the gap.
 
@@ -361,7 +361,7 @@ npm run coverage-map -- --json
 
 ---
 
-## Skill #8: validate-shims
+## Tool #8: validate-shims
 
 **Purpose:** Static analysis of shim files for registration completeness and consistency.
 
@@ -392,7 +392,7 @@ npm run validate-shims -- --json
 
 ---
 
-## Skill #9: heap-dump
+## Tool #9: heap-dump
 
 **Purpose:** Run a method then dump the heap state for inspection.
 
@@ -423,7 +423,7 @@ console.log(`Objects: ${dump.objectCount}, Strings: ${dump.stringPool.length}`);
 
 ---
 
-## Skill #10: gen-fixture
+## Tool #10: gen-fixture
 
 **Purpose:** Generate DEX test fixtures for specific test scenarios.
 
@@ -456,7 +456,7 @@ npm run gen-fixture string-ops -- --output test/fixtures/my_strings.ts
 
 ---
 
-## Skill #11: gen-integration-test
+## Tool #11: gen-integration-test
 
 **Purpose:** Generate Jest integration test files for APK/DEX flows.
 
@@ -486,7 +486,7 @@ npm run gen-integration-test calc -- --activity "Lcom/example/CalcActivity;" --o
 
 ---
 
-## Skill #12: apk-onboard
+## Tool #12: apk-onboard
 
 **Purpose:** Analyze an APK and produce a prioritized implementation checklist of missing opcodes and shims.
 
@@ -512,7 +512,7 @@ npm run apk-onboard myapp.apk -- --generate
 
 ---
 
-## Skill #13: guard
+## Tool #13: guard
 
 **Purpose:** Run all quality checks in sequence and report pass/fail.
 
@@ -557,7 +557,7 @@ npm run guard -- --fix
 
 ---
 
-## Skill #14: sync-oh
+## Tool #14: sync-oh
 
 **Purpose:** Detect and fix drift between main `src/` and the OpenHarmony ArkTS copy (`src/oh/entry/src/main/ets/craft/`).
 
@@ -654,19 +654,19 @@ npm run craft-test -- --pattern "opcode.*name"
 ## Integration with Development Stages
 
 ### Stage 1 (Parser) - Complete ✅
-Skills used: `dex-dump`, `craft-test --component parser`
+Tools used: `dex-dump`, `craft-test --component parser`
 
 ### Stage 2 (Interpreter) - Complete ✅
-Skills used: `gen-opcode`, `craft-test --component interpreter`, `dex-dump --methods`, `trace-exec`
+Tools used: `gen-opcode`, `craft-test --component interpreter`, `dex-dump --methods`, `trace-exec`
 
 ### Stage 3 (Shims) - Complete ✅
-Skills used: `gen-shim`, `craft-test --component shim`, `analyze-apk`, `validate-shims`
+Tools used: `gen-shim`, `craft-test --component shim`, `analyze-apk`, `validate-shims`
 
 ### Stage 4 (UI Bridge) - Complete ✅
-Skills used: `gen-shim`, `craft-test --component bridge`, `heap-dump`, `coverage-map`
+Tools used: `gen-shim`, `craft-test --component bridge`, `heap-dump`, `coverage-map`
 
 ### Stage 5 (Integration & Polish) - Complete ✅
-Skills used: `analyze-apk`, `guard`, `sync-oh`, `apk-onboard`, `gen-fixture`, `gen-integration-test`
+Tools used: `analyze-apk`, `guard`, `sync-oh`, `apk-onboard`, `gen-fixture`, `gen-integration-test`
 
 ---
 
@@ -707,9 +707,9 @@ Identify priorities and estimate effort upfront.
 
 ---
 
-## Extending Skills
+## Extending Tools
 
-To add new skills:
+To add new tools:
 
 1. Create TypeScript tool in `tools/` directory
 2. Follow naming convention: `action_target.ts`
@@ -723,13 +723,13 @@ Example template in `tools/README.md`.
 
 ## Troubleshooting
 
-### Skill not found
+### Tool not found
 ```bash
 # Verify npm script exists
 npm run
 
 # Try direct invocation
-npx ts-node tools/skill_name.ts
+npx ts-node tools/tool_name.ts
 ```
 
 ### TypeScript errors
@@ -743,14 +743,14 @@ npm install
 
 ### Generated code errors
 - Review the actual API signatures in project code
-- Update template code in skill implementation
-- Report issues for skill improvement
+- Update template code in tool implementation
+- Report issues for tool improvement
 
 ---
 
-## Future Skills (Potential)
+## Future Tools (Potential)
 
-Ideas for additional skills:
+Ideas for additional tools:
 
 - **`perf-profile`** - Profile interpreter performance
 - **`apk-build`** - Build minimal test APKs
@@ -767,4 +767,4 @@ Ideas for additional skills:
 
 ---
 
-**Note:** Skills are designed to accelerate development, not replace understanding. Always review generated code and understand what it does before integrating into the project.
+**Note:** Tools are designed to accelerate development, not replace understanding. Always review generated code and understand what it does before integrating into the project.

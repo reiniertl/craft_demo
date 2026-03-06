@@ -1,6 +1,6 @@
 # CRAFT Development Tools & Skills
 
-This directory contains development tools (skills) for the CRAFT project. These tools accelerate development by automating common tasks like testing, code generation, analysis, and debugging.
+This directory contains development tools for the CRAFT project. These tools accelerate development by automating common tasks like testing, code generation, analysis, and debugging.
 
 ## Available Skills
 

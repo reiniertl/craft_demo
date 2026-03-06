@@ -28,7 +28,7 @@ Stage 5: Integration & Polish ✅ Tested on HarmonyOS Device
 - **Stage plans:** `docs/stages/stage_N_plan.md` - Detailed planning for each stage
 - **Stage results:** `docs/stages/stage_N_results.md` - Completion reports
 - **Deployment:** `docs/stage_5_status.md` - Current deployment status
-- **Guides:** `docs/deployment_guide.md`, `docs/apk_build_guide.md`, `docs/hap_build_guide.md`, `docs/skills_guide.md`
+- **Guides:** `docs/deployment_guide.md`, `docs/apk_build_guide.md`, `docs/hap_build_guide.md`, `docs/tools_guide.md`
 
 ## Quick Reference
 
@@ -37,7 +37,7 @@ Stage 5: Integration & Polish ✅ Tested on HarmonyOS Device
 npm test
 npm run craft-test -- --component parser
 
-# Development skills (see tools/README.md for details)
+# Development tools (see tools/README.md for details)
 npm run analyze-apk test/fixtures/hello_world.apk  # Analyze APK requirements
 npm run dex-dump test/fixtures/hello_world.dex --all  # Dump DEX contents
 npm run gen-shim android.widget.Button  # Generate Android API shim
@@ -58,9 +58,9 @@ npm run sync-oh                                       # Check OH copy sync statu
 npx tsc --noEmit
 ```
 
-## Development Skills
+## Development Tools
 
-14 development skills are available (see `tools/README.md`):
+14 development tools are available (see `tools/README.md`):
 
 **Core (original):**
 1. **`craft-test`** - Run tests with component filtering
@@ -240,6 +240,20 @@ const result = interp.invoke('Lcom/example/Test;', 'main', '()V', []);
 - `hello_world.apk` - Package: `com.example.helloworld`, Main: `MainActivity`
 - Built with STORE compression (no DEFLATE)
 - Regenerate: `npx ts-node tools/generate_test_fixtures.ts`
+
+## Claude Code Skills
+
+7 Claude Code skills are available in `.claude/skills/` for automated workflows:
+
+| Skill | Trigger | Purpose |
+|-------|---------|---------|
+| `/guard` | After code changes | Run regression guard, analyze failures, fix issues |
+| `/sync-oh` | After src/ edits | Detect OH drift, auto-fix non-adapted files, alert about adapted files |
+| `/onboard-apk <path>` | User-invoked | Full APK onboarding pipeline (analyze → implement → test) |
+| `/add-shim <class>` | User-invoked | Add new Android API shim (generate → implement → register → test → sync) |
+| `/add-opcode <hex> <name> <format>` | User-invoked | Add new Dalvik opcode handler (generate → implement → test → verify) |
+| `/debug-bytecode <file>` | User-invoked | Debug bytecode execution with trace-exec + heap-dump + dex-dump |
+| `/build-hap` | User-invoked | Build OpenHarmony HAP with ArkTS patching and signing |
 
 ## Documentation
 

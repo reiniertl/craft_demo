@@ -80,7 +80,7 @@ craft/
 │   ├── architecture.md        # System design & data flow
 │   ├── specification.md       # Component specifications
 │   ├── implementation_plan.md # 5-stage roadmap
-│   ├── skills_guide.md        # 14 development skills reference
+│   ├── tools_guide.md         # 14 development tools reference
 │   ├── deployment_guide.md    # HAP/device deployment
 │   ├── apk_build_guide.md     # Hello World APK building
 │   ├── hap_build_guide.md     # HAP building guide
@@ -157,7 +157,7 @@ craft/
 - TypeScript packaging for ArkTS consumption
 - instance-of opcode (0x20) added
 - Comprehensive deployment documentation
-- Development tools and skills
+- Development tools
 
 **Status:** Complete | Tested on HarmonyOS device Feb 24
 
