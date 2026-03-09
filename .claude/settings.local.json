@@ -82,7 +82,21 @@
       "Bash(git diff:*)",
       "Bash(npm run sync-oh:*)",
       "Bash(/tmp/analyze.sh:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(for f in /d/craft/craft/src/bridge/lifecycle_bridge.ts /d/craft/craft/src/bridge/state_manager.ts /d/craft/craft/src/bridge/ui_bridge.ts /d/craft/craft/src/core/types.ts /d/craft/craft/src/interpreter/class_loader.ts /d/craft/craft/src/interpreter/errors.ts /d/craft/craft/src/interpreter/frame.ts /d/craft/craft/src/interpreter/heap.ts /d/craft/craft/src/interpreter/interpreter.ts /d/craft/craft/src/interpreter/opcode_table.ts /d/craft/craft/src/interpreter/opcodes.ts /d/craft/craft/src/interpreter/shim_init.ts /d/craft/craft/src/interpreter/shim_registry.ts /d/craft/craft/src/interpreter/tracer.ts /d/craft/craft/src/interpreter/types.ts /d/craft/craft/src/parser/dex_parser.ts /d/craft/craft/src/parser/dex_types.ts /d/craft/craft/src/shim/android/index.ts /d/craft/craft/src/shim/java/lang/index.ts)",
+      "Bash([ -f \"$f\" ])",
+      "Bash(# Check if frameworks repo is checked out \\(it has the Android API sources\\) cat \"\"D:/craft/android/.repo/manifests/default.xml\"\")",
+      "Bash(# Check what''s available in the Android repo find \"\"D:/craft/android/external/\"\" -maxdepth 1 -type d | head -10 && echo \"\"===\"\" && find \"\"D:/craft/android/libcore/\"\" -name \"\"*.java\"\" -path \"\"*lang/String*\"\")",
+      "Bash(# Check if libcore has the java.lang source find \"\"D:/craft/android/libcore/\"\" -name \"\"String.java\"\" -path \"\"*/java/lang/*\"\")",
+      "Bash(# Check Android repo - is libcore checked out? ls \"\"D:/craft/android/libcore/\"\")",
+      "Bash(# Check OH repo projects available ls \"\"D:/craft/oh/src/.repo/projects/\"\")",
+      "Bash(# Check for hdc tool in the SDK find \"\"C:/Users/Bluezone1/OpenHarmony/Sdk\"\" -name \"\"hdc*\"\" -type f)",
+      "WebFetch(domain:www.huaweiupdate.com)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:gist.github.com)",
+      "WebFetch(domain:xdaforums.com)",
+      "Bash(# Check Hyper-V status via systeminfo systeminfo)",
+      "Bash(powershell -Command \"\\(Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online\\).State\")"
     ]
   }
 }

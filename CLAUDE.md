@@ -240,6 +240,32 @@ const interp = new Interpreter(dex, heap, shims);
 const result = interp.invoke('Lcom/example/Test;', 'main', '()V', []);
 ```
 
+## Reference Source Trees
+
+Full AOSP and OpenHarmony repo checkouts live alongside the CRAFT project. **Use these for API lookup instead of web searches** when implementing shims, checking Android API behavior, or looking up OpenHarmony/ArkUI APIs.
+
+```
+../                   # Parent directory of this project
+├── android/          # AOSP repo checkout
+│   ├── art/          # ART runtime (JNI, class loading, GC)
+│   ├── dalvik/       # Dalvik VM, dx/d8 tools, DEX format spec
+│   ├── external/     # Third-party libraries
+│   ├── build/        # Build system
+│   └── .repo/        # More repos available (frameworks/, libcore/, packages/, system/)
+├── oh/               # OpenHarmony repo checkout
+│   └── src/
+│       ├── applications/  # OH sample/standard apps
+│       └── .repo/         # More repos available (arkcompiler/, foundation/, interface/)
+└── craft/            # ← This project
+```
+
+**Key lookup paths (relative to project root):**
+- Dalvik bytecode spec / DEX format: `../android/dalvik/`
+- ART runtime internals: `../android/art/`
+- OH sample apps (ArkTS patterns): `../oh/src/applications/standard/`
+
+**Note:** These are partial checkouts. If a repo isn't checked out to the working tree, its git objects are still in `.repo/projects/` and can be synced with `repo sync <project>`.
+
 ## Coding Conventions
 
 - Log format: `[CRAFT][Component][Level] Message`
