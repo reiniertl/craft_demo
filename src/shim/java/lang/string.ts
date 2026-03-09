@@ -140,6 +140,18 @@ export function registerStringShim(registry: ShimRegistry): void {
     }
   );
 
+  // valueOf(J)Ljava/lang/String;
+  registry.register(
+    STRING_CLASS,
+    'valueOf',
+    '(J)Ljava/lang/String;',
+    (interp, heap, thisRef, args) => {
+      const longVal = (args[0] as { type: 'long'; value: bigint }).value;
+      const ref = heap.internString(longVal.toString());
+      return { type: 'object', ref };
+    }
+  );
+
   // valueOf(Ljava/lang/Object;)Ljava/lang/String;
   registry.register(
     STRING_CLASS,

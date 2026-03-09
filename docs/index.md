@@ -25,7 +25,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 | **Stage 4** | UI Bridge to ArkUI | [Plan](stages/stage_4_plan.md) | [Results](stages/stage_4_complete.md) | ✅ Complete (55 tests) |
 | **Stage 5** | OpenHarmony Host | [Plan](stages/stage_5_plan.md) | [Status](stage_5_status.md) | ✅ Complete — Device Tested |
 
-**Current Status:** 565 tests (562 passing) | 0 TypeScript errors | 0 regressions | Complete — Device Tested
+**Current Status:** 568 tests passing | 0 TypeScript errors | 0 regressions | Complete — Device Tested
 **Deployment:** ✅ HAP built, signed, tested on HarmonyOS device (Feb 24) - [Details](stage_5_status.md)
 
 ---
@@ -37,7 +37,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 
 ### Guides
 - [Deployment Guide](deployment_guide.md) - HAP/device deployment instructions
-- [APK Build Guide](apk_build_guide.md) - Building the Hello World APK
+- [APK Build Guide](apk_build_guide.md) - Building demo APKs (HelloWorld + Calculator)
 - [HAP Build Guide](hap_build_guide.md) - Building the OpenHarmony HAP
 - [Tools Guide](tools_guide.md) - 14 development tools reference
 
@@ -50,7 +50,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 
 ### Implementation Codebase
 - **Main Entry:** `src/index.ts` - CRAFT runtime entry point
-- **Tests:** `test/` - 565 tests across all stages
+- **Tests:** `test/` - 568 tests across all stages
 
 ### For AI Agents (Claude Code)
 - [CLAUDE.md](../CLAUDE.md) - Project context, architecture, and current stage
@@ -73,5 +73,5 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 
 ---
 
-**Last Updated:** 2026-03-06
+**Last Updated:** 2026-03-09
 **Version:** 0.3.0

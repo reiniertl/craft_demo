@@ -29,31 +29,36 @@ The deployment pipeline has three phases:
 
 ## Phase 1: Compile the Hello World APK
 
-The test fixture at `test/fixtures/hello_world.apk` is a Stage 1 stub that only exercises the parser. A complete APK is needed to exercise the full CRAFT stack (interpreter, shims, UI bridge, and rendering).
+The test fixture at `test/fixtures/hello_world.apk` needs to be built from sources to exercise the full CRAFT stack (interpreter, shims, UI bridge, and rendering).
 
-Source files are already provided in `test/fixtures/`:
+Demo app sources are in `demo/`:
 
-- `MainActivity.java` — creates a `TextView`, sets text/size/color, calls `setContentView`
-- `AndroidManifest.xml` — declares `com.example.helloworld` with a launcher `MainActivity`
+- `demo/hello_world/` — simple Hello World app (`com.example.helloworld`)
+- `demo/calculator/` — calculator with button grid (`com.example.calculator`)
+- `demo/clock/` — clock displaying system time (`com.example.clock`)
 
 ### 1.1 Automated build (recommended)
 
 A batch script automates the entire APK build. Edit the configuration block at the top of `build_apk.bat` to match your system paths, then run:
 
 ```cmd
-build_apk.bat
+build_apk.bat                 :: builds hello_world (default)
+build_apk.bat hello_world     :: builds hello_world
+build_apk.bat calculator      :: builds calculator
+build_apk.bat clock           :: builds clock
+build_apk.bat all             :: builds all demo apps
 ```
 
 The script performs all 8 steps automatically:
 
-1. Set up work directory and copy source files
+1. Set up work directory and copy source files from `demo\<app_name>\`
 2. Compile Java to class files (`javac` from Android Studio's bundled JDK)
 3. Convert to DEX bytecode (`d8` — requires `JAVA_HOME` to be set)
 4. Create base APK with binary manifest (`aapt2 link`)
 5. Repack APK with STORE compression via 7-Zip (CRAFT does not support DEFLATE)
 6. Align (`zipalign`)
 7. Sign with debug keystore (`apksigner`)
-8. Copy result to `test\fixtures\hello_world.apk`
+8. Copy result to `test\fixtures\<app_name>.apk`
 
 Before running, open `build_apk.bat` and verify the configuration block at the top:
 

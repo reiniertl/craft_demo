@@ -306,7 +306,7 @@ if __name__ == '__main__':
     create_apk(output)
 
     # Save the Java source code for reference
-    java_file = '/mnt/d/craft/craft/test/fixtures/MainActivity.java'
+    java_file = '/mnt/d/craft/craft/demo/hello_world/MainActivity.java'
     with open(java_file, 'w') as f:
         f.write('''package com.example.helloworld;
 
@@ -330,10 +330,10 @@ public class MainActivity extends Activity {
     print(f"\nSaved MainActivity.java to: {java_file}")
 
     # Save AndroidManifest.xml
-    manifest_file = '/mnt/d/craft/craft/test/fixtures/AndroidManifest.xml'
+    manifest_file = '/mnt/d/craft/craft/demo/hello_world/AndroidManifest.xml'
     with open(manifest_file, 'wb') as f:
         f.write(create_android_manifest())
     print(f"Saved AndroidManifest.xml to: {manifest_file}")
 
     print("\nTo build the APK, you'll need Android SDK installed.")
-    print("See docs/deployment_guide.md for detailed build instructions.")
+    print("See docs/apk_build_guide.md for detailed build instructions.")

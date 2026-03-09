@@ -124,7 +124,7 @@ DEX Dumper:  OK
 - Main Activity: `com.example.helloworld.MainActivity`
 - Compression: STORE (no compression)
 - Contents: AndroidManifest.xml, classes.dex, resources.arsc
-- Built with `build_apk.bat` from `test/fixtures/MainActivity.java`
+- Built with `build_apk.bat` from `demo/hello_world/MainActivity.java`
 
 ### hello_world.dex (433 bytes)
 - Version: 035

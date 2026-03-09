@@ -4,7 +4,7 @@ CRAFT (Compatibility Runtime for Android Framework Translation) - An Android APK
 
 ## Current Stage: 5 Complete - All Stages Done
 
-**Status:** 565 tests (562 passing, 3 stale fixture expectations) | 0 TypeScript errors | 0 regressions | Device Tested ✅
+**Status:** 568 tests passing | 0 TypeScript errors | 0 regressions | Device Tested ✅
 
 Stage 1: APK/DEX/Manifest parsing ✅
 Stage 2: Bytecode interpretation ✅
@@ -87,6 +87,17 @@ npx tsc --noEmit
 ## Project Structure
 
 ```
+demo/
+├── hello_world/
+│   ├── MainActivity.java      # Simple Hello World app
+│   └── AndroidManifest.xml    # com.example.helloworld
+├── calculator/
+│   ├── MainActivity.java      # Calculator app with button grid
+│   └── AndroidManifest.xml    # com.example.calculator
+└── clock/
+    ├── MainActivity.java      # Clock app (System.currentTimeMillis)
+    └── AndroidManifest.xml    # com.example.clock
+
 src/
 ├── index.ts        # Main export barrel
 ├── core/           # Utilities: LEB128, MUTF-8, errors, logging, types
@@ -159,7 +170,7 @@ tools/
 └── sync_oh.ts               # OH sync checker
 
 test/
-├── fixtures/       # hello_world.apk, .dex, manifest_binary.xml
+├── fixtures/       # hello_world.apk, calculator.apk, clock.apk, .dex, manifest_binary.xml
 ├── helpers/        # shim_test_utils.ts, value_matchers.ts
 ├── unit/           # Unit tests (20 test files)
 │   ├── interpreter/  # heap, frame, opcodes, shim_registry, interpreter, tracer
@@ -235,11 +246,23 @@ const result = interp.invoke('Lcom/example/Test;', 'main', '()V', []);
 - Error messages include offset/context for debugging
 - ArkTS compatibility: avoid `any`, dynamic properties, `eval()`
 
-## Test Fixtures
+## Demo Apps & Test Fixtures
 
-- `hello_world.apk` - Package: `com.example.helloworld`, Main: `MainActivity`
-- Built with STORE compression (no DEFLATE)
-- Regenerate: `npx ts-node tools/generate_test_fixtures.ts`
+Demo app sources live in `demo/`, built APKs go to `test/fixtures/`:
+
+- `hello_world.apk` - Simple Hello World (package: `com.example.helloworld`)
+- `calculator.apk` - Calculator with button grid (package: `com.example.calculator`)
+- `clock.apk` - Clock displaying system time (package: `com.example.clock`)
+- Built with STORE compression (no DEFLATE) via `build_apk.bat`
+- `hello_world.dex` - Standalone DEX stub for parser/interpreter tests (independent)
+
+```cmd
+build_apk.bat                 :: builds hello_world (default)
+build_apk.bat hello_world     :: builds hello_world
+build_apk.bat calculator      :: builds calculator
+build_apk.bat clock           :: builds clock
+build_apk.bat all             :: builds all demo apps
+```
 
 ## Claude Code Skills
 

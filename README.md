@@ -14,9 +14,9 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 | **2** | Bytecode Interpreter & java.lang Shims | ✅ Complete | 118 / 118 |
 | **3** | Android API Shim Layer | ✅ Complete | 35 / 35 |
 | **4** | UI Bridge & OpenHarmony Host | ✅ Complete | 55 / 55 |
-| **5** | Integration & Polish | ✅ Complete | 565 total |
+| **5** | Integration & Polish | ✅ Complete | 568 total |
 
-**Total:** 565 tests (562 passing) | 0 TypeScript errors | 0 regressions | 218 opcodes implemented
+**Total:** 568 tests passing | 0 TypeScript errors | 0 regressions | 218 opcodes implemented
 
 **Stage 5 Status:**
 - ✅ All code implementation complete (EntryAbility.ets, CraftPage.ets, runtime integration)
@@ -82,10 +82,14 @@ craft/
 │   ├── implementation_plan.md # 5-stage roadmap
 │   ├── tools_guide.md         # 14 development tools reference
 │   ├── deployment_guide.md    # HAP/device deployment
-│   ├── apk_build_guide.md     # Hello World APK building
+│   ├── apk_build_guide.md     # Demo APK building (HelloWorld + Calculator)
 │   ├── hap_build_guide.md     # HAP building guide
 │   ├── stage_5_status.md      # Deployment status
 │   └── stages/                # Stage-specific docs
+├── demo/                       # Demo app Java sources
+│   ├── hello_world/           # Simple Hello World app
+│   ├── calculator/            # Calculator with button grid
+│   └── clock/                 # Clock (System.currentTimeMillis)
 ├── src/                        # Source code (39 files, ~8,990 lines)
 │   ├── parser/                # APK & DEX parsers
 │   ├── interpreter/           # Bytecode interpreter (218 opcodes)
@@ -94,11 +98,11 @@ craft/
 │   ├── core/                  # Core types & utilities
 │   ├── runtime.ts             # High-level CRAFT API
 │   └── oh/                    # OpenHarmony HAP project
-├── test/                       # Test suite (565 tests, 34 files)
+├── test/                       # Test suite (568 tests, 34 files)
 │   ├── unit/                  # Unit tests
 │   ├── integration/           # Integration tests
 │   ├── helpers/               # Test utilities
-│   └── fixtures/              # Test APKs & data
+│   └── fixtures/              # Built APKs & test data
 └── tools/                      # Development tools (14 skills)
 ```
 
@@ -237,13 +241,13 @@ npm run dex-dump test/fixtures/hello_world.dex      # Inspect DEX
 | Metric | Value |
 |--------|-------|
 | **Stages Complete** | 5 / 5 ✅ |
-| **Tests** | 565 total (562 passing) |
+| **Tests** | 568 passing |
 | **TypeScript Errors** | 0 |
 | **Regressions** | 0 |
 | **Opcodes Implemented** | 218 |
 | **Java Classes Shimmed** | 5 (java.lang.*) |
 | **Android Classes Shimmed** | 9 (android.*) |
-| **Total Methods Shimmed** | 71 (30 java.lang + 41 android) |
+| **Total Methods Shimmed** | 73 (32 java.lang + 41 android) |
 | **Source Files** | 39 |
 | **Test Files** | 34 |
 | **Lines of Code** | ~22,905 (8,990 src + 8,999 test + 4,916 tools) |
@@ -340,6 +344,6 @@ MIT
 
 ---
 
-**Status:** 5 of 5 stages complete | 565 tests (562 passing) | APK built & verified | HarmonyOS device tested ✅
-**Last Updated:** 2026-03-06
+**Status:** 5 of 5 stages complete | 568 tests passing | APK built & verified | HarmonyOS device tested ✅
+**Last Updated:** 2026-03-09
 **Version:** 0.1.0

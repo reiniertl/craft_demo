@@ -8,7 +8,7 @@
 
 ## Overview
 
-The CRAFT HAP bundles the full runtime stack (parser, interpreter, shim layer, UI bridge) into an OpenHarmony/HarmonyOS application package. The Hello World APK is bundled as a rawfile resource, so the HAP works out of the box with no manual APK push needed.
+The CRAFT HAP bundles the full runtime stack (parser, interpreter, shim layer, UI bridge) into an OpenHarmony/HarmonyOS application package. APKs are kept separate — push any APK to the device via `hdc file send` and pass its path via the `apk_path` launch parameter.
 
 ```
 CRAFT Source (TypeScript)  →  HAP Bundle  →  Device
@@ -148,14 +148,7 @@ copy /y src\runtime.ts %CRAFT_ETS%\
 copy /y src\index.ts %CRAFT_ETS%\
 ```
 
-### Step 3: Bundle hello_world.apk
-
-```cmd
-mkdir src\oh\entry\src\main\resources\rawfile 2>nul
-copy /y test\fixtures\hello_world.apk src\oh\entry\src\main\resources\rawfile\
-```
-
-### Step 4: Apply ArkTS patches
+### Step 3: Apply ArkTS patches
 
 ArkTS has stricter requirements than standard TypeScript. The following manual patches are needed after syncing:
 
@@ -179,7 +172,7 @@ ArkTS has stricter requirements than standard TypeScript. The following manual p
 
 > The automated `build_hap.bat` applies all these patches automatically.
 
-### Step 5: Verify page routing
+### Step 4: Verify page routing
 
 Ensure `src/oh/entry/src/main/resources/base/profile/main_pages.json` includes CraftPage:
 
@@ -192,14 +185,14 @@ Ensure `src/oh/entry/src/main/resources/base/profile/main_pages.json` includes C
 }
 ```
 
-### Step 6: Install dependencies
+### Step 5: Install dependencies
 
 ```cmd
 cd D:\craft\craft\src\oh
 ohpm install
 ```
 
-### Step 7: Build
+### Step 6: Build
 
 ```cmd
 cd D:\craft\craft\src\oh
@@ -293,15 +286,16 @@ sdk.dir=C:/Users/<username>/OpenHarmony/Sdk
 :: Connect device
 hdc list targets
 
-:: Install HAP
+:: Install HAP (once - the runtime, not the APK)
 hdc install src\oh\entry\build\default\outputs\default\entry-default-unsigned.hap
 
-:: Launch (bundled APK loads automatically)
-hdc shell aa start -a EntryAbility -b com.craft.runtime
+:: Push the APK you want to run, then launch
+hdc file send test\fixtures\hello_world.apk /data/app/hello_world.apk
+hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/hello_world.apk
 
-:: Or launch with a custom APK
-hdc file send my_app.apk /data/app/my_app.apk
-hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/my_app.apk
+:: To run a different APK, just push and launch again
+hdc file send test\fixtures\calculator.apk /data/app/calculator.apk
+hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/calculator.apk
 ```
 
 ### HarmonyOS / Charlotte (Mate 60)
@@ -313,15 +307,16 @@ hdc list targets
 :: Install HAP (must be signed)
 hdc install entry-charlotte-signed.hap
 
-:: Launch (Hello World APK is bundled - no push needed)
-hdc shell aa start -a EntryAbility -b com.craft.runtime
+:: Push and launch an APK
+hdc file send test\fixtures\hello_world.apk /data/app/hello_world.apk
+hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/hello_world.apk
 ```
 
 ### Verify
 
 You should see on screen:
 
-- **"Hello World"** text rendered by ArkUI
+- **"Hello World"** text rendered by ArkUI (when running hello_world.apk)
 - Font size 24
 - Black text color (`#000000`)
 
@@ -456,13 +451,15 @@ build_hap.bat
 :: === Build (Charlotte / HarmonyOS / Mate 60) ===
 build_hap.bat charlotte
 
-:: === Deploy (OpenHarmony) ===
+:: === Deploy runtime (once) ===
 hdc install src\oh\entry\build\default\outputs\default\entry-default-unsigned.hap
-hdc shell aa start -a EntryAbility -b com.craft.runtime
 
-:: === Deploy (Charlotte) ===
+:: === Run an APK ===
+hdc file send test\fixtures\hello_world.apk /data/app/hello_world.apk
+hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/hello_world.apk
+
+:: === Deploy runtime - Charlotte (once) ===
 hdc install entry-charlotte-signed.hap
-hdc shell aa start -a EntryAbility -b com.craft.runtime
 
 :: === Logs ===
 hdc hilog -T CRAFT

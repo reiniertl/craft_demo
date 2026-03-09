@@ -1,473 +1,198 @@
 # Android APK Build Guide for CRAFT
 
-**Purpose:** Build the completed Hello World APK for CRAFT testing
+**Purpose:** Build demo APKs for CRAFT testing and deployment
 
-**Status:** Source files prepared, requires Android SDK for compilation
-
----
-
-## Important: Stage 1 Stub vs Completed APK
-
-### Current APK (Stage 1 Stub)
-
-The project already has `test/fixtures/hello_world.apk` created in Stage 1. However, this is a **minimal stub** designed only to test the parser:
-
-**What the Stage 1 stub contains:**
-- ✅ Basic APK structure
-- ✅ MainActivity class
-- ✅ onCreate() method signature
-- ❌ **Only 7 instructions total** (just calls `super.onCreate()` and returns)
-- ❌ **No Android API usage** (no TextView, setText, setContentView)
-- ❌ **0 Android API classes** detected by analyzer
-
-**Stage 1 onCreate() code:**
-```java
-protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    // That's all - just a stub!
-}
-```
-
-### Why Completion is Needed
-
-The Stage 1 stub was intentionally minimal - just enough to test APK parsing and DEX format handling. To test the functionality implemented in Stages 2-5, we need to **complete** the onCreate() implementation:
-
-**Stage 2 (Interpreter):** Needs actual bytecode to interpret
-- new-instance, invoke-direct, invoke-virtual opcodes
-- Method calls and object creation
-
-**Stage 3 (Android API Shims):** Needs Android API calls to intercept
-- TextView constructor, setText(), setTextSize(), setTextColor()
-- Activity.setContentView()
-
-**Stage 4 (UI Bridge):** Needs View objects to bridge to ArkUI
-- TextView creation and property updates
-- setContentView() to register root view
-
-**Stage 5 (Integration):** Needs complete flow to demonstrate end-to-end
-- Full Activity lifecycle with actual UI output
-- Visual confirmation of "Hello World" on screen
+**Status:** Three demo apps available (HelloWorld + Calculator + Clock)
 
 ---
 
-## Overview
+## Demo Apps
 
-The CRAFT project requires a properly built Android APK with a **complete** MainActivity that includes:
-- `onCreate()` method with `super.onCreate()` call
-- `TextView` instantiation
-- `setText()`, `setTextSize()`, `setTextColor()` calls
-- `setContentView()` call
+CRAFT ships three demo apps. Sources live in `demo/`, built APKs go to `test/fixtures/`.
 
-**Source Files Location:** `/mnt/d/craft/craft/test/fixtures/`
-- `MainActivity.java` - Main activity source code
-- `AndroidManifest.xml` - Application manifest
+### HelloWorld (`demo/hello_world/`)
 
-**Target Output:** `/mnt/d/craft/craft/test/fixtures/hello_world_complete.apk`
+Simple app that creates a TextView with "Hello World". Tests the basic Activity → TextView → setContentView flow.
+
+- Package: `com.example.helloworld`
+- API usage: Activity, Bundle, TextView (setText, setTextSize, setTextColor), setContentView
+
+### Calculator (`demo/calculator/`)
+
+Calculator app with a 4x4 button grid, display, and arithmetic operations. Tests LinearLayout, Button, View.OnClickListener, and complex view hierarchies.
+
+- Package: `com.example.calculator`
+- API usage: Activity, Bundle, LinearLayout, TextView, Button, View.OnClickListener, setContentView
+
+### Clock (`demo/clock/`)
+
+Clock app that reads `System.currentTimeMillis()`, computes hours/minutes/seconds via long arithmetic, and displays the formatted time. Tests `System.currentTimeMillis`, `StringBuilder.append(J)`, long division/modulo opcodes, and conditional branching.
+
+- Package: `com.example.clock`
+- API usage: Activity, Bundle, TextView (setText, setTextSize, setTextColor), System.currentTimeMillis, StringBuilder.append(long), setContentView
 
 ---
 
-## Option 1: Using Android Studio (Easiest)
+## Building with build_apk.bat (Recommended)
+
+The `build_apk.bat` script in the project root handles the full build pipeline: compile → DEX → AAPT2 → STORE repack → align → sign.
 
 ### Prerequisites
-- Android Studio installed (latest version recommended)
-- Android SDK API 28 or higher
 
-### Steps
-
-1. **Create New Project:**
-   ```
-   File → New → New Project
-   Select "Empty Activity"
-   Name: HelloWorld
-   Package: com.example.helloworld
-   Language: Java
-   Minimum SDK: API 28
-   ```
-
-2. **Replace MainActivity.java:**
-   - Copy content from `/mnt/d/craft/craft/test/fixtures/MainActivity.java`
-   - Paste into `app/src/main/java/com/example/helloworld/MainActivity.java`
-
-3. **Replace AndroidManifest.xml:**
-   - Copy content from `/mnt/d/craft/craft/test/fixtures/AndroidManifest.xml`
-   - Paste into `app/src/main/AndroidManifest.xml`
-
-4. **Build APK:**
-   ```
-   Build → Build Bundle(s) / APK(s) → Build APK(s)
-   ```
-
-5. **Locate APK:**
-   - Find in: `app/build/outputs/apk/debug/app-debug.apk`
-
-6. **Copy to CRAFT:**
-   ```bash
-   cp app/build/outputs/apk/debug/app-debug.apk \
-      /mnt/d/craft/craft/test/fixtures/hello_world_complete.apk
-   ```
-
-7. **Verify:**
-   ```bash
-   cd /mnt/d/craft/craft
-   npm run analyze-apk test/fixtures/hello_world_complete.apk
-   ```
-
----
-
-## Option 2: Using Command Line (Advanced)
-
-### Prerequisites
-- Android SDK command-line tools installed
-- `ANDROID_HOME` environment variable set
-- Java JDK 8 or higher
-
-### Build Script
-
-Create `build_apk.sh`:
-
-```bash
-#!/bin/bash
-set -e
-
-# Configuration
-PACKAGE="com.example.helloworld"
-APP_NAME="HelloWorld"
-BUILD_DIR="build_tmp"
-SRC_DIR="test/fixtures"
-API_LEVEL="30"
-
-# Paths (adjust for your system)
-ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
-BUILD_TOOLS="$ANDROID_HOME/build-tools/30.0.0"
-PLATFORM="$ANDROID_HOME/platforms/android-$API_LEVEL"
-
-# Check prerequisites
-if [ ! -d "$ANDROID_HOME" ]; then
-    echo "Error: ANDROID_HOME not found: $ANDROID_HOME"
-    exit 1
-fi
-
-if [ ! -f "$BUILD_TOOLS/d8" ]; then
-    echo "Error: Build tools not found: $BUILD_TOOLS"
-    exit 1
-fi
-
-echo "Building Hello World APK..."
-
-# Clean
-rm -rf "$BUILD_DIR"
-mkdir -p "$BUILD_DIR"/{bin,dex,apk}
-
-# Step 1: Compile Java to class files
-echo "1. Compiling Java..."
-javac -source 1.8 -target 1.8 \
-    -bootclasspath "$PLATFORM/android.jar" \
-    -d "$BUILD_DIR/bin" \
-    "$SRC_DIR/MainActivity.java"
-
-# Step 2: Convert class files to DEX
-echo "2. Converting to DEX..."
-"$BUILD_TOOLS/d8" \
-    --lib "$PLATFORM/android.jar" \
-    --output "$BUILD_DIR/dex" \
-    "$BUILD_DIR/bin/com/example/helloworld/MainActivity.class"
-
-# Step 3: Create unsigned APK
-echo "3. Packaging APK..."
-cd "$BUILD_DIR/apk"
-mkdir -p META-INF
-
-# Add DEX file
-cp ../dex/classes.dex .
-
-# Add AndroidManifest.xml
-cp "../../$SRC_DIR/AndroidManifest.xml" .
-
-# Create ZIP (APK is a ZIP file)
-zip -q -r ../unsigned.apk .
-cd ../..
-
-# Step 4: Align APK
-echo "4. Aligning APK..."
-"$BUILD_TOOLS/zipalign" -f -p 4 \
-    "$BUILD_DIR/unsigned.apk" \
-    "$BUILD_DIR/aligned.apk"
-
-# Step 5: Sign APK (debug key)
-echo "5. Signing APK..."
-if [ ! -f "$HOME/.android/debug.keystore" ]; then
-    echo "Creating debug keystore..."
-    keytool -genkey -v \
-        -keystore "$HOME/.android/debug.keystore" \
-        -alias androiddebugkey \
-        -keyalg RSA \
-        -keysize 2048 \
-        -validity 10000 \
-        -storepass android \
-        -keypass android \
-        -dname "CN=Android Debug,O=Android,C=US"
-fi
-
-"$BUILD_TOOLS/apksigner" sign \
-    --ks "$HOME/.android/debug.keystore" \
-    --ks-key-alias androiddebugkey \
-    --ks-pass pass:android \
-    --key-pass pass:android \
-    --out "$BUILD_DIR/hello_world_complete.apk" \
-    "$BUILD_DIR/aligned.apk"
-
-# Step 6: Copy to test fixtures
-echo "6. Copying to test fixtures..."
-cp "$BUILD_DIR/hello_world_complete.apk" "test/fixtures/"
-
-echo ""
-echo "✅ APK built successfully!"
-echo "Location: test/fixtures/hello_world_complete.apk"
-
-# Step 7: Verify
-echo ""
-echo "Verifying APK..."
-npm run analyze-apk test/fixtures/hello_world_complete.apk
-```
+- Android Studio (bundled JDK at `jbr\`)
+- Android SDK (build-tools + platform)
+- 7-Zip (https://7-zip.org/)
 
 ### Usage
 
-```bash
-chmod +x build_apk.sh
-./build_apk.sh
+```cmd
+build_apk.bat                 :: builds hello_world (default)
+build_apk.bat hello_world     :: builds hello_world
+build_apk.bat calculator      :: builds calculator
+build_apk.bat clock           :: builds clock
+build_apk.bat all             :: builds all demo apps
 ```
+
+Output: `test\fixtures\<app_name>.apk`
+
+### Configuration
+
+Edit the paths at the top of `build_apk.bat` to match your system:
+
+```bat
+set ANDROID_SDK=C:\Users\YourName\AppData\Local\Android\Sdk
+set BUILD_TOOLS=%ANDROID_SDK%\build-tools\36.1.0
+set PLATFORM_JAR=%ANDROID_SDK%\platforms\android-36.1\android.jar
+set JAVA_HOME=C:\Program Files\Android\Android Studio\jbr
+set SEVENZIP=C:\Program Files\7-Zip\7z.exe
+```
+
+### What It Does
+
+1. Copies source from `demo\<app_name>\` to a temp work directory
+2. Compiles Java to class files with `javac`
+3. Converts to DEX bytecode with `d8`
+4. Creates base APK with `aapt2` (produces binary manifest)
+5. Repacks with 7-Zip using STORE compression (no DEFLATE — required by CRAFT parser)
+6. Aligns with `zipalign`
+7. Signs with `apksigner` (debug key)
+8. Copies to `test\fixtures\<app_name>.apk`
+
+### STORE Compression
+
+The APK is built with STORE compression (no DEFLATE) because the CRAFT parser only supports uncompressed ZIP entries. The manifest includes `uses-sdk` with `minSdkVersion=24` and `targetSdkVersion=33` so the APK can also be tested on a real Android device.
 
 ---
 
-## Option 3: Using Gradle (Recommended for CI/CD)
+## Building with Android Studio
 
-### Create build.gradle
+1. Create New Project (Empty Activity, Java, package matching the demo app)
+2. Replace `MainActivity.java` with content from `demo/<app_name>/MainActivity.java`
+3. Replace `AndroidManifest.xml` with content from `demo/<app_name>/AndroidManifest.xml`
+4. Build → Build Bundle(s) / APK(s) → Build APK(s)
+5. Copy to `test/fixtures/<app_name>.apk`
 
-```gradle
-plugins {
-    id 'com.android.application' version '8.0.0'
-}
-
-android {
-    namespace 'com.example.helloworld'
-    compileSdk 33
-
-    defaultConfig {
-        applicationId "com.example.helloworld"
-        minSdk 28
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-}
-```
-
-### Create settings.gradle
-
-```gradle
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-rootProject.name = "HelloWorld"
-include ':app'
-```
-
-### Build
-
-```bash
-./gradlew assembleDebug
-cp app/build/outputs/apk/debug/app-debug.apk \
-   test/fixtures/hello_world_complete.apk
-```
-
----
-
-## Option 4: Using Docker (Reproducible Builds)
-
-### Dockerfile
-
-```dockerfile
-FROM gradle:7.6-jdk11
-
-# Install Android SDK
-ENV ANDROID_HOME=/opt/android-sdk
-RUN mkdir -p ${ANDROID_HOME}/cmdline-tools && \
-    cd ${ANDROID_HOME}/cmdline-tools && \
-    wget -q https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip && \
-    unzip -q commandlinetools-linux-9477386_latest.zip && \
-    rm commandlinetools-linux-9477386_latest.zip && \
-    mv cmdline-tools latest
-
-ENV PATH=${PATH}:${ANDROID_HOME}/cmdline-tools/latest/bin:${ANDROID_HOME}/platform-tools
-
-# Accept licenses and install components
-RUN yes | sdkmanager --licenses && \
-    sdkmanager "platform-tools" "platforms;android-33" "build-tools;30.0.0"
-
-WORKDIR /app
-COPY test/fixtures/MainActivity.java .
-COPY test/fixtures/AndroidManifest.xml .
-
-# Build script will go here
-```
-
-### Usage
-
-```bash
-docker build -t craft-apk-builder .
-docker run --rm -v $(pwd)/test/fixtures:/output craft-apk-builder
-```
+**Note:** Android Studio builds use DEFLATE compression by default. For CRAFT testing, use `build_apk.bat` which forces STORE compression.
 
 ---
 
 ## Verification
 
-After building the APK, verify it's correct:
+After building an APK:
 
 ```bash
-cd /mnt/d/craft/craft
-npm run analyze-apk test/fixtures/hello_world_complete.apk
+npm run analyze-apk test/fixtures/hello_world.apk
+npm run analyze-apk test/fixtures/calculator.apk
+npm run analyze-apk test/fixtures/clock.apk
 ```
 
-**Expected Output:**
+### Expected: HelloWorld
+
 ```
-🔧 Opcode Coverage:
-   Implemented: 100%
+Package: com.example.helloworld
+Main Activity: com.example.helloworld.MainActivity
 
-📦 APK Information:
-   Package: com.example.helloworld
-   Main Activity: com.example.helloworld.MainActivity
-
-📱 Android API Usage:
-   Landroid/app/Activity;
-      - onCreate
-      - setContentView
-   Landroid/widget/TextView;
-      - <init>
-      - setText
-      - setTextSize
-      - setTextColor
-   Landroid/os/Bundle;
+Android API Usage:
+  Landroid/app/Activity;       - onCreate, setContentView
+  Landroid/widget/TextView;    - <init>, setText, setTextSize, setTextColor
+  Landroid/os/Bundle;
 ```
 
-**Required Opcodes:**
-All opcodes used must be implemented in CRAFT. Check the output for any missing opcodes.
+### Expected: Calculator
+
+```
+Package: com.example.calculator
+Main Activity: com.example.calculator.MainActivity
+
+Android API Usage:
+  Landroid/app/Activity;            - onCreate, setContentView
+  Landroid/widget/LinearLayout;     - <init>, setOrientation, addView
+  Landroid/widget/TextView;         - <init>, setText, setTextSize, setTextColor
+  Landroid/widget/Button;           - <init>, setText, setId, setOnClickListener
+  Landroid/view/View;               - getId, OnClickListener
+  Landroid/os/Bundle;
+```
+
+### Expected: Clock
+
+```
+Package: com.example.clock
+Main Activity: com.example.clock.MainActivity
+
+Android API Usage:
+  Landroid/app/Activity;       - onCreate, setContentView
+  Landroid/widget/TextView;    - <init>, setText, setTextSize, setTextColor
+  Ljava/lang/System;           - currentTimeMillis
+  Ljava/lang/StringBuilder;    - <init>, append (String, J), toString
+  Landroid/os/Bundle;
+```
+
+---
+
+## Testing on Android Device
+
+```bash
+adb install test/fixtures/hello_world.apk
+adb shell am start -n com.example.helloworld/.MainActivity
+
+adb install test/fixtures/calculator.apk
+adb shell am start -n com.example.calculator/.MainActivity
+
+adb install test/fixtures/clock.apk
+adb shell am start -n com.example.clock/.MainActivity
+```
+
+---
+
+## Deploying to OpenHarmony via CRAFT
+
+The default bundled app is `hello_world.apk`. To use the calculator:
+
+```bash
+# Copy to device
+hdc file send test/fixtures/calculator.apk /data/app/calculator.apk
+
+# Launch with custom path
+hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/calculator.apk
+```
 
 ---
 
 ## Troubleshooting
 
 ### Issue: "d8 not found"
-
-**Solution:** Install Android SDK build tools:
-```bash
-sdkmanager "build-tools;30.0.0"
-```
+Install Android SDK build tools: `sdkmanager "build-tools;36.1.0"`
 
 ### Issue: "android.jar not found"
-
-**Solution:** Install Android platform:
-```bash
-sdkmanager "platforms;android-30"
-```
+Install Android platform: `sdkmanager "platforms;android-36"`
 
 ### Issue: "javac: command not found"
-
-**Solution:** Install Java JDK:
-```bash
-# Ubuntu/Debian
-sudo apt install openjdk-11-jdk
-
-# macOS
-brew install openjdk@11
-
-# Windows
-# Download from https://adoptium.net/
-```
+Ensure JAVA_HOME points to a valid JDK (Android Studio bundles one at `jbr\`).
 
 ### Issue: APK install fails on OpenHarmony
-
-**Solution:** APKs built for Android won't install on OpenHarmony. They're only used as input for the CRAFT runtime.
-
----
-
-## Alternative: Download Pre-built APK
-
-If you cannot build the APK locally, you can:
-
-1. **Use an online Android compiler:**
-   - https://www.tutorialspoint.com/compile_java_online.php
-   - Build and download the APK
-
-2. **Request from team member:**
-   - Someone with Android Studio can build and share
-
-3. **Use CI/CD:**
-   - Set up GitHub Actions to build automatically
+APKs built for Android won't install on OpenHarmony. They're only used as input for the CRAFT runtime.
 
 ---
 
-## Next Steps
-
-After building the APK:
-
-1. **Place in test fixtures:**
-   ```bash
-   cp your-built-apk.apk \
-      /mnt/d/craft/craft/test/fixtures/hello_world_complete.apk
-   ```
-
-2. **Verify with analyzer:**
-   ```bash
-   npm run analyze-apk test/fixtures/hello_world_complete.apk
-   ```
-
-3. **Run tests:**
-   ```bash
-   npm test
-   ```
-
-4. **Deploy to OpenHarmony:**
-   - See `docs/deployment_guide.md` for deployment instructions
-
----
-
-## Summary
-
-Building the completed Hello World APK requires:
-- ✅ Source files (provided in `test/fixtures/`)
-- ⚠️ Android SDK (not available in current environment)
-- ⚠️ Java compiler (not available in current environment)
-
-**Recommended:** Use Android Studio (Option 1) for the easiest build process.
-
-**For CI/CD:** Use Gradle (Option 3) or Docker (Option 4) for reproducible builds.
-
----
-
-**Last Updated:** 2026-02-13
-**Status:** Source files ready, awaiting SDK-based build
+**Last Updated:** 2026-03-09
+**Status:** Three demo apps ready, requires Android SDK for compilation

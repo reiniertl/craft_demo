@@ -4,7 +4,7 @@
 
 import { ShimRegistry } from '../../../src/interpreter/shim_registry';
 import { Heap } from '../../../src/interpreter/heap';
-import { Value, intValue, objectRef, NULL_VALUE } from '../../../src/core/types';
+import { Value, intValue, longValue, objectRef, NULL_VALUE } from '../../../src/core/types';
 import { StringIndexOutOfBoundsException } from '../../../src/interpreter/errors';
 import { createShimTestContext, ShimTestContext } from '../../helpers/shim_test_utils';
 
@@ -177,6 +177,26 @@ describe('java.lang.* shims', () => {
       const strRef = (result as { type: 'object'; ref: number }).ref;
       expect(heap.getStringValue(strRef)).toBe('hello world');
     });
+
+    it('valueOf(J) converts long to string', () => {
+      const result = invokeShim(
+        'Ljava/lang/String;', 'valueOf', '(J)Ljava/lang/String;',
+        [longValue(BigInt(1234567890))], true
+      );
+      expect(result.type).toBe('object');
+      const strRef = (result as { type: 'object'; ref: number }).ref;
+      expect(heap.getStringValue(strRef)).toBe('1234567890');
+    });
+
+    it('valueOf(J) handles negative long', () => {
+      const result = invokeShim(
+        'Ljava/lang/String;', 'valueOf', '(J)Ljava/lang/String;',
+        [longValue(BigInt(-42))], true
+      );
+      expect(result.type).toBe('object');
+      const strRef = (result as { type: 'object'; ref: number }).ref;
+      expect(heap.getStringValue(strRef)).toBe('-42');
+    });
   });
 
   describe('java.lang.StringBuilder', () => {
@@ -240,6 +260,20 @@ describe('java.lang.* shims', () => {
       const str = heap.getStringValue(strRef);
       // Should contain the Object.toString() output (descriptor@hex)
       expect(str).toContain('Ljava/lang/Object;@');
+    });
+
+    it('append(long) converts and adds', () => {
+      const ref = createBuilder();
+      invokeShim(
+        'Ljava/lang/StringBuilder;', 'append', '(J)Ljava/lang/StringBuilder;',
+        [objectRef(ref), longValue(BigInt(9876543210))]
+      );
+      const result = invokeShim(
+        'Ljava/lang/StringBuilder;', 'toString', '()Ljava/lang/String;',
+        [objectRef(ref)]
+      );
+      const strRef = (result as { type: 'object'; ref: number }).ref;
+      expect(heap.getStringValue(strRef)).toBe('9876543210');
     });
 
     it('chained appends work correctly', () => {

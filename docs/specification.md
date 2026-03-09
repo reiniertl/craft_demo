@@ -374,13 +374,13 @@ Arguments are placed in the last N registers of the frame (Dalvik calling conven
 
 **Location:** `src/shim/android/`, `src/shim/java/lang/`
 
-### java.lang Shims (5 classes, 30 methods)
+### java.lang Shims (5 classes, 32 methods)
 
 | Class | Methods | Key Methods |
 |-------|---------|-------------|
 | `java.lang.Object` | 5 | `<init>`, getClass, hashCode, equals, toString |
-| `java.lang.String` | 12 | `<init>` (x2), length, charAt, equals, hashCode, toString, substring (x2), concat, valueOf (x2) |
-| `java.lang.StringBuilder` | 7 | `<init>` (x2), append (x3), toString, length |
+| `java.lang.String` | 13 | `<init>` (x2), length, charAt, equals, hashCode, toString, substring (x2), concat, valueOf (x3: I, J, Object) |
+| `java.lang.StringBuilder` | 8 | `<init>` (x2), append (x4: String, I, J, Object), toString, length |
 | `java.lang.Class` | 3 | getName, getSimpleName, toString |
 | `java.lang.System` | 3 | currentTimeMillis, identityHashCode, arraycopy |
 
@@ -680,14 +680,14 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 | Interpreter | `test/unit/interpreter/interpreter.test.ts` | 6 | Main execution loop |
 | ClassLoader | `test/unit/interpreter/class_loader.test.ts` | 11 | Class/method resolution |
 | ShimRegistry | `test/unit/interpreter/shim_registry.test.ts` | 6 | Register, invoke |
-| java.lang Shims | `test/unit/shim/java_lang.test.ts` | 31 | Object, String, StringBuilder, etc. |
+| java.lang Shims | `test/unit/shim/java_lang.test.ts` | 34 | Object, String, StringBuilder, etc. |
 | Android Shims | `test/unit/shim/android_api.test.ts` | 29 | All 9 Android classes |
 | Button | `test/unit/shim/button.test.ts` | 15 | Button shim |
 | Tracer | `test/unit/interpreter/tracer.test.ts` | 10 | Execution tracer |
 | UIBridge | `test/unit/bridge/ui_bridge.test.ts` | 17 | View mapping |
 | StateManager | `test/unit/bridge/state_manager.test.ts` | 17 | Reactive state |
 | LifecycleBridge | `test/unit/bridge/lifecycle_bridge.test.ts` | 13 | Lifecycle mapping |
-| **Total Unit** | -- | **527** | -- |
+| **Total Unit** | -- | **530** | -- |
 
 ### Integration Test Coverage
 
@@ -707,7 +707,7 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 | UI Integration | `test/integration/bridge/ui_integration.test.ts` | 8 | UI Bridge integration |
 | **Total Integration** | -- | **38** | -- |
 
-**Total: 565 tests across 32 test suites**
+**Total: 568 tests across 32 test suites**
 
 ---
 
@@ -717,7 +717,7 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| Test Pass Rate | 100% | 562/565 | ✅ |
+| Test Pass Rate | 100% | 568/568 | ✅ |
 | TypeScript Errors | 0 | 0 | ✅ |
 | Regression Rate | 0% | 0% | ✅ |
 | Code Coverage | >80% | ~85% | ✅ |
@@ -830,5 +830,5 @@ Example: Adding `android.widget.EditText` (extends `android.widget.TextView`)
 ---
 
 **Status:** Stages 1-5 Complete | Device Tested Feb 24
-**Last Updated:** 2026-03-06
+**Last Updated:** 2026-03-09
 **Version:** 0.3.0

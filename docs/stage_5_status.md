@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-Stage 5 is fully complete. The CRAFT runtime, OpenHarmony UIAbility host, and dynamic ArkUI rendering page are fully implemented with 565 tests (562 passing).
+Stage 5 is fully complete. The CRAFT runtime, OpenHarmony UIAbility host, and dynamic ArkUI rendering page are fully implemented with 568 tests passing.
 
 The Hello World APK has been recompiled (Feb 18) with full TextView creation and verified working on an Android device. The HAP was built, signed, and successfully tested on a HarmonyOS device on Feb 24.
 
@@ -17,7 +17,7 @@ The Hello World APK has been recompiled (Feb 18) with full TextView creation and
 
 ### 1. Complete TypeScript Runtime (Stages 1-4)
 **Status:** ✅ 100% Complete
-**Tests:** 565 total (562 passing)
+**Tests:** 568 passing
 
 - ✅ APK Parser (ZIP extraction, manifest parsing)
 - ✅ DEX Parser (full DEX format support)
@@ -27,40 +27,34 @@ The Hello World APK has been recompiled (Feb 18) with full TextView creation and
 - ✅ Lifecycle Bridge (Activity ↔ Ability mapping)
 - ✅ CraftRuntime (high-level API wrapper)
 
-### 2. Hello World APK ✅
-**Status:** ✅ Rebuilt Feb 18, verified on Android
-**File:** `test/fixtures/hello_world.apk` (12,793 bytes)
-**Source:** `test/fixtures/MainActivity.java`
+### 2. Demo APKs ✅
+**Status:** ✅ HelloWorld rebuilt, verified on Android | Calculator and Clock apps added
+**Sources:** `demo/hello_world/`, `demo/calculator/`, `demo/clock/`
+**Built APKs:** `test/fixtures/hello_world.apk`, `test/fixtures/calculator.apk`, `test/fixtures/clock.apk`
 
+**HelloWorld** (`demo/hello_world/MainActivity.java`):
 ```java
 package com.example.helloworld;
 import android.app.Activity;
 import android.os.Bundle;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(1); // VERTICAL
-
-        TextView title = new TextView(this);
-        title.setText("CRAFT Demo");
-        title.setTextSize(28.0f);
-        title.setTextColor(0xFF1A237E);
-        layout.addView(title);
-
-        // Version via StringBuilder, arithmetic, conditional branching
-        // ... (see test/fixtures/MainActivity.java for full source)
-
-        setContentView(layout);
+        TextView textView = new TextView(this);
+        textView.setText("Hello World");
+        textView.setTextSize(24.0f);
+        textView.setTextColor(0xFF000000);
+        setContentView(textView);
     }
 }
 ```
 
-**Build script:** `build_apk.bat` (uses Android SDK, d8, aapt2, 7-Zip for STORE compression)
+**Calculator** (`demo/calculator/MainActivity.java`): 4x4 button grid with arithmetic operations (package: `com.example.calculator`).
+
+**Build script:** `build_apk.bat [app_name]` (uses Android SDK, d8, aapt2, 7-Zip for STORE compression)
 
 ### 3. OpenHarmony HAP ✅
 **Status:** ✅ Built and signed
@@ -106,10 +100,10 @@ hdc hilog -T CRAFT
 
 | Component | Status | Details |
 |-----------|--------|---------|
-| TypeScript Runtime | ✅ Complete | 565 tests (562 passing) |
-| Hello World APK | ✅ Complete | Rebuilt Feb 18, verified on Android |
+| TypeScript Runtime | ✅ Complete | 568 tests passing |
+| Demo APKs | ✅ Complete | HelloWorld + Calculator + Clock, sources in demo/ |
 | OpenHarmony HAP | ✅ Built | 476 KB signed HAP |
 | HarmonyOS Build Config | ✅ Configured | Needs signing cert |
 | Device Testing | ✅ Complete | Tested on HarmonyOS device Feb 24 |
 
-**Last Updated:** 2026-03-06
+**Last Updated:** 2026-03-09

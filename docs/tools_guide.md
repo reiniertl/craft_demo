@@ -1,6 +1,6 @@
 # CRAFT Development Tools Guide
 
-**Last Updated:** 2026-03-06
+**Last Updated:** 2026-03-09
 **Status:** 14 development tools implemented and tested
 
 ## Overview
@@ -548,7 +548,7 @@ npm run guard -- --fix
 [CRAFT][Guard][Info] Running regression guard...
 
 ✅ TypeScript: 0 errors
-✅ Tests: 562 passed, 3 failed (stale fixture expectations)
+✅ Tests: 568 passed, 0 failed
 ✅ Shims: All registered, 0 issues
 ✅ Opcodes: 218 registered
 

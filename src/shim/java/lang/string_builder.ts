@@ -87,6 +87,27 @@ export function registerStringBuilderShim(registry: ShimRegistry): void {
     }
   );
 
+  // append(J)Ljava/lang/StringBuilder;
+  registry.register(
+    STRINGBUILDER_CLASS,
+    'append',
+    '(J)Ljava/lang/StringBuilder;',
+    (interp, heap, thisRef, args) => {
+      const currentField = heap.getField(thisRef, BUILDER_VALUE_FIELD);
+      const currentRef = (currentField as { type: 'object'; ref: number }).ref;
+      const current = heap.getStringValue(currentRef);
+
+      const longValue = (args[0] as { type: 'long'; value: bigint }).value;
+
+      heap.setField(thisRef, BUILDER_VALUE_FIELD, {
+        type: 'object',
+        ref: heap.internString(current + longValue.toString()),
+      });
+
+      return { type: 'object', ref: thisRef };
+    }
+  );
+
   // append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
   registry.register(
     STRINGBUILDER_CLASS,

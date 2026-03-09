@@ -9,7 +9,7 @@ We are implementing a PoC in which we want to load an Android App that shows the
 - ✅ Stage 2: Bytecode interpreter with java.lang shims (115 tests)
 - ✅ Stage 3: Android API shim layer (35 tests)
 - ✅ Stage 4: UI Bridge & OpenHarmony host (55 tests)
-- ✅ Stage 5: Integration & polish - Complete (565 total)
+- ✅ Stage 5: Integration & polish - Complete (568 total)
 
 ## Requirements
 
@@ -37,7 +37,7 @@ We are implementing a PoC in which we want to load an Android App that shows the
 | Pure interpretation (no JIT/AOT) | ✅ Complete | Stages 1-3 |
 | Zero regressions across stages | ✅ Maintained | All stages |
 
-**Current Achievement:** 565 tests (562 passing) across all 5 stages — Device tested on HarmonyOS (Feb 24)
+**Current Achievement:** 568 tests passing across all 5 stages — Device tested on HarmonyOS (Feb 24)
 
 ## Codebase
 - Open Harmony: `./oh`
