@@ -166,89 +166,140 @@ File: `test/integration/bridge/cross_component.test.ts`
 
 ---
 
-## 5. OpenHarmony Emulator Testing
+## 5. Device & Emulator Testing
 
-### 5.1 Prerequisites
+### 5.1 SDK Configuration
 
-Your DevEco Studio installation already has the emulator at:
+DevEco Studio 6.0.1 manages two separate SDK types:
+
+| SDK Type | Purpose | Your Installation |
+|----------|---------|-------------------|
+| **OpenHarmony** | Open-source SDK for building apps | API 12 at `C:\Users\Bluezone1\AppData\Local\OpenHarmony\Sdk\` |
+| **HarmonyOS** | Huawei commercial SDK (superset) | Bundled with DevEco Studio |
+
+The CRAFT project uses **OpenHarmony API 12** (`runtimeOS: "OpenHarmony"`, `compileSdkVersion: 12`
+in `src/oh/build-profile.json5`).
+
+To view/change SDK settings: **File > Settings** → search for **SDK** in the left panel. This shows
+a list of installed SDK versions (no tabs).
+
+### 5.2 Emulator Setup
+
+The DevEco Studio emulator uses **HarmonyOS** system images (separate from the OpenHarmony SDK).
+OpenHarmony apps are compatible with HarmonyOS devices/emulators since HarmonyOS is a superset.
+
+**Emulator location:**
 ```
 C:\Program Files\Huawei\DevEco Studio\tools\emulator\Emulator.exe (v6.0.1.200)
 ```
 
-Requirements:
+**Requirements:**
 - **Windows 10/11 (64-bit)** with **Hyper-V enabled** (bare-metal, not inside a VM)
 - **8 GB RAM minimum** (12 GB recommended)
-- System image downloaded via SDK Manager
+- System image downloaded for the desired device type
 
-### 5.2 Emulator Setup
+**System images** are stored at:
+```
+C:\Users\<user>\AppData\Local\Huawei\Sdk\system-image\HarmonyOS-6.0.1\
+```
 
-1. **Download system image:**
-   - Open DevEco Studio → **File > Settings > SDK Manager > Platforms**
-   - Check `System-image-phone` for API 21
-   - Click **Apply** to download
+Each device type (phone, wearable, tablet, etc.) requires its own system image. Only device
+types with a downloaded system image appear in the Device Manager's "New Emulator" dialog.
 
-2. **Create emulator instance:**
-   - Go to **Tools > Device Manager > Local Emulator** tab
-   - Click **New Emulator**
-   - Select **Huawei_Phone** profile, API level **21**
-   - Keep defaults (1260x2720, 520 DPI, 4096 MB RAM)
-   - Click **Finish**
+#### Downloading a Phone System Image
 
-3. **Launch:**
-   - Click the **Play** button next to the emulator instance
-   - Wait for boot (first boot is slower)
+The phone system image is **not** managed through the OpenHarmony SDK settings. To download it:
 
-### 5.3 Deploying CRAFT HAP
+1. Open DevEco Studio → **Tools > Device Manager**
+2. Go to the **Local Emulator** tab
+3. Click **New Emulator** — if the phone profile is unavailable, the system image
+   needs to be downloaded first
+4. DevEco Studio should prompt to download the missing image, or provide a link
+   to the SDK Manager download page
+5. Alternatively, check **File > Settings** → search for **SDK** and look for a
+   **HarmonyOS** entry (separate from your OpenHarmony SDK) where system image
+   components can be selected
+
+> **Current state:** Only the wearable system image (`wearable_ov_x86`) is installed.
+> The phone image (e.g., `phone_ov_x86`) is needed for phone emulation.
+>
+> If you cannot find the phone system image download option, you may need to sign in
+> to a Huawei developer account in DevEco Studio, as some system images require
+> authentication to download.
+
+#### Creating an Emulator Instance
+
+Once the system image is downloaded:
+
+1. Go to **Tools > Device Manager > Local Emulator** tab
+2. Click **New Emulator**
+3. Select the desired device profile (e.g., **Huawei_Phone**)
+4. Keep defaults (4096 MB RAM, 6144 MB data disk)
+5. Click **Finish**
+6. Click the **Play** button to launch (first boot is slower)
+
+### 5.3 Real Device (Recommended)
+
+If you have a HarmonyOS/OpenHarmony device, you can skip the emulator entirely.
+This is often simpler than configuring the emulator.
+
+1. **Enable developer mode** on the device:
+   - Go to **Settings > About** and tap the build number multiple times
+   - Enable **USB debugging** in Developer Options
+2. **Connect via USB** and authorize the connection on the device
+3. **Verify the device is detected:**
+   ```bash
+   hdc list targets
+   ```
+4. **Deploy** using DevEco Studio or `hdc` commands (see section 5.4)
+
+### 5.4 Deploying CRAFT HAP
 
 **Option A: From DevEco Studio**
 - Open `src/oh/` as a project in DevEco Studio
-- Select the emulator as target device in the toolbar
+- Select the device/emulator as target in the toolbar
 - Press **Shift+F10** to build and deploy
 
 **Option B: From command line**
 ```bash
-# Verify emulator is visible
+# Verify device/emulator is visible
 hdc list targets
 
-# Install the HAP
-hdc -t 127.0.0.1:5555 app install src/oh/entry/build/default/outputs/default/entry-default-signed.hap
+# Install the HAP (use your target's address)
+hdc -t <target> app install src/oh/entry/build/default/outputs/default/entry-default-signed.hap
 ```
 
-### 5.4 Testing APKs on the Emulator
+### 5.5 Testing APKs on Device/Emulator
 
-Push APK files to the emulator, then launch CRAFT with the APK path:
+Push APK files to the device, then launch CRAFT with the APK path:
 
 ```bash
-# Push APK to emulator filesystem
+# Push APK to device filesystem
 hdc file send test/fixtures/hello_world.apk /data/app/hello_world.apk
 
 # Launch CRAFT with the APK
 hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/hello_world.apk
 ```
 
-### 5.5 Emulator Test Matrix
+### 5.6 Test Matrix
 
 | Test | Command | Expected Result |
 |------|---------|-----------------|
 | HAP installs | `hdc app install *.hap` | No errors |
 | Hello World | Launch with `hello_world.apk` | "Hello World" text at 24sp, black |
-| Calculator | Launch with `calculator.apk` | Display + 4×4 button grid |
+| Calculator | Launch with `calculator.apk` | Display + 4x4 button grid |
 | Calculator clicks | Tap buttons | Display updates with computed values |
 | Clock | Launch with `clock.apk` | Time in `HH:MM:SS` format |
 | Lifecycle | Press Home, return | `onPause`/`onResume` fire correctly |
 | Error handling | Invalid APK path | Graceful error, no crash |
 
-### 5.6 Emulator CLI Reference
+### 5.7 CLI Reference
 
 ```bash
-# List available emulators
-"C:\Program Files\Huawei\DevEco Studio\tools\emulator\Emulator.exe" -list
-
-# Start emulator by name
-"C:\Program Files\Huawei\DevEco Studio\tools\emulator\Emulator.exe" -hvd <name>
-
-# Stop emulator
-"C:\Program Files\Huawei\DevEco Studio\tools\emulator\Emulator.exe" -stop <name>
+# Emulator management
+"C:\Program Files\Huawei\DevEco Studio\tools\emulator\Emulator.exe" -list       # List emulators
+"C:\Program Files\Huawei\DevEco Studio\tools\emulator\Emulator.exe" -hvd <name> # Start emulator
+"C:\Program Files\Huawei\DevEco Studio\tools\emulator\Emulator.exe" -stop <name> # Stop emulator
 
 # hdc commands (works with both emulator and real device)
 hdc list targets                         # List connected devices
@@ -259,7 +310,7 @@ hdc shell screencap -p <path>            # Screenshot
 hdc hilog                                # System logs
 ```
 
-### 5.7 Emulator vs Real Device
+### 5.8 Emulator vs Real Device
 
 | Aspect | Emulator | Real Device |
 |--------|----------|-------------|
@@ -270,7 +321,8 @@ hdc hilog                                # System logs
 | Sensors | Simulated only | Full hardware |
 | Performance | Host-dependent | Native |
 
-Since CRAFT is a pure TypeScript/ArkTS interpreter with no native code, the emulator is **fully equivalent** to a real device for all CRAFT testing scenarios.
+Since CRAFT is a pure TypeScript/ArkTS interpreter with no native code, both the emulator
+and real devices are **fully equivalent** for all CRAFT testing scenarios.
 
 ---
 
