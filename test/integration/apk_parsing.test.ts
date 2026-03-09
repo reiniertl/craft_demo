@@ -54,20 +54,20 @@ describe('End-to-end APK parsing', () => {
         const apkData = fs.readFileSync(apkPath);
         const parser = new APKParser(silentLogger);
         const contents = parser.parse(new Uint8Array(apkData));
-        
+
         const dexData = contents.dexFiles.get('classes.dex')!;
         const dexParser = new DexParser(dexData, silentLogger);
         const header = dexParser.parseHeader();
 
         expect(header.classDefsSize).toBe(1);
-        expect(header.methodIdsSize).toBe(9);
+        expect(header.methodIdsSize).toBe(23);
     });
 
     test('finds MainActivity class in DEX', () => {
         const apkData = fs.readFileSync(apkPath);
         const parser = new APKParser(silentLogger);
         const contents = parser.parse(new Uint8Array(apkData));
-        
+
         const dexData = contents.dexFiles.get('classes.dex')!;
         const dexParser = new DexParser(dexData, silentLogger);
 
@@ -75,8 +75,8 @@ describe('End-to-end APK parsing', () => {
         expect(classDef).not.toBeNull();
 
         const classData = dexParser.getClassData(classDef!);
-        expect(classData.directMethods.length).toBe(1);  // <init>
-        expect(classData.virtualMethods.length).toBe(1); // onCreate
+        expect(classData.directMethods.length).toBe(3);  // <init>, computePending, updateDisplay
+        expect(classData.virtualMethods.length).toBe(2); // onClick, onCreate
     });
 
     test('retrieves method bytecode', () => {
@@ -90,7 +90,7 @@ describe('End-to-end APK parsing', () => {
         const classDef = dexParser.getClassDef('Lcom/example/helloworld/MainActivity;');
         const classData = dexParser.getClassData(classDef!);
 
-        // Check <init> method
+        // Check <init> method (first direct method)
         const initMethod = classData.directMethods[0];
         expect(initMethod.codeOff).toBeGreaterThan(0);
 
@@ -98,13 +98,13 @@ describe('End-to-end APK parsing', () => {
         expect(initCode).not.toBeNull();
         expect(initCode!.insnsSize).toBe(4);
 
-        // Check onCreate method
-        const onCreateMethod = classData.virtualMethods[0];
+        // Check onCreate method (second virtual method, after onClick)
+        const onCreateMethod = classData.virtualMethods[1];
         expect(onCreateMethod.codeOff).toBeGreaterThan(0);
 
         const onCreateCode = dexParser.getMethodCode(onCreateMethod.codeOff);
         expect(onCreateCode).not.toBeNull();
-        expect(onCreateCode!.insnsSize).toBe(27);
+        expect(onCreateCode!.insnsSize).toBe(234);
     });
 });
 

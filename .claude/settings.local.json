@@ -96,7 +96,8 @@
       "WebFetch(domain:gist.github.com)",
       "WebFetch(domain:xdaforums.com)",
       "Bash(# Check Hyper-V status via systeminfo systeminfo)",
-      "Bash(powershell -Command \"\\(Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online\\).State\")"
+      "Bash(powershell -Command \"\\(Get-WindowsOptionalFeature -FeatureName Microsoft-Hyper-V-All -Online\\).State\")",
+      "Bash(npm run dex-dump:*)"
     ]
   }
 }
