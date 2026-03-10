@@ -18,7 +18,7 @@ export { CraftError, ParseError, ValidationError, NotFoundError } from './core/e
 export * from './parser/dex_types';
 
 // Parsers
-export { APKParser, APKContents, parseAPK, parseAPKFile, parseAPKFileSync } from './parser/apk_parser';
+export { APKParser, APKContents, parseAPK } from './parser/apk_parser';
 export { DexParser } from './parser/dex_parser';
 export { ManifestParser, ManifestInfo } from './parser/manifest_parser';
 

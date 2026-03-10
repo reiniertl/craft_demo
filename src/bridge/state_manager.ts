@@ -13,7 +13,7 @@ import { ViewNode } from './ui_bridge';
 export interface SerializedView {
   id: string;
   type: string;
-  props: Record<string, any>;
+  props: Record<string, string | number | boolean>;
   children: SerializedView[];
 }
 
@@ -127,7 +127,7 @@ export class StateManager {
     return {
       id: node.arkuiId,
       type: node.viewType,
-      props: Object.fromEntries(node.properties),
+      props: Object.fromEntries(node.properties) as Record<string, string | number | boolean>,
       children: node.children.map(c => this.serializeViewTree(c)!).filter(Boolean)
     };
   }

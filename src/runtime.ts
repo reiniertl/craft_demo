@@ -52,16 +52,6 @@ export class CraftRuntime {
   }
 
   /**
-   * Load APK from file path
-   * @param apkPath Path to APK file
-   */
-  async loadAPKFromPath(apkPath: string): Promise<void> {
-    const parser = new APKParser();
-    const apkContents = await parser.parseFile(apkPath);
-    this.loadAPKContents(apkContents);
-  }
-
-  /**
    * Load APK from byte array
    * @param apkData APK file bytes
    */

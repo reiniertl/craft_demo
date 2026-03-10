@@ -73,18 +73,20 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
       heap.setField(thisRef, 'mOnClickListener', listenerRef);
 
       if (uiBridge && listenerRef.type === 'object' && listenerRef.ref !== 0) {
-        const callback = () => {
-          const listenerClass = heap.getClassDescriptor(listenerRef.ref);
+        const capturedListenerRef = listenerRef;
+        const capturedThisRef = thisRef;
+        const callback = (): void => {
+          const listenerClass = heap.getClassDescriptor(capturedListenerRef.ref);
           if (listenerClass) {
             interp.invoke(
               listenerClass,
               'onClick',
               '(Landroid/view/View;)V',
-              [listenerRef, objectRef(thisRef)]
+              [capturedListenerRef, objectRef(capturedThisRef)]
             );
           }
         };
-        uiBridge.updateViewProperty(thisRef, 'onClick', callback);
+        uiBridge.setClickCallback(thisRef, callback);
       }
 
       return NULL_VALUE;

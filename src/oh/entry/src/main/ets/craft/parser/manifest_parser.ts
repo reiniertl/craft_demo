@@ -323,6 +323,9 @@ export class ManifestParser {
         return { name: this.getPoolString(nameIdx) };
     }
 
+    /**
+     * Decode UTF-8 bytes to string (portable, no TextDecoder dependency)
+     */
     private static decodeUtf8(bytes: Uint8Array): string {
         let result = '';
         let i = 0;

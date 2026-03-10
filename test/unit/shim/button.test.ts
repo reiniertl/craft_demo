@@ -159,9 +159,7 @@ describe('android.widget.Button shim', () => {
         [objectRef(btnRef), objectRef(listenerRef)]
       );
 
-      const node = uiBridge.getViewNode(btnRef);
-      expect(node).not.toBeNull();
-      expect(typeof node!.properties.get('onClick')).toBe('function');
+      expect(uiBridge.hasClickCallback(btnRef)).toBe(true);
     });
 
     it('dispatchClick invokes onClick callback', () => {
@@ -175,8 +173,7 @@ describe('android.widget.Button shim', () => {
 
       // Track whether callback was invoked
       let callbackInvoked = false;
-      const node = uiBridge.getViewNode(btnRef);
-      node!.properties.set('onClick', () => { callbackInvoked = true; });
+      uiBridge.setClickCallback(btnRef, () => { callbackInvoked = true; });
 
       const result = uiBridge.dispatchClick(btnRef);
       expect(result).toBe(true);

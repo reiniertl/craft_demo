@@ -17,12 +17,7 @@ const OH_DIR = path.join(PROJECT_ROOT, 'src', 'oh', 'entry', 'src', 'main', 'ets
 
 /** Files with intentional ArkTS adaptations - cannot be auto-synced */
 const ADAPTED_FILES: { relative: string; adaptation: string }[] = [
-  { relative: 'bridge/ui_bridge.ts', adaptation: 'Map<string, string|number|boolean> instead of any; separate clickCallbacks map' },
-  { relative: 'bridge/state_manager.ts', adaptation: 'Record<string, string|number|boolean> instead of any' },
-  { relative: 'parser/apk_parser.ts', adaptation: 'Manual UTF-8 decoder instead of TextDecoder; no Node.js fs' },
-  { relative: 'parser/manifest_parser.ts', adaptation: 'Manual UTF-8 decoder instead of TextDecoder' },
-  { relative: 'shim/android/view/view.ts', adaptation: 'Uses setClickCallback() instead of updateViewProperty(onClick, ...)' },
-  { relative: 'runtime.ts', adaptation: 'OpenHarmony rawfile API instead of Node.js fs' },
+  { relative: 'runtime.ts', adaptation: 'OpenHarmony @ohos.file.fs API in loadAPKFromPath instead of Node.js fs' },
 ];
 
 const ADAPTED_SET = new Set(ADAPTED_FILES.map((f) => f.relative));

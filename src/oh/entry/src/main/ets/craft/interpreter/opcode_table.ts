@@ -9,6 +9,7 @@ import { ExecutionFrame } from './frame';
 import { Heap } from './heap';
 import { ClassLoader } from './class_loader';
 import { InterpreterError } from './errors';
+import { ResolvedMethod } from './types';
 
 /** Context passed to all opcode handlers */
 export interface ExecutionContext {
@@ -23,7 +24,7 @@ export interface ExecutionContext {
 export interface InterpreterControl {
   getLastResult(): Value;
   returnFromMethod(value: Value): void;
-  invokeMethod(method: any, args: Value[]): void;
+  invokeMethod(method: ResolvedMethod, args: Value[]): void;
 }
 
 /** Opcode handler function */

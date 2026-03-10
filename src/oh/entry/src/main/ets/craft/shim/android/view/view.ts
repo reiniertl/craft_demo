@@ -77,7 +77,6 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
         const capturedThisRef = thisRef;
         const callback = (): void => {
           const listenerClass = heap.getClassDescriptor(capturedListenerRef.ref);
-          console.info(`[CRAFT][View] onClick callback: listenerRef=${capturedListenerRef.ref}, listenerClass=${listenerClass}, viewRef=${capturedThisRef}`);
           if (listenerClass) {
             interp.invoke(
               listenerClass,
@@ -85,9 +84,6 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
               '(Landroid/view/View;)V',
               [capturedListenerRef, objectRef(capturedThisRef)]
             );
-            console.info(`[CRAFT][View] onClick completed successfully`);
-          } else {
-            console.error(`[CRAFT][View] onClick: listenerClass is null for ref=${capturedListenerRef.ref}`);
           }
         };
         uiBridge.setClickCallback(thisRef, callback);
@@ -122,7 +118,7 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
     '(Ljava/lang/Runnable;J)Z',
     (interp, heap, thisRef, args) => {
       const runnableRef = args[0];
-      const delayMs: number = Number(
+      const delayMs = Number(
         args[1].type === 'long'
           ? (args[1] as { type: 'long'; value: bigint }).value
           : (args[1] as { type: 'int'; value: number }).value
@@ -132,8 +128,8 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
         return intValue(0);
       }
 
-      const callback = (): void => {
-        const runnableClass: string | null = heap.getClassDescriptor(runnableRef.ref);
+      const callback = () => {
+        const runnableClass = heap.getClassDescriptor(runnableRef.ref);
         if (runnableClass) {
           interp.invoke(
             runnableClass,
@@ -147,11 +143,11 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
       if (uiBridge) {
         uiBridge.scheduleTimer(thisRef, runnableRef.ref, callback, delayMs);
       } else {
-        setTimeout((): void => {
+        setTimeout(() => {
           try {
             callback();
           } catch (e) {
-            const msg: string = e instanceof Error ? e.message : String(e);
+            const msg = e instanceof Error ? e.message : String(e);
             console.error(`[CRAFT][View][ERROR] postDelayed callback failed: ${msg}`);
           }
         }, delayMs);
@@ -171,8 +167,8 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
         return intValue(0);
       }
 
-      const callback = (): void => {
-        const runnableClass: string | null = heap.getClassDescriptor(runnableRef.ref);
+      const callback = () => {
+        const runnableClass = heap.getClassDescriptor(runnableRef.ref);
         if (runnableClass) {
           interp.invoke(
             runnableClass,
@@ -186,11 +182,11 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
       if (uiBridge) {
         uiBridge.scheduleTimer(thisRef, runnableRef.ref, callback, 0);
       } else {
-        setTimeout((): void => {
+        setTimeout(() => {
           try {
             callback();
           } catch (e) {
-            const msg: string = e instanceof Error ? e.message : String(e);
+            const msg = e instanceof Error ? e.message : String(e);
             console.error(`[CRAFT][View][ERROR] post callback failed: ${msg}`);
           }
         }, 0);

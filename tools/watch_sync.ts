@@ -16,11 +16,6 @@ const OH_DIR = path.join(PROJECT_ROOT, 'src', 'oh', 'entry', 'src', 'main', 'ets
 
 /** Files with intentional ArkTS adaptations - warn instead of copying */
 const ADAPTED_SET = new Set([
-  'bridge/ui_bridge.ts',
-  'bridge/state_manager.ts',
-  'parser/apk_parser.ts',
-  'parser/manifest_parser.ts',
-  'shim/android/view/view.ts',
   'runtime.ts',
 ]);
 

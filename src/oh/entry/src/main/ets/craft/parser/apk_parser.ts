@@ -88,6 +88,9 @@ export class APKParser {
         return { manifest, dexFiles, resources };
     }
 
+    /**
+     * Decode UTF-8 bytes to string (portable, no TextDecoder dependency)
+     */
     private static decodeUtf8(bytes: Uint8Array): string {
         let result = '';
         let i = 0;
@@ -111,7 +114,6 @@ export class APKParser {
         }
         return result;
     }
-
 
     /**
      * Find the End of Central Directory record.
@@ -234,5 +236,3 @@ export class APKParser {
 export const parseAPK = (data: Uint8Array, logger?: Logger): APKContents => {
     return new APKParser(logger).parse(data);
 };
-
-

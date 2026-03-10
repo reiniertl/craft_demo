@@ -133,13 +133,11 @@ describe('Cross-component interaction', () => {
       );
 
       // Manually trigger click via UIBridge
-      const node = uiBridge.getViewNode(btnRef);
-      expect(node).not.toBeNull();
+      expect(uiBridge.hasClickCallback(btnRef)).toBe(true);
 
-      // The onClick property is a function set by setOnClickListener
-      // When triggered, it should update state
+      // Set a click callback that updates text
       let clickCallbackInvoked = false;
-      node!.properties.set('onClick', () => {
+      uiBridge.setClickCallback(btnRef, () => {
         clickCallbackInvoked = true;
         // Simulate what the click handler would do: update text
         uiBridge.updateViewProperty(btnRef, 'text', 'Clicked!');
@@ -148,6 +146,7 @@ describe('Cross-component interaction', () => {
       uiBridge.dispatchClick(btnRef);
 
       expect(clickCallbackInvoked).toBe(true);
+      const node = uiBridge.getViewNode(btnRef);
       expect(node!.properties.get('text')).toBe('Clicked!');
       expect(stateManager.getState().version).toBeGreaterThan(initialVersion);
     });

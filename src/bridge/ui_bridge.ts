@@ -26,7 +26,7 @@ export interface PendingTimer {
 export interface ViewNode {
   viewRef: number;              // Heap reference to Android View object
   viewType: string;             // 'TextView', 'ViewGroup', etc.
-  properties: Map<string, any>; // text, textSize, textColor, visibility, etc.
+  properties: Map<string, string | number | boolean>; // text, textSize, textColor, visibility, etc.
   children: ViewNode[];         // Child views (for ViewGroup)
   parent: ViewNode | null;      // Parent view
   arkuiId: string;              // Unique ID for ArkUI component
@@ -37,14 +37,17 @@ export interface ViewNode {
  *
  * Integration points:
  * - TextView shim calls registerView() in constructor
+ * - View shim constructors call registerView()
  * - TextView shim calls updateViewProperty() in setText/setTextSize/setTextColor
  * - Activity shim calls setRootView() in setContentView()
  * - ViewGroup shim calls addChildView() in addView()
+ * - View shim calls setClickCallback() in setOnClickListener()
  */
 export class UIBridge {
   private heap: Heap;
   private stateManager: StateManager;
   private viewMap: Map<number, ViewNode> = new Map();
+  private clickCallbacks: Map<number, () => void> = new Map();
   private rootView: ViewNode | null = null;
   private pendingTimers: PendingTimer[] = [];
   private pollingHandle: number = -1;
@@ -85,7 +88,7 @@ export class UIBridge {
    * @param property Property name (e.g., 'text', 'textSize', 'textColor')
    * @param value Property value
    */
-  updateViewProperty(viewRef: number, property: string, value: any): void {
+  updateViewProperty(viewRef: number, property: string, value: string | number | boolean): void {
     const node = this.viewMap.get(viewRef);
     if (!node) {
       // View not registered, ignore
@@ -170,17 +173,30 @@ export class UIBridge {
   }
 
   /**
+   * Set click callback for a view (called by setOnClickListener shim)
+   * @param viewRef Heap reference to the View object
+   * @param callback Function to invoke on click
+   */
+  setClickCallback(viewRef: number, callback: () => void): void {
+    this.clickCallbacks.set(viewRef, callback);
+  }
+
+  /**
+   * Check if a view has a click handler
+   */
+  hasClickCallback(viewRef: number): boolean {
+    return this.clickCallbacks.has(viewRef);
+  }
+
+  /**
    * Dispatch a click event to a view (entry point for ArkUI)
    * @param viewRef Heap reference to the View object
    * @returns true if a click handler was invoked
    */
   dispatchClick(viewRef: number): boolean {
-    const node = this.viewMap.get(viewRef);
-    if (!node) return false;
-
-    const onClick = node.properties.get('onClick');
-    if (typeof onClick === 'function') {
-      onClick();
+    const callback = this.clickCallbacks.get(viewRef);
+    if (callback) {
+      callback();
       return true;
     }
     return false;
@@ -280,6 +296,7 @@ export class UIBridge {
   clear(): void {
     this.cancelAllTimers();
     this.viewMap.clear();
+    this.clickCallbacks.clear();
     this.rootView = null;
     this.stateManager.clear();
   }
