@@ -1,564 +1,0 @@
-Ôr@Ÿªassertions¤code´customTransformCache¬dependencies¢id¤meta±moduleSideEffects¬originalCode±originalSourcemap«resolvedIds®sourcemapChainµsyntheticNamedExportsµtransformDependencies®transformFiles¨cacheAstÔrAÚ/**
- * CRAFT Runtime
- * High-level wrapper combining all CRAFT components
- * Stage 4: UI Bridge & OpenHarmony Host
- */
-import { DexParser } from './parser/dex_parser';
-import { ManifestParser } from './parser/manifest_parser';
-import { Heap } from './interpreter/heap';
-import { Interpreter } from './interpreter/interpreter';
-import { initializeShimRegistry } from './interpreter/shim_init';
-import { UIBridge } from './bridge/ui_bridge';
-import { StateManager } from './bridge/state_manager';
-import { LifecycleBridge } from './bridge/lifecycle_bridge';
-import { APKParser } from './parser/apk_parser';
-/**
- * CraftRuntime integrates all CRAFT components
- *
- * Usage:
- * ```typescript
- * const runtime = new CraftRuntime();
- * await runtime.loadAPK(apkPath);
- * runtime.createActivity('Lcom/example/MainActivity;');
- * runtime.resumeActivity();
- * const state = runtime.getViewState();
- * ```
- */
-export class CraftRuntime {
-    constructor() {
-        this.interpreter = null;
-        this.classLoader = null;
-        this.lifecycleBridge = null;
-        // APK data
-        this.dexParser = null;
-        this.manifest = null;
-        this.mainActivityClass = null;
-        // Initialize in correct order
-        this.heap = new Heap();
-        this.stateManager = new StateManager();
-        this.uiBridge = new UIBridge(this.heap, this.stateManager);
-        this.shimRegistry = initializeShimRegistry(this.uiBridge);
-    }
-    /**
-     * Load APK from file path
-     * @param apkPath Path to APK file
-     */
-    async loadAPKFromPath(apkPath) {
-        const ohFs = await import('@ohos.file.fs');
-        const file = ohFs.default.openSync(apkPath, ohFs.default.OpenMode.READ_ONLY);
-        const stat = ohFs.default.statSync(apkPath);
-        const buf = new ArrayBuffer(stat.size);
-        ohFs.default.readSync(file.fd, buf);
-        ohFs.default.closeSync(file);
-        const parser = new APKParser();
-        const apkContents = parser.parse(new Uint8Array(buf));
-        this.loadAPKContents(apkContents);
-    }
-    /**
-     * Load APK from byte array
-     * @param apkData APK file bytes
-     */
-    loadAPK(apkData) {
-        const parser = new APKParser();
-        const apkContents = parser.parse(apkData);
-        this.loadAPKContents(apkContents);
-    }
-    /**
-     * Load APK contents (internal)
-     * @param apkContents Parsed APK contents
-     */
-    loadAPKContents(apkContents) {
-        // Parse DEX file
-        const dexFiles = Array.from(apkContents.dexFiles.values());
-        if (dexFiles.length === 0) {
-            throw new Error('No DEX files found in APK');
-        }
-        this.dexParser = new DexParser(dexFiles[0]);
-        // Parse manifest
-        const manifestParser = new ManifestParser(apkContents.manifest);
-        this.manifest = manifestParser.parse();
-        // Convert class name from Java format (com.example.MainActivity)
-        // to DEX format (Lcom/example/MainActivity;)
-        const javaClassName = this.manifest.mainActivityClass;
-        this.mainActivityClass = 'L' + javaClassName.replace(/\./g, '/') + ';';
-        // Initialize interpreter components
-        this.interpreter = new Interpreter(this.dexParser, this.heap, this.shimRegistry);
-        this.classLoader = this.interpreter.getClassLoader();
-        this.lifecycleBridge = new LifecycleBridge(this.interpreter, this.heap);
-    }
-    /**
-     * Create and initialize Activity
-     * Calls Activity.<init>() and Activity.onCreate(null)
-     *
-     * @param activityClass Activity class name (optional, uses main activity from manifest if not provided)
-     * @returns Activity heap reference
-     */
-    createActivity(activityClass) {
-        if (!this.lifecycleBridge) {
-            throw new Error('APK not loaded. Call loadAPK() first.');
-        }
-        const className = activityClass || this.mainActivityClass;
-        if (!className) {
-            throw new Error('No Activity class specified and no main activity found in manifest');
-        }
-        return this.lifecycleBridge.createActivity(className);
-    }
-    /**
-     * Resume Activity lifecycle
-     * Calls Activity.onStart() and Activity.onResume()
-     */
-    resumeActivity() {
-        if (!this.lifecycleBridge) {
-            throw new Error('APK not loaded. Call loadAPK() first.');
-        }
-        this.lifecycleBridge.resumeActivity();
-    }
-    /**
-     * Pause Activity lifecycle
-     * Calls Activity.onPause() and Activity.onStop()
-     */
-    pauseActivity() {
-        if (!this.lifecycleBridge) {
-            throw new Error('APK not loaded. Call loadAPK() first.');
-        }
-        this.lifecycleBridge.pauseActivity();
-    }
-    /**
-     * Destroy Activity lifecycle
-     * Calls Activity.onDestroy()
-     */
-    destroyActivity() {
-        if (!this.lifecycleBridge) {
-            throw new Error('APK not loaded. Call loadAPK() first.');
-        }
-        this.lifecycleBridge.destroyActivity();
-    }
-    /**
-     * Get current view state for ArkUI rendering
-     * @returns ViewState
-     */
-    getViewState() {
-        return this.stateManager.getState();
-    }
-    /**
-     * Subscribe to view state changes
-     * @param callback Function to call on state update
-     */
-    subscribeToViewUpdates(callback) {
-        this.stateManager.subscribe(callback);
-    }
-    /**
-     * Unsubscribe from view state changes
-     * @param callback Function to remove
-     */
-    unsubscribeFromViewUpdates(callback) {
-        this.stateManager.unsubscribe(callback);
-    }
-    /**
-     * Get UIBridge instance
-     * @returns UIBridge
-     */
-    getUIBridge() {
-        return this.uiBridge;
-    }
-    /**
-     * Get StateManager instance
-     * @returns StateManager
-     */
-    getStateManager() {
-        return this.stateManager;
-    }
-    /**
-     * Get LifecycleBridge instance
-     * @returns LifecycleBridge or null if APK not loaded
-     */
-    getLifecycleBridge() {
-        return this.lifecycleBridge;
-    }
-    /**
-     * Get Interpreter instance
-     * @returns Interpreter or null if APK not loaded
-     */
-    getInterpreter() {
-        return this.interpreter;
-    }
-    /**
-     * Get Heap instance
-     * @returns Heap
-     */
-    getHeap() {
-        return this.heap;
-    }
-    /**
-     * Get manifest info
-     * @returns ManifestInfo or null if APK not loaded
-     */
-    getManifest() {
-        return this.manifest;
-    }
-    /**
-     * Get main activity class name
-     * @returns Main activity class name or null if APK not loaded
-     */
-    getMainActivityClass() {
-        return this.mainActivityClass;
-    }
-    /**
-     * Shutdown runtime and clean up resources
-     */
-    shutdown() {
-        this.uiBridge.clear();
-        this.stateManager.clear();
-        this.interpreter = null;
-        this.classLoader = null;
-        this.lifecycleBridge = null;
-        this.dexParser = null;
-        this.manifest = null;
-        this.mainActivityClass = null;
-    }
-}
-//# sourceMappingURL=runtime.js.mapÂ™ÙCD:\craft\craft\src\oh\entry\src\main\ets\craft\parser\dex_parser.tsÙHD:\craft\craft\src\oh\entry\src\main\ets\craft\parser\manifest_parser.tsÙBD:\craft\craft\src\oh\entry\src\main\ets\craft\interpreter\heap.tsÙID:\craft\craft\src\oh\entry\src\main\ets\craft\interpreter\interpreter.tsÙGD:\craft\craft\src\oh\entry\src\main\ets\craft\interpreter\shim_init.tsÙBD:\craft\craft\src\oh\entry\src\main\ets\craft\bridge\ui_bridge.tsÙFD:\craft\craft\src\oh\entry\src\main\ets\craft\bridge\state_manager.tsÙID:\craft\craft\src\oh\entry\src\main\ets\craft\bridge\lifecycle_bridge.tsÙCD:\craft\craft\src\oh\entry\src\main\ets\craft\parser\apk_parser.tsÙ9D:\craft\craft\src\oh\entry\src\main\ets\craft\runtime.tsÔrBšªmoduleName±isLocalDependency¯isNodeEntryFile§pkgPath±belongProjectPath§pkgNameªpkgVersion±dependencyPkgInfo¯hostModulesInfo°belongModulePath¥entryÃÂ»D:\craft\craft\src\oh\entryµD:\craft\craft\src\oh¥entry¥1.0.0Ô  ‘ÔrC’²hostDependencyName®hostModuleName°../craft/runtime¥entry»D:\craft\craft\src\oh\entryÃÚÈ/**
- * CRAFT Runtime
- * High-level wrapper combining all CRAFT components
- * Stage 4: UI Bridge & OpenHarmony Host
- */
-
-import { DexParser } from './parser/dex_parser';
-import { ManifestParser, ManifestInfo } from './parser/manifest_parser';
-import { Heap } from './interpreter/heap';
-import { Interpreter } from './interpreter/interpreter';
-import { ClassLoader } from './interpreter/class_loader';
-import { ShimRegistry } from './interpreter/shim_registry';
-import { initializeShimRegistry } from './interpreter/shim_init';
-import { UIBridge } from './bridge/ui_bridge';
-import { StateManager, ViewState } from './bridge/state_manager';
-import { LifecycleBridge } from './bridge/lifecycle_bridge';
-import { APKParser, APKContents } from './parser/apk_parser';
-
-/**
- * CraftRuntime integrates all CRAFT components
- *
- * Usage:
- * ```typescript
- * const runtime = new CraftRuntime();
- * await runtime.loadAPK(apkPath);
- * runtime.createActivity('Lcom/example/MainActivity;');
- * runtime.resumeActivity();
- * const state = runtime.getViewState();
- * ```
- */
-export class CraftRuntime {
-  // Core components
-  private heap: Heap;
-  private stateManager: StateManager;
-  private uiBridge: UIBridge;
-  private shimRegistry: ShimRegistry;
-  private interpreter: Interpreter | null = null;
-  private classLoader: ClassLoader | null = null;
-  private lifecycleBridge: LifecycleBridge | null = null;
-
-  // APK data
-  private dexParser: DexParser | null = null;
-  private manifest: ManifestInfo | null = null;
-  private mainActivityClass: string | null = null;
-
-  constructor() {
-    // Initialize in correct order
-    this.heap = new Heap();
-    this.stateManager = new StateManager();
-    this.uiBridge = new UIBridge(this.heap, this.stateManager);
-    this.shimRegistry = initializeShimRegistry(this.uiBridge);
-  }
-
-  /**
-   * Load APK from file path
-   * @param apkPath Path to APK file
-   */
-  async loadAPKFromPath(apkPath: string): Promise<void> {
-        const ohFs = await import('@ohos.file.fs');
-    const file = ohFs.default.openSync(apkPath, ohFs.default.OpenMode.READ_ONLY);
-    const stat = ohFs.default.statSync(apkPath);
-    const buf = new ArrayBuffer(stat.size);
-    ohFs.default.readSync(file.fd, buf);
-    ohFs.default.closeSync(file);
-    const parser = new APKParser();
-    const apkContents = parser.parse(new Uint8Array(buf));
-    this.loadAPKContents(apkContents);
-  }
-
-  /**
-   * Load APK from byte array
-   * @param apkData APK file bytes
-   */
-  loadAPK(apkData: Uint8Array): void {
-    const parser = new APKParser();
-    const apkContents = parser.parse(apkData);
-    this.loadAPKContents(apkContents);
-  }
-
-  /**
-   * Load APK contents (internal)
-   * @param apkContents Parsed APK contents
-   */
-  private loadAPKContents(apkContents: APKContents): void {
-    // Parse DEX file
-    const dexFiles = Array.from(apkContents.dexFiles.values());
-    if (dexFiles.length === 0) {
-      throw new Error('No DEX files found in APK');
-    }
-    this.dexParser = new DexParser(dexFiles[0]);
-
-    // Parse manifest
-    const manifestParser = new ManifestParser(apkContents.manifest);
-    this.manifest = manifestParser.parse();
-
-    // Convert class name from Java format (com.example.MainActivity)
-    // to DEX format (Lcom/example/MainActivity;)
-    const javaClassName = this.manifest.mainActivityClass;
-    this.mainActivityClass = 'L' + javaClassName.replace(/\./g, '/') + ';';
-
-    // Initialize interpreter components
-    this.interpreter = new Interpreter(
-      this.dexParser,
-      this.heap,
-      this.shimRegistry
-    );
-    this.classLoader = this.interpreter.getClassLoader();
-    this.lifecycleBridge = new LifecycleBridge(this.interpreter, this.heap);
-  }
-
-  /**
-   * Create and initialize Activity
-   * Calls Activity.<init>() and Activity.onCreate(null)
-   *
-   * @param activityClass Activity class name (optional, uses main activity from manifest if not provided)
-   * @returns Activity heap reference
-   */
-  createActivity(activityClass?: string): number {
-    if (!this.lifecycleBridge) {
-      throw new Error('APK not loaded. Call loadAPK() first.');
-    }
-
-    const className = activityClass || this.mainActivityClass;
-    if (!className) {
-      throw new Error('No Activity class specified and no main activity found in manifest');
-    }
-
-    return this.lifecycleBridge.createActivity(className);
-  }
-
-  /**
-   * Resume Activity lifecycle
-   * Calls Activity.onStart() and Activity.onResume()
-   */
-  resumeActivity(): void {
-    if (!this.lifecycleBridge) {
-      throw new Error('APK not loaded. Call loadAPK() first.');
-    }
-    this.lifecycleBridge.resumeActivity();
-  }
-
-  /**
-   * Pause Activity lifecycle
-   * Calls Activity.onPause() and Activity.onStop()
-   */
-  pauseActivity(): void {
-    if (!this.lifecycleBridge) {
-      throw new Error('APK not loaded. Call loadAPK() first.');
-    }
-    this.lifecycleBridge.pauseActivity();
-  }
-
-  /**
-   * Destroy Activity lifecycle
-   * Calls Activity.onDestroy()
-   */
-  destroyActivity(): void {
-    if (!this.lifecycleBridge) {
-      throw new Error('APK not loaded. Call loadAPK() first.');
-    }
-    this.lifecycleBridge.destroyActivity();
-  }
-
-  /**
-   * Get current view state for ArkUI rendering
-   * @returns ViewState
-   */
-  getViewState(): ViewState {
-    return this.stateManager.getState();
-  }
-
-  /**
-   * Subscribe to view state changes
-   * @param callback Function to call on state update
-   */
-  subscribeToViewUpdates(callback: () => void): void {
-    this.stateManager.subscribe(callback);
-  }
-
-  /**
-   * Unsubscribe from view state changes
-   * @param callback Function to remove
-   */
-  unsubscribeFromViewUpdates(callback: () => void): void {
-    this.stateManager.unsubscribe(callback);
-  }
-
-  /**
-   * Get UIBridge instance
-   * @returns UIBridge
-   */
-  getUIBridge(): UIBridge {
-    return this.uiBridge;
-  }
-
-  /**
-   * Get StateManager instance
-   * @returns StateManager
-   */
-  getStateManager(): StateManager {
-    return this.stateManager;
-  }
-
-  /**
-   * Get LifecycleBridge instance
-   * @returns LifecycleBridge or null if APK not loaded
-   */
-  getLifecycleBridge(): LifecycleBridge | null {
-    return this.lifecycleBridge;
-  }
-
-  /**
-   * Get Interpreter instance
-   * @returns Interpreter or null if APK not loaded
-   */
-  getInterpreter(): Interpreter | null {
-    return this.interpreter;
-  }
-
-  /**
-   * Get Heap instance
-   * @returns Heap
-   */
-  getHeap(): Heap {
-    return this.heap;
-  }
-
-  /**
-   * Get manifest info
-   * @returns ManifestInfo or null if APK not loaded
-   */
-  getManifest(): ManifestInfo | null {
-    return this.manifest;
-  }
-
-  /**
-   * Get main activity class name
-   * @returns Main activity class name or null if APK not loaded
-   */
-  getMainActivityClass(): string | null {
-    return this.mainActivityClass;
-  }
-
-  /**
-   * Shutdown runtime and clean up resources
-   */
-  shutdown(): void {
-    this.uiBridge.clear();
-    this.stateManager.clear();
-    this.interpreter = null;
-    this.classLoader = null;
-    this.lifecycleBridge = null;
-    this.dexParser = null;
-    this.manifest = null;
-    this.mainActivityClass = null;
-  }
-}
-ÀÔrDš­@ohos.file.fs¸./parser/manifest_parser³./parser/dex_parser²./interpreter/heap¹./interpreter/interpreter²./bridge/ui_bridge¶./bridge/state_manager·./interpreter/shim_init¹./bridge/lifecycle_bridge³./parser/apk_parserÔrE—ªassertions¨external¢id¤meta±moduleSideEffectsªresolvedByµsyntheticNamedExportsAÃÙ] hvigor_ignore_C:_Users_Bluezone1_AppData_Local_OpenHarmony_Sdk_12_ets_api_@ohos.file.fs.d.tsAÃªoh-resolveÂEAÂÙHD:\craft\craft\src\oh\entry\src\main\ets\craft\parser\manifest_parser.tsAÃªoh-resolveÂEAÂÙCD:\craft\craft\src\oh\entry\src\main\ets\craft\parser\dex_parser.tsAÃªoh-resolveÂEAÂÙBD:\craft\craft\src\oh\entry\src\main\ets\craft\interpreter\heap.tsAÃªoh-resolveÂEAÂÙID:\craft\craft\src\oh\entry\src\main\ets\craft\interpreter\interpreter.tsAÃªoh-resolveÂEAÂÙBD:\craft\craft\src\oh\entry\src\main\ets\craft\bridge\ui_bridge.tsAÃªoh-resolveÂEAÂÙFD:\craft\craft\src\oh\entry\src\main\ets\craft\bridge\state_manager.tsAÃªoh-resolveÂEAÂÙGD:\craft\craft\src\oh\entry\src\main\ets\craft\interpreter\shim_init.tsAÃªoh-resolveÂEAÂÙID:\craft\craft\src\oh\entry\src\main\ets\craft\bridge\lifecycle_bridge.tsAÃªoh-resolveÂEAÂÙCD:\craft\craft\src\oh\entry\src\main\ets\craft\parser\apk_parser.tsAÃªoh-resolveÂ’ÔrF–§version¤fileªsourceRoot§sources¥names¨mappingsªruntime.js ‘ªruntime.tsÜ Û‘”    ‘” ˜”   ” ”	 	” ” ” ”/ /”0 0˜”   ” ”	 	” ” '” -”9 ÌG”: ÌH˜”   ” ”	 	” ” ” ”) )”* *˜”  	 ” 	”	 		” 	” 	” 	”7 	7”8 	8˜”   ” ”	 	” ”! !”' '”Ì@ Ì@”ÌA ÌA˜”   ” ”	 	” ” ” ”- -”. .˜”   ” ”	 	” ” "” (”5 Ì@”6 ÌA˜”   ” ”	 	” ” ”   ”; ;”< <˜”   ” ”	 	” ” !” '”/ <”0 =‘”   ‘” ””   ” ” ” ‘” -•” $
-” $” $,” $0”  $1•” %
-” %” %,” %0”  %1•” &
-” &” &4”# &8”$ &9’” (” (•” )
-” )” )(” ),” )-•” *
-” *” **” *.” */•” +
-” +”! +-”% +1”& +2’” .”& ."™” /” /” /	” /” /” /” /” /” /™” 0” 0” 0	” 0” 0”  0”, 0(”. 0*”/ 0+Ü ” 1” 1” 1	” 1” 1” 1”$ 1 ”% 1!”) 1%”* 1&”. 1*”0 1,”4 10”5 11”ÌA 1=”ÌB 1>”ÌC 1?œ” 2” 2” 2	” 2” 2”2 2.”3 2/”7 23”8 24”Ì@ 2<”ÌA 2=”ÌB 2>’” 3” 3‘” 5‘” 8–” 9”	 9”
- 9” 9” 9”! 9'š” :” :” :” :” :”! :!”" :"”1 :1”2 :2”3 :3Ü ” ;” ;
-” ;” ;” ;” ;”! ;”" ;”* ;&”+ ;'”2 ;.”4 ;0”8 ;4”9 ;5”Ì@ ;<”ÌA ;=”ÌI ;ÌE”ÌJ ;ÌF”ÌS ;ÌO”ÌT ;ÌP”ÌU ;ÌQ” <” <
-” <” <” <” <”! <”" <”* <&”+ <'”2 <.”3 </”4 <0œ” =” =
-” =” =” =”# =”$ = ”( =$”) =%”- =)”. =*”/ =+” >” >” >	” >” >” >” >”" >”# >”% >!”' >#”* >&”+ >'”, >(š” ?” ?” ?	” ?” ?” ?” ?”# ?”$ ? ”% ?!˜” Ì@” Ì@
-” Ì@” Ì@” Ì@”$ Ì@ ”& Ì@"”' Ì@#Ÿ” ÌA” ÌA
-” ÌA” ÌA”" ÌA”# ÌA”( ÌA$”) ÌA%”- ÌA)”7 ÌA3”8 ÌA4”; ÌA7”< ÌA8”= ÌA9”> ÌA:˜” ÌB” ÌB” ÌB	” ÌB” ÌB”( ÌB$”) ÌB%”* ÌB&’” ÌC” ÌC‘” ÌE‘” ÌH”” ÌI” ÌI	” ÌI
-” ÌI˜” ÌJ” ÌJ
-” ÌJ” ÌJ” ÌJ”$ ÌJ ”& ÌJ"”' ÌJ#›” ÌK” ÌK
-” ÌK” ÌK”" ÌK”# ÌK”( ÌK$”) ÌK%”0 ÌK,”1 ÌK-”2 ÌK.˜” ÌL” ÌL” ÌL	” ÌL” ÌL”( ÌL$”) ÌL%”* ÌL&’” ÌM” ÌM‘” ÌO‘” ÌR”” ÌS
-” ÌS” ÌS” ÌS2’” ÌT” ÌTÜ ” ÌU” ÌU
-” ÌU” ÌU” ÌU” ÌU”# ÌU”$ ÌU ”/ ÌU+”0 ÌU,”8 ÌU4”9 ÌU5”? ÌU;”ÌA ÌU=”ÌB ÌU>”ÌC ÌU?˜” ÌV” ÌV” ÌV” ÌV” ÌV”  ÌV”! ÌV”# ÌV˜” ÌW” ÌW” ÌW” ÌW” ÌW”7 ÌW1”8 ÌW2”9 ÌW3‘”	 ÌX” ÌY” ÌY” ÌY	” ÌY” ÌY” ÌY”& ÌY"”' ÌY#”/ ÌY+”0 ÌY,”1 ÌY-”2 ÌY.”3 ÌY/”4 ÌY0’” Ì[” Ì[œ” Ì\” Ì\
-” Ì\” Ì\”# Ì\”1 Ì\-”2 Ì\.”= Ì\9”> Ì\:”ÌF Ì\ÌB”ÌG Ì\ÌC”ÌH Ì\ÌDš” Ì]” Ì]” Ì]	” Ì]” Ì]”& Ì]"”' Ì]#”, Ì](”. Ì]*”/ Ì]+’” Ì_”ÌI Ì_ÌE’” Ì`”5 Ì`1š” Ìa” Ìa
-” Ìa” Ìa”" Ìa”# Ìa”+ Ìa'”, Ìa(”= Ìa9”> Ìa:Ü ” Ìb” Ìb” Ìb	” Ìb”! Ìb”$ Ìb ”' Ìb#”4 Ìb0”5 Ìb1”< Ìb8”= Ìb9”ÌB Ìb>”ÌD ÌbÌ@”ÌG ÌbÌC”ÌH ÌbÌD”ÌK ÌbÌG”ÌN ÌbÌJ”ÌO ÌbÌK’” Ìd”, Ìd(Ü ” Ìe” Ìe” Ìe	” Ìe” Ìe” Ìe”* Ìe&”+ Ìf”/ Ìf
-”0 Ìf”9 Ìf”; Ìg”? Ìg
-”Ì@ Ìg”ÌD Ìg”ÌF Ìh”ÌJ Ìh
-”ÌK Ìh”ÌW Ìh”ÌX Ìi”ÌY Ìiœ” Ìj” Ìj” Ìj	” Ìj” Ìj” Ìj”  Ìj”+ Ìj'”, Ìj(”: Ìj6”< Ìj8”= Ìj9Ü ” Ìk” Ìk” Ìk	” Ìk” Ìk”# Ìk”2 Ìk.”3 Ìk/”7 Ìk3”8 Ìk4”ÌC Ìk?”ÌE ÌkÌA”ÌI ÌkÌE”ÌJ ÌkÌF”ÌN ÌkÌJ”ÌO ÌkÌK”ÌP ÌkÌL’” Ìl” Ìl‘” Ìn‘” Ìt”” Ìu” Ìu” Ìu”  Ìu'—” Ìv” Ìv” Ìv	” Ìv” Ìv”! Ìv”# Ìv˜” Ìw” Ìw” Ìw” Ìw” Ìw”ÌC Ìw=”ÌD Ìw>”ÌE Ìw?‘”	 Ìxš” Ìz” Ìz
-” Ìz” Ìz”' Ìz#”+ Ìz'”/ Ìz+”0 Ìz,”ÌA Ìz=”ÌB Ìz>•” Ì{” Ì{” Ì{	” Ì{” Ì{˜” Ì|” Ì|” Ì|” Ì|” Ì|”Ì` Ì|ÌZ”Ìa Ì|Ì[”Ìb Ì|Ì\‘”	 Ì}›” Ì” Ì” Ì” Ì”# Ì”$ Ì ”2 Ì.”3 Ì/”< Ì8”= Ì9”> Ì:’” Ì€” Ì€‘” Ì‚‘” Ì…’” Ì†” Ì†—” Ì‡” Ì‡” Ì‡	” Ì‡” Ì‡”! Ì‡”# Ì‡˜” Ìˆ” Ìˆ” Ìˆ” Ìˆ” Ìˆ”ÌC Ìˆ=”ÌD Ìˆ>”ÌE Ìˆ?‘”	 Ì‰˜” ÌŠ” ÌŠ” ÌŠ	” ÌŠ” ÌŠ”+ ÌŠ'”- ÌŠ)”. ÌŠ*’” Ì‹” Ì‹‘” Ì‘” Ì’” Ì‘” Ì‘—” Ì’” Ì’” Ì’	” Ì’” Ì’”! Ì’”# Ì’˜” Ì“” Ì“” Ì“” Ì“” Ì“”ÌC Ì“=”ÌD Ì“>”ÌE Ì“?‘”	 Ì”˜” Ì•” Ì•” Ì•	” Ì•” Ì•”* Ì•&”, Ì•(”- Ì•)’” Ì–” Ì–‘” Ì˜‘” Ì›’” Ìœ” Ìœ—” Ì” Ì” Ì	” Ì” Ì”! Ì”# Ì˜” Ì” Ì” Ì” Ì” Ì”ÌC Ì=”ÌD Ì>”ÌE Ì?‘”	 ÌŸ˜” Ì ” Ì ” Ì 	” Ì ” Ì ”, Ì (”. Ì *”/ Ì +’” Ì¡” Ì¡‘” Ì£‘” Ì¦’” Ì§” Ì§™” Ì¨” Ì¨” Ì¨” Ì¨”  Ì¨”! Ì¨”) Ì¨%”+ Ì¨'”, Ì¨(’” Ì©” Ì©‘” Ì«‘” Ì®”” Ì¯” Ì¯” Ì¯”# Ì¯-š” Ì°” Ì°” Ì°	” Ì°” Ì°”# Ì°”$ Ì° ”, Ì°(”- Ì°)”. Ì°*’” Ì±” Ì±‘” Ì³‘” Ì¶”” Ì·” Ì·” Ì·”' Ì·1š” Ì¸” Ì¸” Ì¸	” Ì¸” Ì¸”% Ì¸!”& Ì¸"”. Ì¸*”/ Ì¸+”0 Ì¸,’” Ì¹” Ì¹‘” Ì»‘” Ì¾’” Ì¿” Ì¿–” ÌÀ” ÌÀ” ÌÀ” ÌÀ” ÌÀ” ÌÀ’” ÌÁ” ÌÁ‘” ÌÃ‘” ÌÆ’” ÌÇ” ÌÇ–” ÌÈ” ÌÈ” ÌÈ” ÌÈ”  ÌÈ”! ÌÈ’” ÌÉ” ÌÉ‘” ÌË‘” ÌÎ’” ÌÏ” ÌÏ–” ÌĞ” ÌĞ” ÌĞ” ÌĞ”# ÌĞ”$ ÌĞ ’” ÌÑ” ÌÑ‘” ÌÓ‘” ÌÖ’” Ì×” Ì×–” ÌØ” ÌØ” ÌØ” ÌØ” ÌØ”  ÌØ’” ÌÙ” ÌÙ‘” ÌÛ‘” ÌŞ’” Ìß” Ìß	–” Ìà” Ìà” Ìà” Ìà” Ìà” Ìà’” Ìá” Ìá‘” Ìã‘” Ìæ’” Ìç” Ìç–” Ìè” Ìè” Ìè” Ìè” Ìè” Ìè’” Ìé” Ìé‘” Ìë‘” Ìî’” Ìï” Ìï–” Ìğ” Ìğ” Ìğ” Ìğ”% Ìğ!”& Ìğ"’” Ìñ” Ìñ‘” Ìó‘” Ìõ’” Ìö” Ìö
-˜” Ì÷” Ì÷” Ì÷	” Ì÷” Ì÷” Ì÷” Ì÷” Ì÷˜” Ìø” Ìø” Ìø	” Ìø” Ìø” Ìø”! Ìø”" Ìø—” Ìù” Ìù” Ìù	” Ìù” Ìù” Ìù”  Ìù—” Ìú” Ìú” Ìú	” Ìú” Ìú” Ìú”  Ìú—” Ìû” Ìû” Ìû	” Ìû” Ìû”# Ìû”$ Ìû —” Ìü” Ìü” Ìü	” Ìü” Ìü” Ìü” Ìü—” Ìı” Ìı” Ìı	” Ìı” Ìı” Ìı” Ìı—” Ìş” Ìş” Ìş	” Ìş”! Ìş”% Ìş!”& Ìş"’” Ìÿ” Ìÿ‘” Í ÔrG–§version¤file§sources®sourcesContent¥names¨mappingsÀ‘À‘ÀÜ Ü‘”    ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”  	 ‘”  
- ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”    ‘”  ! ‘”  " ‘”  # ‘”  $ ‘”  % ‘”  & ‘”  ' ‘”  ( ‘”  ) ‘”  * ‘”  + ‘”  , ‘”  - ‘”  . ‘”  / ‘”  0 ‘”  1 ‘”  2 ‘”  3 ‘”  4 ‘”  5 ‘”  6 ‘”  7 ‘”  8 ‘”  9 ‘”  : ‘”  ; ‘”  < ‘”  = ‘”  > ‘”  ? ‘”  Ì@ ‘”  ÌA ‘”  ÌB ‘”  ÌC ‘”  ÌD ‘”  ÌE ‘”  ÌF ‘”  ÌG ‘”  ÌH ‘”  ÌI ‘”  ÌJ ‘”  ÌK ‘”  ÌL ‘”  ÌM ‘”  ÌN ‘”  ÌO ‘”  ÌP ‘”  ÌQ ‘”  ÌR ‘”  ÌS ‘”  ÌT ‘”  ÌU ‘”  ÌV ‘”  ÌW ‘”  ÌX ‘”  ÌY ‘”  ÌZ ‘”  Ì[ ‘”  Ì\ ‘”  Ì] ‘”  Ì^ ‘”  Ì_ ‘”  Ì` ‘”  Ìa ‘”  Ìb ‘”  Ìc ‘”  Ìd ‘”  Ìe ‘”  Ìf ‘”  Ìg ‘”  Ìh ‘”  Ìi ‘”  Ìj ‘”  Ìk ‘”  Ìl ‘”  Ìm ‘”  Ìn ‘”  Ìo ‘”  Ìp ‘”  Ìq ‘”  Ìr ‘”  Ìs ‘”  Ìt ‘”  Ìu ‘”  Ìv ‘”  Ìw ‘”  Ìx ‘”  Ìy ‘”  Ìz ‘”  Ì{ ‘”  Ì| ‘”  Ì} ‘”  Ì~ ‘”  Ì ‘”  Ì€ ‘”  Ì ‘”  Ì‚ ‘”  Ìƒ ‘”  Ì„ ‘”  Ì… ‘”  Ì† ‘”  Ì‡ ‘”  Ìˆ ‘”  Ì‰ ‘”  ÌŠ ‘”  Ì‹ ‘”  ÌŒ ‘”  Ì ‘”  Ì ‘”  Ì ‘”  Ì ‘”  Ì‘ ‘”  Ì’ ‘”  Ì“ ‘”  Ì” ‘”  Ì• ‘”  Ì– ‘”  Ì— ‘”  Ì˜ ‘”  Ì™ ‘”  Ìš ‘”  Ì› ‘”  Ìœ ‘”  Ì ‘”  Ì ‘”  ÌŸ ‘”  Ì  ‘”  Ì¡ ‘”  Ì¢ ‘”  Ì£ ‘”  Ì¤ ‘”  Ì¥ ‘”  Ì¦ ‘”  Ì§ ‘”  Ì¨ ‘”  Ì© ‘”  Ìª ‘”  Ì« ‘”  Ì¬ ‘”  Ì­ ‘”  Ì® ‘”  Ì¯ ‘”  Ì° ‘”  Ì± ‘”  Ì² ‘”  Ì³ ‘”  Ì´ ‘”  Ìµ ‘”  Ì¶ ‘”  Ì· ‘”  Ì¸ ‘”  Ì¹ ‘”  Ìº ‘”  Ì» ‘”  Ì¼ ‘”  Ì½ ‘”  Ì¾ ‘”  Ì¿ ‘”  ÌÀ ‘”  ÌÁ ‘”  ÌÂ ‘”  ÌÃ ‘”  ÌÄ ‘”  ÌÅ ‘”  ÌÆ ‘”  ÌÇ ‘”  ÌÈ ‘”  ÌÉ ‘”  ÌÊ ‘”  ÌË ‘”  ÌÌ ‘”  ÌÍ ‘”  ÌÎ ‘”  ÌÏ ‘”  ÌĞ ‘”  ÌÑ ‘”  ÌÒ ‘”  ÌÓ ‘”  ÌÔ ‘”  ÌÕ ‘”  ÌÖ ‘”  Ì× ‘”  ÌØ ‘”  ÌÙ ‘”  ÌÚ ‘”  ÌÛ ÂÔ  ÔrH”²dynamicImportCache¹exportAllDeclarationCache»exportNamedDeclarationCache«importCache‘ÔrI”¤type¥start£end¦source°ImportExpressionÍZÍqÔrJ•¤type¥start£end¥value£raw§LiteralÍaÍp­@ohos.file.fs¯'@ohos.file.fs'‘ÔrK–¤type¥start£end«declarationªspecifiers¦source¶ExportNamedDeclarationÍÍÜÔrL–¤type¥start£end¢idªsuperClass¤body°ClassDeclarationÍ¤ÍÜÔrM”¤type¥start£end¤nameªIdentifierÍªÍ¶¬CraftRuntimeÀÔrN”¤type¥start£end¤body©ClassBodyÍ·ÍÜÜ ÔrO˜¤type¥start£end¦static¨computed£key¤kind¥value°MethodDefinitionÍ¾Í½ÂÂMªIdentifierÍ¾ÍÉ«constructor«constructorÔrP™¤type¥start£end¢idªexpression©generator¥async¦params¤body²FunctionExpressionÍÉÍ½ÀÂÂÂN®BlockStatementÍÌÍ½šÔrQ”¤type¥start£endªexpression³ExpressionStatementÍ×ÍïÔrR–¤type¥start£end¨operator¤left¥right´AssignmentExpressionÍ×Íî¡=ÔrS—¤type¥start£end¦object¨property¨computed¨optional°MemberExpressionÍ×ÍçÔrT“¤type¥start£end®ThisExpressionÍ×ÍÛMªIdentifierÍÜÍç«interpreterÂÂJ§LiteralÍêÍîÀ¤nullQ³ExpressionStatementÍùÍR´AssignmentExpressionÍùÍ¡=S°MemberExpressionÍùÍ	T®ThisExpressionÍùÍıMªIdentifierÍşÍ	«classLoaderÂÂJ§LiteralÍÍÀ¤nullQ³ExpressionStatementÍÍ7R´AssignmentExpressionÍÍ6¡=S°MemberExpressionÍÍ/T®ThisExpressionÍÍMªIdentifierÍ Í/¯lifecycleBridgeÂÂJ§LiteralÍ2Í6À¤nullQ³ExpressionStatementÍVÍlR´AssignmentExpressionÍVÍk¡=S°MemberExpressionÍVÍdT®ThisExpressionÍVÍZMªIdentifierÍ[Íd©dexParserÂÂJ§LiteralÍgÍkÀ¤nullQ³ExpressionStatementÍvÍ‹R´AssignmentExpressionÍvÍŠ¡=S°MemberExpressionÍvÍƒT®ThisExpressionÍvÍzMªIdentifierÍ{Íƒ¨manifestÂÂJ§LiteralÍ†ÍŠÀ¤nullQ³ExpressionStatementÍ•Í³R´AssignmentExpressionÍ•Í²¡=S°MemberExpressionÍ•Í«T®ThisExpressionÍ•Í™MªIdentifierÍšÍ«±mainActivityClassÂÂJ§LiteralÍ®Í²À¤nullQ³ExpressionStatementÍåÍüR´AssignmentExpressionÍåÍû¡=S°MemberExpressionÍåÍîT®ThisExpressionÍåÍéMªIdentifierÍêÍî¤heapÂÂÔrU•¤type¥start£end¦callee©arguments­NewExpressionÍñÍûMªIdentifierÍõÍù¤HeapQ³ExpressionStatementÍÍ-R´AssignmentExpressionÍÍ,¡=S°MemberExpressionÍÍT®ThisExpressionÍÍ
-MªIdentifierÍÍ¬stateManagerÂÂU­NewExpressionÍÍ,MªIdentifierÍÍ*¬StateManagerQ³ExpressionStatementÍ7ÍrR´AssignmentExpressionÍ7Íq¡=S°MemberExpressionÍ7ÍDT®ThisExpressionÍ7Í;MªIdentifierÍ<ÍD¨uiBridgeÂÂU­NewExpressionÍGÍqMªIdentifierÍKÍS¨UIBridge’S°MemberExpressionÍTÍ]T®ThisExpressionÍTÍXMªIdentifierÍYÍ]¤heapÂÂS°MemberExpressionÍ_ÍpT®ThisExpressionÍ_ÍcMªIdentifierÍdÍp¬stateManagerÂÂQ³ExpressionStatementÍ|Í¶R´AssignmentExpressionÍ|Íµ¡=S°MemberExpressionÍ|ÍT®ThisExpressionÍ|Í€MªIdentifierÍÍ¬shimRegistryÂÂÔrV–¤type¥start£end¦callee©arguments¨optional®CallExpressionÍÍµMªIdentifierÍÍ¦¶initializeShimRegistry‘S°MemberExpressionÍ§Í´T®ThisExpressionÍ§Í«MªIdentifierÍ¬Í´¨uiBridgeÂÂÂO°MethodDefinitionÍÍ!ÂÂMªIdentifierÍ#Í2¯loadAPKFromPath¦methodP²FunctionExpressionÍ2Í!ÀÂÂÃ‘MªIdentifierÍ3Í:§apkPathN®BlockStatementÍ<Í!™ÔrW•¤type¥start£end¬declarations¤kind³VariableDeclarationÍGÍr‘ÔrX•¤type¥start£end¢id¤init²VariableDeclaratorÍMÍqMªIdentifierÍMÍQ¤ohFsÔrY”¤type¥start£end¨argument¯AwaitExpressionÍTÍqI°ImportExpressionÍZÍqJ§LiteralÍaÍp­@ohos.file.fs¯'@ohos.file.fs'¥constW³VariableDeclarationÍ|ÍÉ‘X²VariableDeclaratorÍ‚ÍÈMªIdentifierÍ‚Í†¤fileV®CallExpressionÍ‰ÍÈS°MemberExpressionÍ‰ÍS°MemberExpressionÍ‰Í•MªIdentifierÍ‰Í¤ohFsMªIdentifierÍÍ•§defaultÂÂMªIdentifierÍ–Í¨openSyncÂÂ’MªIdentifierÍŸÍ¦§apkPathS°MemberExpressionÍ¨ÍÇS°MemberExpressionÍ¨Í½S°MemberExpressionÍ¨Í´MªIdentifierÍ¨Í¬¤ohFsMªIdentifierÍ­Í´§defaultÂÂMªIdentifierÍµÍ½¨OpenModeÂÂMªIdentifierÍ¾ÍÇ©READ_ONLYÂÂÂ¥constW³VariableDeclarationÍÓÍÿ‘X²VariableDeclaratorÍÙÍşMªIdentifierÍÙÍİ¤statV®CallExpressionÍàÍşS°MemberExpressionÍàÍõS°MemberExpressionÍàÍìMªIdentifierÍàÍä¤ohFsMªIdentifierÍåÍì§defaultÂÂMªIdentifierÍíÍõ¨statSyncÂÂ‘MªIdentifierÍöÍı§apkPathÂ¥constW³VariableDeclarationÍ	Í0‘X²VariableDeclaratorÍÍ/MªIdentifierÍÍ£bufU­NewExpressionÍÍ/MªIdentifierÍÍ$«ArrayBuffer‘S°MemberExpressionÍ%Í.MªIdentifierÍ%Í)¤statMªIdentifierÍ*Í.¤sizeÂÂ¥constQ³ExpressionStatementÍ:Í^V®CallExpressionÍ:Í]S°MemberExpressionÍ:ÍOS°MemberExpressionÍ:ÍFMªIdentifierÍ:Í>¤ohFsMªIdentifierÍ?ÍF§defaultÂÂMªIdentifierÍGÍO¨readSyncÂÂ’S°MemberExpressionÍPÍWMªIdentifierÍPÍT¤fileMªIdentifierÍUÍW¢fdÂÂMªIdentifierÍYÍ\£bufÂQ³ExpressionStatementÍhÍ…V®CallExpressionÍhÍ„S°MemberExpressionÍhÍ~S°MemberExpressionÍhÍtMªIdentifierÍhÍl¤ohFsMªIdentifierÍmÍt§defaultÂÂMªIdentifierÍuÍ~©closeSyncÂÂ‘MªIdentifierÍÍƒ¤fileÂW³VariableDeclarationÍÍ®‘X²VariableDeclaratorÍ•Í­MªIdentifierÍ•Í›¦parserU­NewExpressionÍÍ­MªIdentifierÍ¢Í«©APKParser¥constW³VariableDeclarationÍ¸Íî‘X²VariableDeclaratorÍ¾ÍíMªIdentifierÍ¾ÍÉ«apkContentsV®CallExpressionÍÌÍíS°MemberExpressionÍÌÍØMªIdentifierÍÌÍÒ¦parserMªIdentifierÍÓÍØ¥parseÂÂ‘U­NewExpressionÍÙÍìMªIdentifierÍİÍçªUint8Array‘MªIdentifierÍèÍë£bufÂ¥constQ³ExpressionStatementÍøÍV®CallExpressionÍøÍS°MemberExpressionÍøÍT®ThisExpressionÍøÍüMªIdentifierÍıÍ¯loadAPKContentsÂÂ‘MªIdentifierÍÍ«apkContentsÂO°MethodDefinitionÍ€Í	"ÂÂMªIdentifierÍ€Í‡§loadAPK¦methodP²FunctionExpressionÍ‡Í	"ÀÂÂÂ‘MªIdentifierÍˆÍ§apkDataN®BlockStatementÍ‘Í	"“W³VariableDeclarationÍœÍ»‘X²VariableDeclaratorÍ¢ÍºMªIdentifierÍ¢Í¨¦parserU­NewExpressionÍ«ÍºMªIdentifierÍ¯Í¸©APKParser¥constW³VariableDeclarationÍÅÍï‘X²VariableDeclaratorÍËÍîMªIdentifierÍËÍÖ«apkContentsV®CallExpressionÍÙÍîS°MemberExpressionÍÙÍåMªIdentifierÍÙÍß¦parserMªIdentifierÍàÍå¥parseÂÂ‘MªIdentifierÍæÍí§apkDataÂ¥constQ³ExpressionStatementÍùÍ	V®CallExpressionÍùÍ	S°MemberExpressionÍùÍ	T®ThisExpressionÍùÍıMªIdentifierÍşÍ	¯loadAPKContentsÂÂ‘MªIdentifierÍ	Í	«apkContentsÂO°MethodDefinitionÍ	ÍxÂÂMªIdentifierÍ	Í	¯loadAPKContents¦methodP²FunctionExpressionÍ	ÍxÀÂÂÂ‘MªIdentifierÍ	Í	©«apkContentsN®BlockStatementÍ	«ÍxšW³VariableDeclarationÍ	ÑÍ
-‘X²VariableDeclaratorÍ	×Í
-MªIdentifierÍ	×Í	ß¨dexFilesV®CallExpressionÍ	âÍ
-S°MemberExpressionÍ	âÍ	ìMªIdentifierÍ	âÍ	ç¥ArrayMªIdentifierÍ	èÍ	ì¤fromÂÂ‘V®CallExpressionÍ	íÍ
-
-S°MemberExpressionÍ	íÍ
-S°MemberExpressionÍ	íÍ
-MªIdentifierÍ	íÍ	ø«apkContentsMªIdentifierÍ	ùÍ
-¨dexFilesÂÂMªIdentifierÍ
-Í
-¦valuesÂÂÂÂ¥constÔrZ–¤type¥start£end¤testªconsequent©alternate«IfStatementÍ
-Í
-xÔr[–¤type¥start£end¤left¨operator¥right°BinaryExpressionÍ
-Í
-/S°MemberExpressionÍ
-Í
-)MªIdentifierÍ
-Í
-"¨dexFilesMªIdentifierÍ
-#Í
-)¦lengthÂÂ£===J§LiteralÍ
-.Í
-/ ¡0N®BlockStatementÍ
-1Í
-x‘Y®ThrowStatementÍ
-@Í
-mU­NewExpressionÍ
-FÍ
-lMªIdentifierÍ
-JÍ
-O¥Error‘J§LiteralÍ
-PÍ
-k¹No DEX files found in APK»'No DEX files found in APK'ÀQ³ExpressionStatementÍ
-‚Í
-®R´AssignmentExpressionÍ
-‚Í
-­¡=S°MemberExpressionÍ
-‚Í
-T®ThisExpressionÍ
-‚Í
-†MªIdentifierÍ
-‡Í
-©dexParserÂÂU­NewExpressionÍ
-“Í
-­MªIdentifierÍ
-—Í
- ©DexParser‘S°MemberExpressionÍ
-¡Í
-¬MªIdentifierÍ
-¡Í
-©¨dexFilesJ§LiteralÍ
-ªÍ
-« ¡0ÃÂW³VariableDeclarationÍ
-ÓÍ‘X²VariableDeclaratorÍ
-ÙÍMªIdentifierÍ
-ÙÍ
-ç®manifestParserU­NewExpressionÍ
-êÍMªIdentifierÍ
-îÍ
-ü®ManifestParser‘S°MemberExpressionÍ
-ıÍMªIdentifierÍ
-ıÍ«apkContentsMªIdentifierÍ	Í¨manifestÂÂ¥constQ³ExpressionStatementÍÍDR´AssignmentExpressionÍÍC¡=S°MemberExpressionÍÍ*T®ThisExpressionÍÍ!MªIdentifierÍ"Í*¨manifestÂÂV®CallExpressionÍ-ÍCS°MemberExpressionÍ-ÍAMªIdentifierÍ-Í;®manifestParserMªIdentifierÍ<ÍA¥parseÂÂÂW³VariableDeclarationÍĞÍ‘X²VariableDeclaratorÍÖÍMªIdentifierÍÖÍã­javaClassNameS°MemberExpressionÍæÍS°MemberExpressionÍæÍóT®ThisExpressionÍæÍêMªIdentifierÍëÍó¨manifestÂÂMªIdentifierÍôÍ±mainActivityClassÂÂ¥constQ³ExpressionStatementÍÍWR´AssignmentExpressionÍÍV¡=S°MemberExpressionÍÍ&T®ThisExpressionÍÍMªIdentifierÍÍ&±mainActivityClassÂÂ[°BinaryExpressionÍ)ÍV[°BinaryExpressionÍ)ÍPJ§LiteralÍ)Í,¡L£'L'¡+V®CallExpressionÍ/ÍPS°MemberExpressionÍ/ÍDMªIdentifierÍ/Í<­javaClassNameMªIdentifierÍ=ÍD§replaceÂÂ’Ôr\–¤type¥start£end¥value£raw¥regex§LiteralÍEÍJ’¢\.¡g¥/\./gÔr]’§pattern¥flags¢\.¡gJ§LiteralÍLÍO¡/£'/'Â¡+J§LiteralÍSÍV¡;£';'Q³ExpressionStatementÍÍàR´AssignmentExpressionÍÍß¡=S°MemberExpressionÍÍŸT®ThisExpressionÍÍ“MªIdentifierÍ”ÍŸ«interpreterÂÂU­NewExpressionÍ¢ÍßMªIdentifierÍ¦Í±«Interpreter“S°MemberExpressionÍ²ÍÀT®ThisExpressionÍ²Í¶MªIdentifierÍ·ÍÀ©dexParserÂÂS°MemberExpressionÍÂÍËT®ThisExpressionÍÂÍÆMªIdentifierÍÇÍË¤heapÂÂS°MemberExpressionÍÍÍŞT®ThisExpressionÍÍÍÑMªIdentifierÍÒÍŞ¬shimRegistryÂÂQ³ExpressionStatementÍêÍR´AssignmentExpressionÍêÍ¡=S°MemberExpressionÍêÍúT®ThisExpressionÍêÍîMªIdentifierÍïÍú«classLoaderÂÂV®CallExpressionÍıÍS°MemberExpressionÍıÍS°MemberExpressionÍıÍT®ThisExpressionÍıÍMªIdentifierÍÍ«interpreterÂÂMªIdentifierÍÍ®getClassLoaderÂÂÂQ³ExpressionStatementÍ)ÍqR´AssignmentExpressionÍ)Íp¡=S°MemberExpressionÍ)Í=T®ThisExpressionÍ)Í-MªIdentifierÍ.Í=¯lifecycleBridgeÂÂU­NewExpressionÍ@ÍpMªIdentifierÍDÍS¯LifecycleBridge’S°MemberExpressionÍTÍdT®ThisExpressionÍTÍXMªIdentifierÍYÍd«interpreterÂÂS°MemberExpressionÍfÍoT®ThisExpressionÍfÍjMªIdentifierÍkÍo¤heapÂÂO°MethodDefinitionÍ’Í>ÂÂMªIdentifierÍ’Í ®createActivity¦methodP²FunctionExpressionÍ Í>ÀÂÂÂ‘MªIdentifierÍ¡Í®­activityClassN®BlockStatementÍ°Í>”Z«IfStatementÍ»Í)Ôr^–¤type¥start£end¨operator¦prefix¨argument¯UnaryExpressionÍ¿ÍÔ¡!ÃS°MemberExpressionÍÀÍÔT®ThisExpressionÍÀÍÄMªIdentifierÍÅÍÔ¯lifecycleBridgeÂÂN®BlockStatementÍÖÍ)‘Y®ThrowStatementÍåÍU­NewExpressionÍëÍMªIdentifierÍïÍô¥Error‘J§LiteralÍõÍÙ%APK not loaded. Call loadAPK() first.Ù''APK not loaded. Call loadAPK() first.'ÀW³VariableDeclarationÍ3Ím‘X²VariableDeclaratorÍ9ÍlMªIdentifierÍ9ÍB©className[±LogicalExpressionÍEÍlMªIdentifierÍEÍR­activityClass¢||S°MemberExpressionÍVÍlT®ThisExpressionÍVÍZMªIdentifierÍ[Íl±mainActivityClassÂÂ¥constZ«IfStatementÍwÍ÷^¯UnaryExpressionÍ{Í…¡!ÃMªIdentifierÍ|Í…©classNameN®BlockStatementÍ‡Í÷‘Y®ThrowStatementÍ–ÍìU­NewExpressionÍœÍëMªIdentifierÍ Í¥¥Error‘J§LiteralÍ¦ÍêÙBNo Activity class specified and no main activity found in manifestÙD'No Activity class specified and no main activity found in manifest'ÀY¯ReturnStatementÍÍ7V®CallExpressionÍÍ6S°MemberExpressionÍÍ+S°MemberExpressionÍÍT®ThisExpressionÍÍMªIdentifierÍÍ¯lifecycleBridgeÂÂMªIdentifierÍÍ+®createActivityÂÂ‘MªIdentifierÍ,Í5©classNameÂO°MethodDefinitionÍ±ÍrÂÂMªIdentifierÍ±Í¿®resumeActivity¦methodP²FunctionExpressionÍ¿ÍrÀÂÂÂN®BlockStatementÍÂÍr’Z«IfStatementÍÍÍ;^¯UnaryExpressionÍÑÍæ¡!ÃS°MemberExpressionÍÒÍæT®ThisExpressionÍÒÍÖMªIdentifierÍ×Íæ¯lifecycleBridgeÂÂN®BlockStatementÍèÍ;‘Y®ThrowStatementÍ÷Í0U­NewExpressionÍıÍ/MªIdentifierÍÍ¥Error‘J§LiteralÍÍ.Ù%APK not loaded. Call loadAPK() first.Ù''APK not loaded. Call loadAPK() first.'ÀQ³ExpressionStatementÍEÍkV®CallExpressionÍEÍjS°MemberExpressionÍEÍhS°MemberExpressionÍEÍYT®ThisExpressionÍEÍIMªIdentifierÍJÍY¯lifecycleBridgeÂÂMªIdentifierÍZÍh®resumeActivityÂÂÂO°MethodDefinitionÍâÍ¡ÂÂMªIdentifierÍâÍï­pauseActivity¦methodP²FunctionExpressionÍïÍ¡ÀÂÂÂN®BlockStatementÍòÍ¡’Z«IfStatementÍıÍk^¯UnaryExpressionÍÍ¡!ÃS°MemberExpressionÍÍT®ThisExpressionÍÍMªIdentifierÍÍ¯lifecycleBridgeÂÂN®BlockStatementÍÍk‘Y®ThrowStatementÍ'Í`U­NewExpressionÍ-Í_MªIdentifierÍ1Í6¥Error‘J§LiteralÍ7Í^Ù%APK not loaded. Call loadAPK() first.Ù''APK not loaded. Call loadAPK() first.'ÀQ³ExpressionStatementÍuÍšV®CallExpressionÍuÍ™S°MemberExpressionÍuÍ—S°MemberExpressionÍuÍ‰T®ThisExpressionÍuÍyMªIdentifierÍzÍ‰¯lifecycleBridgeÂÂMªIdentifierÍŠÍ—­pauseActivityÂÂÂO°MethodDefinitionÍÿÍÂÂÂMªIdentifierÍÿÍ¯destroyActivity¦methodP²FunctionExpressionÍÍÂÀÂÂÂN®BlockStatementÍÍÂ’Z«IfStatementÍÍŠ^¯UnaryExpressionÍ Í5¡!ÃS°MemberExpressionÍ!Í5T®ThisExpressionÍ!Í%MªIdentifierÍ&Í5¯lifecycleBridgeÂÂN®BlockStatementÍ7ÍŠ‘Y®ThrowStatementÍFÍU­NewExpressionÍLÍ~MªIdentifierÍPÍU¥Error‘J§LiteralÍVÍ}Ù%APK not loaded. Call loadAPK() first.Ù''APK not loaded. Call loadAPK() first.'ÀQ³ExpressionStatementÍ”Í»V®CallExpressionÍ”ÍºS°MemberExpressionÍ”Í¸S°MemberExpressionÍ”Í¨T®ThisExpressionÍ”Í˜MªIdentifierÍ™Í¨¯lifecycleBridgeÂÂMªIdentifierÍ©Í¸¯destroyActivityÂÂÂO°MethodDefinitionÍ(ÍmÂÂMªIdentifierÍ(Í4¬getViewState¦methodP²FunctionExpressionÍ4ÍmÀÂÂÂN®BlockStatementÍ7Ím‘Y¯ReturnStatementÍBÍfV®CallExpressionÍIÍeS°MemberExpressionÍIÍcS°MemberExpressionÍIÍZT®ThisExpressionÍIÍMMªIdentifierÍNÍZ¬stateManagerÂÂMªIdentifierÍ[Íc¨getStateÂÂÂO°MethodDefinitionÍæÍ?ÂÂMªIdentifierÍæÍü¶subscribeToViewUpdates¦methodP²FunctionExpressionÍüÍ?ÀÂÂÂ‘MªIdentifierÍıÍ¨callbackN®BlockStatementÍÍ?‘Q³ExpressionStatementÍÍ8V®CallExpressionÍÍ7S°MemberExpressionÍÍ-S°MemberExpressionÍÍ#T®ThisExpressionÍÍMªIdentifierÍÍ#¬stateManagerÂÂMªIdentifierÍ$Í-©subscribeÂÂ‘MªIdentifierÍ.Í6¨callbackÂO°MethodDefinitionÍ®ÍÂÂMªIdentifierÍ®ÍÈºunsubscribeFromViewUpdates¦methodP²FunctionExpressionÍÈÍÀÂÂÂ‘MªIdentifierÍÉÍÑ¨callbackN®BlockStatementÍÓÍ‘Q³ExpressionStatementÍŞÍV®CallExpressionÍŞÍS°MemberExpressionÍŞÍûS°MemberExpressionÍŞÍïT®ThisExpressionÍŞÍâMªIdentifierÍãÍï¬stateManagerÂÂMªIdentifierÍğÍû«unsubscribeÂÂ‘MªIdentifierÍüÍ¨callbackÂO°MethodDefinitionÍ]Í’ÂÂMªIdentifierÍ]Íh«getUIBridge¦methodP²FunctionExpressionÍhÍ’ÀÂÂÂN®BlockStatementÍkÍ’‘Y¯ReturnStatementÍvÍ‹S°MemberExpressionÍ}ÍŠT®ThisExpressionÍ}ÍMªIdentifierÍ‚ÍŠ¨uiBridgeÂÂO°MethodDefinitionÍêÍ'ÂÂMªIdentifierÍêÍù¯getStateManager¦methodP²FunctionExpressionÍùÍ'ÀÂÂÂN®BlockStatementÍüÍ'‘Y¯ReturnStatementÍÍ S°MemberExpressionÍÍT®ThisExpressionÍÍMªIdentifierÍÍ¬stateManagerÂÂO°MethodDefinitionÍŸÍâÂÂMªIdentifierÍŸÍ±²getLifecycleBridge¦methodP²FunctionExpressionÍ±ÍâÀÂÂÂN®BlockStatementÍ´Íâ‘Y¯ReturnStatementÍ¿ÍÛS°MemberExpressionÍÆÍÚT®ThisExpressionÍÆÍÊMªIdentifierÍËÍÚ¯lifecycleBridgeÂÂO°MethodDefinitionÍRÍÂÂMªIdentifierÍRÍ`®getInterpreter¦methodP²FunctionExpressionÍ`ÍÀÂÂÂN®BlockStatementÍcÍ‘Y¯ReturnStatementÍnÍ†S°MemberExpressionÍuÍ…T®ThisExpressionÍuÍyMªIdentifierÍzÍ…«interpreterÂÂO°MethodDefinitionÍÕÍÂÂMªIdentifierÍÕÍÜ§getHeap¦methodP²FunctionExpressionÍÜÍÀÂÂÂN®BlockStatementÍßÍ‘Y¯ReturnStatementÍêÍûS°MemberExpressionÍñÍúT®ThisExpressionÍñÍõMªIdentifierÍöÍú¤heapÂÂO°MethodDefinitionÍlÍ¡ÂÂMªIdentifierÍlÍw«getManifest¦methodP²FunctionExpressionÍwÍ¡ÀÂÂÂN®BlockStatementÍzÍ¡‘Y¯ReturnStatementÍ…ÍšS°MemberExpressionÍŒÍ™T®ThisExpressionÍŒÍMªIdentifierÍ‘Í™¨manifestÂÂO°MethodDefinitionÍ"ÍiÂÂMªIdentifierÍ"Í6´getMainActivityClass¦methodP²FunctionExpressionÍ6ÍiÀÂÂÂN®BlockStatementÍ9Íi‘Y¯ReturnStatementÍDÍbS°MemberExpressionÍKÍaT®ThisExpressionÍKÍOMªIdentifierÍPÍa±mainActivityClassÂÂO°MethodDefinitionÍ±ÍÙÂÂMªIdentifierÍ±Í¹¨shutdown¦methodP²FunctionExpressionÍ¹ÍÙÀÂÂÂN®BlockStatementÍ¼ÍÙ˜Q³ExpressionStatementÍÇÍİV®CallExpressionÍÇÍÜS°MemberExpressionÍÇÍÚS°MemberExpressionÍÇÍÔT®ThisExpressionÍÇÍËMªIdentifierÍÌÍÔ¨uiBridgeÂÂMªIdentifierÍÕÍÚ¥clearÂÂÂQ³ExpressionStatementÍçÍV®CallExpressionÍçÍ S°MemberExpressionÍçÍşS°MemberExpressionÍçÍøT®ThisExpressionÍçÍëMªIdentifierÍìÍø¬stateManagerÂÂMªIdentifierÍùÍş¥clearÂÂÂQ³ExpressionStatementÍÍ#R´AssignmentExpressionÍÍ"¡=S°MemberExpressionÍÍT®ThisExpressionÍÍMªIdentifierÍÍ«interpreterÂÂJ§LiteralÍÍ"À¤nullQ³ExpressionStatementÍ-ÍER´AssignmentExpressionÍ-ÍD¡=S°MemberExpressionÍ-Í=T®ThisExpressionÍ-Í1MªIdentifierÍ2Í=«classLoaderÂÂJ§LiteralÍ@ÍDÀ¤nullQ³ExpressionStatementÍOÍkR´AssignmentExpressionÍOÍj¡=S°MemberExpressionÍOÍcT®ThisExpressionÍOÍSMªIdentifierÍTÍc¯lifecycleBridgeÂÂJ§LiteralÍfÍjÀ¤nullQ³ExpressionStatementÍuÍ‹R´AssignmentExpressionÍuÍŠ¡=S°MemberExpressionÍuÍƒT®ThisExpressionÍuÍyMªIdentifierÍzÍƒ©dexParserÂÂJ§LiteralÍ†ÍŠÀ¤nullQ³ExpressionStatementÍ•ÍªR´AssignmentExpressionÍ•Í©¡=S°MemberExpressionÍ•Í¢T®ThisExpressionÍ•Í™MªIdentifierÍšÍ¢¨manifestÂÂJ§LiteralÍ¥Í©À¤nullQ³ExpressionStatementÍ´ÍÒR´AssignmentExpressionÍ´ÍÑ¡=S°MemberExpressionÍ´ÍÊT®ThisExpressionÍ´Í¸MªIdentifierÍ¹ÍÊ±mainActivityClassÂÂJ§LiteralÍÍÍÑÀ¤nullÀ™Ôr_•¤type¥start£endªspecifiers¦source±ImportDeclarationÌ|Ì¬‘Ôr`•¤type¥start£end¨imported¥local¯ImportSpecifierÌ…ÌMªIdentifierÌ…Ì©DexParserMªIdentifierÌ…Ì©DexParserJ§LiteralÌ–Ì«³./parser/dex_parserµ'./parser/dex_parser'_±ImportDeclarationÌ®Ìè‘`¯ImportSpecifierÌ·ÌÅMªIdentifierÌ·ÌÅ®ManifestParserMªIdentifierÌ·ÌÅ®ManifestParserJ§LiteralÌÍÌç¸./parser/manifest_parserº'./parser/manifest_parser'_±ImportDeclarationÌêÍ‘`¯ImportSpecifierÌóÌ÷MªIdentifierÌóÌ÷¤HeapMªIdentifierÌóÌ÷¤HeapJ§LiteralÌÿÍ²./interpreter/heap´'./interpreter/heap'_±ImportDeclarationÍÍN‘`¯ImportSpecifierÍÍ*MªIdentifierÍÍ*«InterpreterMªIdentifierÍÍ*«InterpreterJ§LiteralÍ2ÍM¹./interpreter/interpreter»'./interpreter/interpreter'_±ImportDeclarationÍPÍ‘‘`¯ImportSpecifierÍYÍoMªIdentifierÍYÍo¶initializeShimRegistryMªIdentifierÍYÍo¶initializeShimRegistryJ§LiteralÍwÍ·./interpreter/shim_init¹'./interpreter/shim_init'_±ImportDeclarationÍ“ÍÁ‘`¯ImportSpecifierÍœÍ¤MªIdentifierÍœÍ¤¨UIBridgeMªIdentifierÍœÍ¤¨UIBridgeJ§LiteralÍ¬ÍÀ²./bridge/ui_bridge´'./bridge/ui_bridge'_±ImportDeclarationÍÃÍù‘`¯ImportSpecifierÍÌÍØMªIdentifierÍÌÍØ¬StateManagerMªIdentifierÍÌÍØ¬StateManagerJ§LiteralÍàÍø¶./bridge/state_manager¸'./bridge/state_manager'_±ImportDeclarationÍûÍ7‘`¯ImportSpecifierÍÍMªIdentifierÍÍ¯LifecycleBridgeMªIdentifierÍÍ¯LifecycleBridgeJ§LiteralÍÍ6¹./bridge/lifecycle_bridge»'./bridge/lifecycle_bridge'_±ImportDeclarationÍ9Íi‘`¯ImportSpecifierÍBÍKMªIdentifierÍBÍK©APKParserMªIdentifierÍBÍK©APKParserJ§LiteralÍSÍh³./parser/apk_parserµ'./parser/apk_parser'

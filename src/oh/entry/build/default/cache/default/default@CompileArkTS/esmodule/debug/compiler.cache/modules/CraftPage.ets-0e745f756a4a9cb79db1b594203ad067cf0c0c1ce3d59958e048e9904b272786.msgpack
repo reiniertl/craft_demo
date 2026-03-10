@@ -1,773 +1,0 @@
-Ôr@Ÿªassertions¤code´customTransformCache¬dependencies¢id¤meta±moduleSideEffects¬originalCode±originalSourcemap«resolvedIds®sourcemapChainµsyntheticNamedExportsµtransformDependencies®transformFiles¨cacheAstÔrAÚGÒif (!("finalizeConstruction" in ViewPU.prototype)) {
-    Reflect.set(ViewPU.prototype, "finalizeConstruction", () => { });
-}
-import hilog from '@ohos.hilog';
-const DOMAIN = 0x0000;
-const TAG = 'CRAFT';
-class CraftPage extends ViewPU {
-    constructor(parent, params, __localStorage, elmtId = -1, paramsLambda = undefined, extraInfo) {
-        super(parent, __localStorage, elmtId, extraInfo);
-        if (typeof paramsLambda === "function") {
-            this.paramsGenerator_ = paramsLambda;
-        }
-        this.__runtime = this.createStorageLink('craftRuntime', null, "runtime");
-        this.__activityRef = this.createStorageLink('activityRef', 0, "activityRef");
-        this.__craftError = this.createStorageLink('craftError', '', "craftError");
-        this.__viewTree = new ObservedPropertyObjectPU(null, this, "viewTree");
-        this.__updateCounter = new ObservedPropertySimplePU(0, this, "updateCounter");
-        this.__errorMessage = new ObservedPropertySimplePU('', this, "errorMessage");
-        this.__isLoading = new ObservedPropertySimplePU(true, this, "isLoading");
-        this.diagTimer = -1;
-        this.setInitiallyProvidedValue(params);
-        this.finalizeConstruction();
-    }
-    setInitiallyProvidedValue(params) {
-        if (params.viewTree !== undefined) {
-            this.viewTree = params.viewTree;
-        }
-        if (params.updateCounter !== undefined) {
-            this.updateCounter = params.updateCounter;
-        }
-        if (params.errorMessage !== undefined) {
-            this.errorMessage = params.errorMessage;
-        }
-        if (params.isLoading !== undefined) {
-            this.isLoading = params.isLoading;
-        }
-        if (params.diagTimer !== undefined) {
-            this.diagTimer = params.diagTimer;
-        }
-    }
-    updateStateVars(params) {
-    }
-    purgeVariableDependenciesOnElmtId(rmElmtId) {
-        this.__runtime.purgeDependencyOnElmtId(rmElmtId);
-        this.__activityRef.purgeDependencyOnElmtId(rmElmtId);
-        this.__craftError.purgeDependencyOnElmtId(rmElmtId);
-        this.__viewTree.purgeDependencyOnElmtId(rmElmtId);
-        this.__updateCounter.purgeDependencyOnElmtId(rmElmtId);
-        this.__errorMessage.purgeDependencyOnElmtId(rmElmtId);
-        this.__isLoading.purgeDependencyOnElmtId(rmElmtId);
-    }
-    aboutToBeDeleted() {
-        this.__runtime.aboutToBeDeleted();
-        this.__activityRef.aboutToBeDeleted();
-        this.__craftError.aboutToBeDeleted();
-        this.__viewTree.aboutToBeDeleted();
-        this.__updateCounter.aboutToBeDeleted();
-        this.__errorMessage.aboutToBeDeleted();
-        this.__isLoading.aboutToBeDeleted();
-        SubscriberManager.Get().delete(this.id__());
-        this.aboutToBeDeletedInternal();
-    }
-    get runtime() {
-        return this.__runtime.get();
-    }
-    set runtime(newValue) {
-        this.__runtime.set(newValue);
-    }
-    get activityRef() {
-        return this.__activityRef.get();
-    }
-    set activityRef(newValue) {
-        this.__activityRef.set(newValue);
-    }
-    get craftError() {
-        return this.__craftError.get();
-    }
-    set craftError(newValue) {
-        this.__craftError.set(newValue);
-    }
-    get viewTree() {
-        return this.__viewTree.get();
-    }
-    set viewTree(newValue) {
-        this.__viewTree.set(newValue);
-    }
-    get updateCounter() {
-        return this.__updateCounter.get();
-    }
-    set updateCounter(newValue) {
-        this.__updateCounter.set(newValue);
-    }
-    get errorMessage() {
-        return this.__errorMessage.get();
-    }
-    set errorMessage(newValue) {
-        this.__errorMessage.set(newValue);
-    }
-    get isLoading() {
-        return this.__isLoading.get();
-    }
-    set isLoading(newValue) {
-        this.__isLoading.set(newValue);
-    }
-    aboutToAppear() {
-        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] aboutToAppear');
-        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] runtime available: %{public}s', String(this.runtime !== null));
-        if (!this.runtime) {
-            this.errorMessage = 'Runtime not available';
-            this.isLoading = false;
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Runtime not found in AppStorage');
-            return;
-        }
-        try {
-            // Subscribe to UI updates from StateManager
-            const stateManager = this.runtime.getUIBridge().getStateManager();
-            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Subscribed to state updates');
-            stateManager.subscribe(() => {
-                hilog.info(DOMAIN, TAG, '[CraftPage][INFO] State update received');
-                const state = stateManager.getState();
-                this.viewTree = state.root;
-                this.updateCounter++;
-                this.isLoading = false;
-                hilog.info(DOMAIN, TAG, '[CraftPage][INFO] View tree updated: counter=%{public}d', this.updateCounter);
-                if (this.viewTree) {
-                    hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Root view type: %{public}s', this.viewTree.type);
-                }
-            });
-            // Get initial state
-            const initialState = stateManager.getState();
-            if (initialState.root) {
-                this.viewTree = initialState.root;
-                this.isLoading = false;
-                hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Initial state loaded');
-            }
-            // Diagnostic timeout: if still loading after 3 seconds, show status
-            this.diagTimer = setTimeout(() => {
-                if (this.isLoading) {
-                    hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Still loading after 3s, craftError=%{public}s', this.craftError);
-                    if (this.craftError) {
-                        this.errorMessage = this.craftError;
-                    }
-                    else {
-                        this.errorMessage = 'Activity creation timed out. Check hdc hilog -T CRAFT for details.';
-                    }
-                    this.isLoading = false;
-                }
-            }, 3000);
-        }
-        catch (error) {
-            const msg = error instanceof Error ? error.message : String(error);
-            this.errorMessage = `Setup failed: ${msg}`;
-            this.isLoading = false;
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Setup failed: %{public}s', msg);
-        }
-    }
-    aboutToDisappear() {
-        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] aboutToDisappear');
-        if (this.diagTimer !== -1) {
-            clearTimeout(this.diagTimer);
-            this.diagTimer = -1;
-        }
-    }
-    initialRender() {
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Column.create();
-            Column.width('100%');
-            Column.height('100%');
-            Column.backgroundColor('#FFFFFF');
-        }, Column);
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            If.create();
-            if (this.isLoading) {
-                this.ifElseBranchUpdateFunction(0, () => {
-                    this.loadingView.bind(this)();
-                });
-            }
-            else if (this.errorMessage) {
-                this.ifElseBranchUpdateFunction(1, () => {
-                    this.errorView.bind(this)();
-                });
-            }
-            else if (this.viewTree !== null) {
-                this.ifElseBranchUpdateFunction(2, () => {
-                    this.renderView.bind(this)(ObservedObject.GetRawObject(this.viewTree));
-                });
-            }
-            else {
-                this.ifElseBranchUpdateFunction(3, () => {
-                    this.emptyView.bind(this)();
-                });
-            }
-        }, If);
-        If.pop();
-        Column.pop();
-    }
-    loadingView(parent = null) {
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Column.create();
-            Column.width('100%');
-            Column.height('100%');
-            Column.justifyContent(FlexAlign.Center);
-            Column.alignItems(HorizontalAlign.Center);
-        }, Column);
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Text.create('Loading Android App...');
-            Text.fontSize(20);
-            Text.fontColor('#666666');
-        }, Text);
-        Text.pop();
-        Column.pop();
-    }
-    errorView(parent = null) {
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Column.create();
-            Column.width('100%');
-            Column.height('100%');
-            Column.justifyContent(FlexAlign.Center);
-            Column.alignItems(HorizontalAlign.Center);
-            Column.padding(20);
-        }, Column);
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Text.create('Error');
-            Text.fontSize(24);
-            Text.fontWeight(FontWeight.Bold);
-            Text.fontColor('#FF0000');
-            Text.margin({ bottom: 20 });
-        }, Text);
-        Text.pop();
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Text.create(this.errorMessage);
-            Text.fontSize(16);
-            Text.fontColor('#666666');
-            Text.textAlign(TextAlign.Center);
-        }, Text);
-        Text.pop();
-        Column.pop();
-    }
-    emptyView(parent = null) {
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Column.create();
-            Column.width('100%');
-            Column.height('100%');
-            Column.justifyContent(FlexAlign.Center);
-            Column.alignItems(HorizontalAlign.Center);
-        }, Column);
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Text.create('Waiting for content...');
-            Text.fontSize(18);
-            Text.fontColor('#999999');
-        }, Text);
-        Text.pop();
-        Column.pop();
-    }
-    /**
-     * Recursively render Android View as ArkUI component
-     */
-    renderView(view, parent = null) {
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            If.create();
-            if (view.type === 'TextView') {
-                this.ifElseBranchUpdateFunction(0, () => {
-                    this.renderTextView.bind(this)(view);
-                });
-            }
-            else if (view.type === 'Button') {
-                this.ifElseBranchUpdateFunction(1, () => {
-                    this.renderButton.bind(this)(view);
-                });
-            }
-            else if (view.type === 'LinearLayout') {
-                this.ifElseBranchUpdateFunction(2, () => {
-                    this.renderLinearLayout.bind(this)(view);
-                });
-            }
-            else if (view.type === 'ViewGroup') {
-                this.ifElseBranchUpdateFunction(3, () => {
-                    this.renderViewGroup.bind(this)(view);
-                });
-            }
-            else {
-                this.ifElseBranchUpdateFunction(4, () => {
-                    this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        Text.create(`Unknown View: ${view.type}`);
-                        Text.fontSize(14);
-                        Text.fontColor('#FF0000');
-                    }, Text);
-                    Text.pop();
-                });
-            }
-        }, If);
-        If.pop();
-    }
-    getViewPropString(view, key, fallback) {
-        const val = view.props[key];
-        return (val !== undefined && val !== null) ? String(val) : fallback;
-    }
-    getViewPropNumber(view, key, fallback) {
-        const val = view.props[key];
-        return (val !== undefined && val !== null) ? Number(val) : fallback;
-    }
-    /**
-     * Extract viewRef from SerializedView id ('view_123' â†’ 123)
-     */
-    getViewRef(view) {
-        return parseInt(view.id.replace('view_', ''));
-    }
-    /**
-     * Handle click on a view - dispatches through UIBridge
-     */
-    handleClick(view) {
-        if (!this.runtime) {
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Click ignored: runtime is null');
-            return;
-        }
-        try {
-            const viewRef = this.getViewRef(view);
-            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Click on viewRef=%{public}d type=%{public}s', viewRef, view.type);
-            const handled = this.runtime.getUIBridge().dispatchClick(viewRef);
-            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Click dispatched: handled=%{public}s', String(handled));
-        }
-        catch (error) {
-            const msg = error instanceof Error ? error.message : String(error);
-            const stack = error instanceof Error && error.stack ? error.stack : '';
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Click handler failed: %{public}s', msg);
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Stack: %{public}s', stack);
-        }
-    }
-    /**
-     * Render TextView as ArkUI Text component
-     */
-    renderTextView(view, parent = null) {
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Text.create(this.getViewPropString(view, 'text', ''));
-            Text.fontSize(this.getViewPropNumber(view, 'textSize', 14));
-            Text.fontColor(this.intToColor(this.getViewPropNumber(view, 'textColor', 0xFF000000)));
-            Text.padding(4);
-        }, Text);
-        Text.pop();
-    }
-    /**
-     * Render Button as ArkUI Button component with click handling
-     */
-    renderButton(view, parent = null) {
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Button.createWithLabel(this.getViewPropString(view, 'text', ''));
-            Button.fontSize(this.getViewPropNumber(view, 'textSize', 14));
-            Button.fontColor(this.intToColor(this.getViewPropNumber(view, 'textColor', 0xFF000000)));
-            Button.layoutWeight(1);
-            Button.height(56);
-            Button.margin(2);
-            Button.onClick(() => {
-                this.handleClick(view);
-            });
-        }, Button);
-        Button.pop();
-    }
-    /**
-     * Render LinearLayout as Column (vertical) or Row (horizontal)
-     */
-    renderLinearLayout(view, parent = null) {
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            If.create();
-            if (this.getViewPropNumber(view, 'orientation', 0) === 1) {
-                this.ifElseBranchUpdateFunction(0, () => {
-                    this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        // VERTICAL
-                        Column.create();
-                        // VERTICAL
-                        Column.width('100%');
-                    }, Column);
-                    this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        ForEach.create();
-                        const forEachItemGenFunction = _item => {
-                            const child = _item;
-                            this.renderView.bind(this)(child);
-                        };
-                        this.forEachUpdateFunction(elmtId, view.children, forEachItemGenFunction, (child) => `${child.id}_${this.updateCounter}`, false, false);
-                    }, ForEach);
-                    ForEach.pop();
-                    // VERTICAL
-                    Column.pop();
-                });
-            }
-            else {
-                this.ifElseBranchUpdateFunction(1, () => {
-                    this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        // HORIZONTAL
-                        Row.create();
-                        // HORIZONTAL
-                        Row.width('100%');
-                    }, Row);
-                    this.observeComponentCreation2((elmtId, isInitialRender) => {
-                        ForEach.create();
-                        const forEachItemGenFunction = _item => {
-                            const child = _item;
-                            this.renderView.bind(this)(child);
-                        };
-                        this.forEachUpdateFunction(elmtId, view.children, forEachItemGenFunction, (child) => `${child.id}_${this.updateCounter}`, false, false);
-                    }, ForEach);
-                    ForEach.pop();
-                    // HORIZONTAL
-                    Row.pop();
-                });
-            }
-        }, If);
-        If.pop();
-    }
-    /**
-     * Render ViewGroup as ArkUI Column (fallback)
-     */
-    renderViewGroup(view, parent = null) {
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            Column.create();
-        }, Column);
-        this.observeComponentCreation2((elmtId, isInitialRender) => {
-            ForEach.create();
-            const forEachItemGenFunction = _item => {
-                const child = _item;
-                this.renderView.bind(this)(child);
-            };
-            this.forEachUpdateFunction(elmtId, view.children, forEachItemGenFunction, (child) => `${child.id}_${this.updateCounter}`, false, false);
-        }, ForEach);
-        ForEach.pop();
-        Column.pop();
-    }
-    /**
-     * Convert Android ARGB integer to ArkUI Color
-     * Format: 0xAARRGGBB
-     */
-    intToColor(argb) {
-        if (argb === undefined) {
-            return '#FF000000'; // Black
-        }
-        const a = (argb >> 24) & 0xFF;
-        const r = (argb >> 16) & 0xFF;
-        const g = (argb >> 8) & 0xFF;
-        const b = argb & 0xFF;
-        // Convert to CSS rgba
-        const alpha = a / 255;
-        return `rgba(${r},${g},${b},${alpha})`;
-    }
-    rerender() {
-        this.updateDirtyElements();
-    }
-    static getEntryName() {
-        return "CraftPage";
-    }
-}
-registerNamedRoute(() => new CraftPage(undefined, {}), "", { bundleName: "com.craft.runtime", moduleName: "entry", pagePath: "pages/CraftPage", pageFullPath: "entry/src/main/ets/pages/CraftPage", integratedHsp: "false" });
-//# sourceMappingURL=CraftPage.js.mapÂ‘Ù[ hvigor_ignore_C:_Users_Bluezone1_AppData_Local_OpenHarmony_Sdk_12_ets_api_@ohos.hilog.d.tsÙ<D:\craft\craft\src\oh\entry\src\main\ets\pages\CraftPage.etsÔrB™ªmoduleName±isLocalDependency¯isNodeEntryFile§pkgPath±belongProjectPath§pkgNameªpkgVersion±dependencyPkgInfo°belongModulePath¥entryÃÂ»D:\craft\craft\src\oh\entryµD:\craft\craft\src\oh¥entry¥1.0.0Ô  »D:\craft\craft\src\oh\entryÃÚ(bimport { CraftRuntime, SerializedView } from '../craft/index';
-import hilog from '@ohos.hilog';
-
-const DOMAIN = 0x0000;
-const TAG = 'CRAFT';
-
-/**
- * CraftPage - Dynamic ArkUI page that renders Android Views
- *
- * This page:
- * 1. Retrieves CraftRuntime from AppStorage
- * 2. Subscribes to StateManager updates
- * 3. Renders ViewNode tree as ArkUI components
- * 4. Maps Android View types to ArkUI equivalents:
- *    - TextView â†’ Text
- *    - Button â†’ Button (with click handling via UIBridge)
- *    - LinearLayout â†’ Column (vertical) or Row (horizontal)
- *    - ViewGroup â†’ Column
- */
-@Entry
-@Component
-struct CraftPage {
-    @StorageLink('craftRuntime') runtime: CraftRuntime | null = null;
-    @StorageLink('activityRef') activityRef: number = 0;
-    @StorageLink('craftError') craftError: string = '';
-
-    @State viewTree: SerializedView | null = null;
-    @State updateCounter: number = 0;
-    @State errorMessage: string = '';
-    @State isLoading: boolean = true;
-    private diagTimer: number = -1;
-
-    aboutToAppear(): void {
-        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] aboutToAppear');
-        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] runtime available: %{public}s', String(this.runtime !== null));
-
-        if (!this.runtime) {
-            this.errorMessage = 'Runtime not available';
-            this.isLoading = false;
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Runtime not found in AppStorage');
-            return;
-        }
-
-        try {
-            // Subscribe to UI updates from StateManager
-            const stateManager = this.runtime.getUIBridge().getStateManager();
-            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Subscribed to state updates');
-
-            stateManager.subscribe(() => {
-                hilog.info(DOMAIN, TAG, '[CraftPage][INFO] State update received');
-                const state = stateManager.getState();
-                this.viewTree = state.root as SerializedView;
-                this.updateCounter++;
-                this.isLoading = false;
-
-                hilog.info(DOMAIN, TAG, '[CraftPage][INFO] View tree updated: counter=%{public}d', this.updateCounter);
-
-                if (this.viewTree) {
-                    hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Root view type: %{public}s', this.viewTree.type);
-                }
-            });
-
-            // Get initial state
-            const initialState = stateManager.getState();
-            if (initialState.root) {
-                this.viewTree = initialState.root as SerializedView;
-                this.isLoading = false;
-                hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Initial state loaded');
-            }
-
-            // Diagnostic timeout: if still loading after 3 seconds, show status
-            this.diagTimer = setTimeout(() => {
-                if (this.isLoading) {
-                    hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Still loading after 3s, craftError=%{public}s', this.craftError);
-                    if (this.craftError) {
-                        this.errorMessage = this.craftError;
-                    } else {
-                        this.errorMessage = 'Activity creation timed out. Check hdc hilog -T CRAFT for details.';
-                    }
-                    this.isLoading = false;
-                }
-            }, 3000) as number;
-
-        } catch (error) {
-            const msg = error instanceof Error ? error.message : String(error);
-            this.errorMessage = `Setup failed: ${msg}`;
-            this.isLoading = false;
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Setup failed: %{public}s', msg);
-        }
-    }
-
-    aboutToDisappear(): void {
-        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] aboutToDisappear');
-        if (this.diagTimer !== -1) {
-            clearTimeout(this.diagTimer);
-            this.diagTimer = -1;
-        }
-    }
-
-    build() {
-        Column() {
-            if (this.isLoading) {
-                this.loadingView();
-            } else if (this.errorMessage) {
-                this.errorView();
-            } else if (this.viewTree !== null) {
-                this.renderView(this.viewTree);
-            } else {
-                this.emptyView();
-            }
-        }
-        .width('100%')
-        .height('100%')
-        .backgroundColor('#FFFFFF')
-    }
-
-    @Builder
-    loadingView() {
-        Column() {
-            Text('Loading Android App...')
-                .fontSize(20)
-                .fontColor('#666666')
-        }
-        .width('100%')
-        .height('100%')
-        .justifyContent(FlexAlign.Center)
-        .alignItems(HorizontalAlign.Center)
-    }
-
-    @Builder
-    errorView() {
-        Column() {
-            Text('Error')
-                .fontSize(24)
-                .fontWeight(FontWeight.Bold)
-                .fontColor('#FF0000')
-                .margin({ bottom: 20 })
-
-            Text(this.errorMessage)
-                .fontSize(16)
-                .fontColor('#666666')
-                .textAlign(TextAlign.Center)
-        }
-        .width('100%')
-        .height('100%')
-        .justifyContent(FlexAlign.Center)
-        .alignItems(HorizontalAlign.Center)
-        .padding(20)
-    }
-
-    @Builder
-    emptyView() {
-        Column() {
-            Text('Waiting for content...')
-                .fontSize(18)
-                .fontColor('#999999')
-        }
-        .width('100%')
-        .height('100%')
-        .justifyContent(FlexAlign.Center)
-        .alignItems(HorizontalAlign.Center)
-    }
-
-    /**
-     * Recursively render Android View as ArkUI component
-     */
-    @Builder
-    renderView(view: SerializedView) {
-        if (view.type === 'TextView') {
-            this.renderTextView(view);
-        } else if (view.type === 'Button') {
-            this.renderButton(view);
-        } else if (view.type === 'LinearLayout') {
-            this.renderLinearLayout(view);
-        } else if (view.type === 'ViewGroup') {
-            this.renderViewGroup(view);
-        } else {
-            Text(`Unknown View: ${view.type}`)
-                .fontSize(14)
-                .fontColor('#FF0000')
-        }
-    }
-
-    private getViewPropString(view: SerializedView, key: string, fallback: string): string {
-        const val = view.props[key];
-        return (val !== undefined && val !== null) ? String(val) : fallback;
-    }
-
-    private getViewPropNumber(view: SerializedView, key: string, fallback: number): number {
-        const val = view.props[key];
-        return (val !== undefined && val !== null) ? Number(val) : fallback;
-    }
-
-    /**
-     * Extract viewRef from SerializedView id ('view_123' â†’ 123)
-     */
-    private getViewRef(view: SerializedView): number {
-        return parseInt(view.id.replace('view_', ''));
-    }
-
-    /**
-     * Handle click on a view - dispatches through UIBridge
-     */
-    private handleClick(view: SerializedView): void {
-        if (!this.runtime) {
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Click ignored: runtime is null');
-            return;
-        }
-        try {
-            const viewRef = this.getViewRef(view);
-            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Click on viewRef=%{public}d type=%{public}s', viewRef, view.type);
-            const handled = this.runtime.getUIBridge().dispatchClick(viewRef);
-            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Click dispatched: handled=%{public}s', String(handled));
-        } catch (error) {
-            const msg = error instanceof Error ? error.message : String(error);
-            const stack = error instanceof Error && error.stack ? error.stack : '';
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Click handler failed: %{public}s', msg);
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Stack: %{public}s', stack);
-        }
-    }
-
-    /**
-     * Render TextView as ArkUI Text component
-     */
-    @Builder
-    renderTextView(view: SerializedView) {
-        Text(this.getViewPropString(view, 'text', ''))
-            .fontSize(this.getViewPropNumber(view, 'textSize', 14))
-            .fontColor(this.intToColor(this.getViewPropNumber(view, 'textColor', 0xFF000000)))
-            .padding(4)
-    }
-
-    /**
-     * Render Button as ArkUI Button component with click handling
-     */
-    @Builder
-    renderButton(view: SerializedView) {
-        Button(this.getViewPropString(view, 'text', ''))
-            .fontSize(this.getViewPropNumber(view, 'textSize', 14))
-            .fontColor(this.intToColor(this.getViewPropNumber(view, 'textColor', 0xFF000000)))
-            .layoutWeight(1)
-            .height(56)
-            .margin(2)
-            .onClick(() => {
-                this.handleClick(view);
-            })
-    }
-
-    /**
-     * Render LinearLayout as Column (vertical) or Row (horizontal)
-     */
-    @Builder
-    renderLinearLayout(view: SerializedView) {
-        if (this.getViewPropNumber(view, 'orientation', 0) === 1) {
-            // VERTICAL
-            Column() {
-                ForEach(view.children, (child: SerializedView) => {
-                    this.renderView(child);
-                }, (child: SerializedView) => `${child.id}_${this.updateCounter}`)
-            }
-            .width('100%')
-        } else {
-            // HORIZONTAL
-            Row() {
-                ForEach(view.children, (child: SerializedView) => {
-                    this.renderView(child);
-                }, (child: SerializedView) => `${child.id}_${this.updateCounter}`)
-            }
-            .width('100%')
-        }
-    }
-
-    /**
-     * Render ViewGroup as ArkUI Column (fallback)
-     */
-    @Builder
-    renderViewGroup(view: SerializedView) {
-        Column() {
-            ForEach(view.children, (child: SerializedView) => {
-                this.renderView(child);
-            }, (child: SerializedView) => `${child.id}_${this.updateCounter}`)
-        }
-    }
-
-    /**
-     * Convert Android ARGB integer to ArkUI Color
-     * Format: 0xAARRGGBB
-     */
-    private intToColor(argb: number | undefined): string {
-        if (argb === undefined) {
-            return '#FF000000';  // Black
-        }
-
-        const a = (argb >> 24) & 0xFF;
-        const r = (argb >> 16) & 0xFF;
-        const g = (argb >> 8) & 0xFF;
-        const b = argb & 0xFF;
-
-        // Convert to CSS rgba
-        const alpha = a / 255;
-        return `rgba(${r},${g},${b},${alpha})`;
-    }
-}
-ÀÔrC‘«@ohos.hilogÔrD—ªassertions¨external¢id¤meta±moduleSideEffectsªresolvedByµsyntheticNamedExportsAÃÙ[ hvigor_ignore_C:_Users_Bluezone1_AppData_Local_OpenHarmony_Sdk_12_ets_api_@ohos.hilog.d.tsÔrE‘¯hostModulesInfo’ÔrF’²hostDependencyName®hostModuleName«@ohos.hilog¥entryF«@ohos.hilog¥entryÃªoh-resolveÂ’ÔrG–§version¤fileªsourceRoot§sources¥names¨mappings¬CraftPage.js ‘­CraftPage.etsÜº–”   ” ” ” ” ”   –”   ” ” ” ” ” –”   ” ”	 	” ” ” ’” ” ‘”  ””0 ”> ”Ì@ Ì@”ÌD ÌD””4 ”ÌA ”ÌC 6”ÌD 7””3 ”? ”ÌA 4”ÌC 6’”7 -”; 1’”< #”= $’”; "”= $’”8  ”< $“”  ” !” "‘” ’” !” (’” !” (’”  ” +’”  ” +’” ” )’” ” )’” ” ’” ” ’” ” ’” ” ’” ” ’” ” ’” ” ’” ” ’”  ”  œ” !” !” !” !” !” !” !” !”  ! ”ÌA !ÌA”ÌB !ÌB”ÌC !ÌCÜ ” "” "” "” "” "” "” "” "”  " ”ÌQ "ÌQ”ÌS "ÌS”ÌY "ÌY”ÌZ "ÌZ”Ì^ "Ì^”Ì_ "Ì_”Ìf "Ìf”Ìk "Ìk”Ìo "Ìo”Ìp "Ìp”Ìq "Ìq”Ìr "Ìr—” $” $” $” $” $” $” $—” %” %” %” %”  % ”7 %7”8 %8—” &” &” &” &” &”" &"”# &#œ” '” '” '” '” '” '”  ' ”# '#”% '%”ÌY 'ÌY”ÌZ 'ÌZ”Ì[ 'Ì[’” (” (‘”	 )	’” +” +’” ,”8 ,8ž” -” -” -”! -!”% -%”& -&”- --”. -.”9 -9”; -;”< -<”ÌK -ÌK”ÌM -ÌM”ÌN -ÌNœ” .” .” .” .” .” .” .”" ."”$ .$”ÌS .ÌS”ÌT .ÌT”ÌU .ÌU—” 0” 0” 0”" 0"”# 0#”& 0&”( 0(œ” 1” 1” 1” 1” 1”! 1!”# 1#”& 1&”( 1(”ÌQ 1ÌQ”ÌR 1ÌR”ÌS 1ÌS™” 2” 2” 2” 2”* 2*”+ 2+”3 23”5 25”6 26™” 3” 3” 3” 3”  3 ”% 3%”& 3&”* 3<”+ 3=–” 4” 4” 4”" 4"”$ 4$”% 4%—” 5” 5” 5” 5”! 5!”& 5&”' 5'Ü ” 7” 7” 7” 7” 7”! 7!”# 7#”& 7&”( 7(”Ìa 7Ìa”Ìc 7Ìc”Ìg 7Ìg”Ìh 7Ìh”Ìu 7Ìu”Ìv 7Ìv”Ìw 7Ìw–” 9” 9” 9” 9”! 9!”# 9#Ü ” :” :” :” :” :”% :%”' :'”* :*”, :,”ÌZ :ÌZ”Ì\ :Ì\”Ì` :Ì`”Ìa :Ìa”Ìi :Ìi”Ìj :Ìj”Ìn :Ìn”Ìo :Ìo”Ìp :Ìp‘” ;”” <” <” <” <’” >”  > ™” ?” ?” ?”! ?!”- ?-”. ?.”6 ?6”8 ?8”9 ?9–” Ì@” Ì@” Ì@” Ì@”! Ì@!”# Ì@#™” ÌA” ÌA” ÌA” ÌA”  ÌA ”, ÌA,”- ÌA-”1 ÌAÌC”2 ÌAÌD—” ÌB” ÌB” ÌB” ÌB”! ÌB!”& ÌB&”' ÌB'œ” ÌC” ÌC” ÌC” ÌC” ÌC”! ÌC!”# ÌC#”& ÌC&”( ÌC(”ÌP ÌCÌP”ÌQ ÌCÌQ”ÌR ÌCÌR‘” ÌD’” ÌF”ÌP ÌFÌP™” ÌG” ÌG” ÌG” ÌG” ÌG”' ÌG'”( ÌG(”+ ÌG+”- ÌG-–” ÌH” ÌH” ÌH” ÌH”" ÌH"”$ ÌH$Ü ” ÌI” ÌI” ÌI” ÌI”  ÌI ”& ÌI&”( ÌI(”+ ÌI+”- ÌI-”Ìo ÌIÌo”Ìq ÌIÌq”Ìu ÌIÌu”Ìv ÌIÌv”Ì€ ÌIÌ€”Ì ÌIÌ”Ì‚ ÌIÌ‚–” ÌJ” ÌJ” ÌJ” ÌJ”' ÌJ'”) ÌJ)™” ÌK” ÌK” ÌK”) ÌK)”, ÌK,”0 ÌK0”1 ÌK1”; ÌK;”< ÌK<‘” ÌL‘” ÌL—” ÌM” ÌM” ÌM”) ÌM)”, ÌM,”Ìp ÌMÌp”Ìq ÌMÌq‘” ÌN—” ÌO” ÌO” ÌO”" ÌO"”% ÌO%”* ÌO*”+ ÌO+‘” ÌP–” ÌQ” ÌQ” ÌQ” ÌQ” ÌQ” ÌQ‘”	 ÌS	”” ÌS
-” ÌS” ÌS” ÌSÜ ” ÌT” ÌT” ÌT” ÌT” ÌT”) ÌT)”. ÌT.”/ ÌT/”0 ÌT0”1 ÌT1”6 ÌT6”7 ÌT7”> ÌT>”? ÌT?”Ì@ ÌTÌ@”ÌA ÌTÌA”ÌG ÌTÌG”ÌH ÌTÌH”ÌM ÌTÌM”ÌN ÌTÌN”ÌO ÌTÌO™” ÌU” ÌU” ÌU” ÌU”  ÌU ”1 ÌU1”4 ÌU4”6 ÌU6”7 ÌU7—” ÌV” ÌV” ÌV” ÌV” ÌV”" ÌV"”# ÌV#ž” ÌW” ÌW” ÌW” ÌW” ÌW” ÌW”  ÌW ”# ÌW#”% ÌW%”ÌR ÌWÌR”ÌT ÌWÌT”ÌW ÌWÌW”ÌX ÌWÌX”ÌY ÌWÌY‘”	 ÌX	’” ÌY” ÌY’” Ì[” Ì[œ” Ì\” Ì\” Ì\” Ì\” Ì\” Ì\” Ì\” Ì\”  Ì\ ”ÌD Ì\ÌD”ÌE Ì\ÌE”ÌF Ì\ÌF™” Ì]” Ì]” Ì]” Ì]” Ì]” Ì]”  Ì] ”! Ì]!”# Ì]#˜” Ì^” Ì^” Ì^” Ì^” Ì^”' Ì^'”( Ì^(”) Ì^)˜” Ì_” Ì_” Ì_” Ì_” Ì_” Ì_” Ì_”  Ì_ ‘”	 Ì`	’” Ìa” Ìa‘” Ìc’” Ìd” Ìd–” Ìd” Ìd” Ìo	” Ìo” Ìo” Ìo–” Ìd” Ìd” Ìp	” Ìp” Ìp”  Ìp–” Ìd” Ìd” Ìq	”" Ìq”# Ìq”, Ìq"–” Ìe” Ìe” Ìe” Ìe” Ìe”  Ìe •” Ìf” Ìf” Ìf”$ Ìf ”1 Ìf"‘” Ìg–” Ìg” Ìg” Ìg” Ìg”& Ìg(”( Ìg*•” Ìh” Ìh” Ìh”" Ìh”/ Ìh ‘” Ìi˜” Ìi” Ìi” Ìi” Ìi”" Ìi$”' Ìi)”+ Ìi-”- Ìi/™” Ìj” Ìj” Ìj”# Ìj”ÌK Ìj ”ÌO Ìj$”ÌP Ìj%”ÌX Ìj-”ÌZ Ìj.‘” Ìk‘” Ìk•” Ìl” Ìl” Ìl”" Ìl”/ Ìl ‘” Ìm’” Ìd” Ìd‘” Ìr’” Ìu” Ìu’” Ìv” Ìv–” Ìv” Ìv” Ì{	” Ì{” Ì{” Ì{–” Ìv” Ìv” Ì|	” Ì|” Ì|”  Ì|˜” Ìv” Ìv” Ì}	”! Ì}”" Ì}”+ Ì}!”, Ì}"”2 Ì}(˜” Ìv” Ìv” Ì~	” Ì~” Ì~”- Ì~#”. Ì~$”4 Ì~*”” Ìw” Ìw” Ìw”0 Ìw)–” Ìw” Ìw” Ìx” Ìx” Ìx” Ìx–” Ìw” Ìw” Ìy” Ìy” Ìy”$ Ìy$’” Ìw” Ìw’” Ìv” Ìv‘” Ì’” Ì‚” Ì‚’” Ìƒ” Ìƒ–” Ìƒ” Ìƒ” Ì	” Ì” Ì” Ì–” Ìƒ” Ìƒ” Ì	” Ì” Ì”  Ì˜” Ìƒ” Ìƒ” Ì‘	”! Ì‘”" Ì‘”+ Ì‘!”, Ì‘"”2 Ì‘(˜” Ìƒ” Ìƒ” Ì’	” Ì’” Ì’”- Ì’#”. Ì’$”4 Ì’*–” Ìƒ” Ìƒ” Ì“	” Ì“” Ì“” Ì“”” Ì„” Ì„” Ì„” Ì„–” Ì„” Ì„” Ì…” Ì…” Ì…” Ì…˜” Ì„” Ì„” Ì†” Ì†” Ì†”& Ì†&”' Ì†'”+ Ì†+–” Ì„” Ì„” Ì‡” Ì‡” Ì‡”$ Ì‡$š” Ì„” Ì„” Ìˆ” Ìˆ” Ìˆ” Ìˆ”  Ìˆ ”" Ìˆ"”$ Ìˆ$”& Ìˆ&’” Ì„” Ì„–” ÌŠ” ÌŠ” ÌŠ” ÌŠ” ÌŠ”) ÌŠ"–” ÌŠ” ÌŠ” Ì‹” Ì‹” Ì‹” Ì‹–” ÌŠ” ÌŠ” ÌŒ” ÌŒ” ÌŒ”$ ÌŒ$˜” ÌŠ” ÌŠ” Ì” Ì” Ì”$ Ì$”% Ì%”+ Ì+’” ÌŠ” ÌŠ’” Ìƒ” Ìƒ‘” Ì”’” Ì—” Ì—’” Ì˜” Ì˜–” Ì˜” Ì˜” Ì	” Ì” Ì” Ì–” Ì˜” Ì˜” Ìž	” Ìž” Ìž”  Ìž˜” Ì˜” Ì˜” ÌŸ	”! ÌŸ”" ÌŸ”+ ÌŸ!”, ÌŸ"”2 ÌŸ(˜” Ì˜” Ì˜” Ì 	” Ì ” Ì ”- Ì #”. Ì $”4 Ì *”” Ì™” Ì™” Ì™”0 Ì™)–” Ì™” Ì™” Ìš” Ìš” Ìš” Ìš–” Ì™” Ì™” Ì›” Ì›” Ì›”$ Ì›$’” Ì™” Ì™’” Ì˜” Ì˜‘” Ì¡‘” Ì£‘” Ì¥”” Ì§” Ì§” Ì§” Ì§#˜” Ì¨” Ì¨” Ì¨” Ì¨” Ì¨” Ì¨”( Ì¨$”* Ì¨&—” Ì©” Ì©” Ì©”' Ì©”3 Ì© ”7 Ì©$”8 Ì©%‘” Ìª	˜” Ìª” Ìª” Ìª” Ìª” Ìª”# Ìª!”+ Ìª)”- Ìª+—” Ì«” Ì«” Ì«”% Ì«”1 Ì«”5 Ì«"”6 Ì«#‘” Ì¬	˜” Ì¬” Ì¬” Ì¬” Ì¬” Ì¬”# Ì¬!”1 Ì¬/”3 Ì¬1—” Ì­” Ì­” Ì­”+ Ì­#”7 Ì­$”; Ì­(”< Ì­)‘” Ì®	˜” Ì®” Ì®” Ì®” Ì®” Ì®”# Ì®!”. Ì®,”0 Ì®.—” Ì¯” Ì¯” Ì¯”( Ì¯ ”4 Ì¯!”8 Ì¯%”9 Ì¯&‘” Ì°	‘” Ì°˜” Ì±” Ì±”$ Ì±”5 Ì±"”9 Ì±&”: Ì±'”> Ì±+”Ì@ Ì±-–” Ì±” Ì±” Ì²”% Ì²”& Ì²”( Ì²–” Ì±” Ì±” Ì³”& Ì³”' Ì³”0 Ì³$’” Ì±” Ì±‘” Ì´	‘” Ìµ˜” Ì·” Ì·” Ì·” Ì·2” Ì·4” Ì·?”! Ì·ÌA”) Ì·ÌQ›” Ì¸” Ì¸” Ì¸” Ì¸” Ì¸” Ì¸” Ì¸” Ì¸”" Ì¸"”# Ì¸#”$ Ì¸$Ü ” Ì¹” Ì¹” Ì¹” Ì¹” Ì¹”! Ì¹!”% Ì¹%”( Ì¹(”- Ì¹-”1 Ì¹1”2 Ì¹2”3 Ì¹3”4 Ì¹4”5 Ì¹5”; Ì¹;”< Ì¹<”? Ì¹?”Ì@ Ì¹Ì@”ÌA Ì¹ÌA”ÌB Ì¹ÌB”ÌC Ì¹ÌC”ÌK Ì¹ÌK”ÌL Ì¹ÌL’” Ìº” Ìº˜” Ì¼” Ì¼” Ì¼” Ì¼2” Ì¼4” Ì¼?”! Ì¼ÌA”) Ì¼ÌQ›” Ì½” Ì½” Ì½” Ì½” Ì½” Ì½” Ì½” Ì½”" Ì½"”# Ì½#”$ Ì½$Ü ” Ì¾” Ì¾” Ì¾” Ì¾” Ì¾”! Ì¾!”% Ì¾%”( Ì¾(”- Ì¾-”1 Ì¾1”2 Ì¾2”3 Ì¾3”4 Ì¾4”5 Ì¾5”; Ì¾;”< Ì¾<”? Ì¾?”Ì@ Ì¾Ì@”ÌA Ì¾ÌA”ÌB Ì¾ÌB”ÌC Ì¾ÌC”ÌK Ì¾ÌK”ÌL Ì¾ÌL’” Ì¿” Ì¿‘” ÌÁ‘” ÌÃ”” ÌÄ” ÌÄ” ÌÄ” ÌÄ+Ü ” ÌÅ” ÌÅ” ÌÅ” ÌÅ” ÌÅ” ÌÅ” ÌÅ”  ÌÅ ”' ÌÅ'”( ÌÅ(”/ ÌÅ/”1 ÌÅ1”3 ÌÅ3”4 ÌÅ4”5 ÌÅ5”6 ÌÅ6’” ÌÆ” ÌÆ‘” ÌÈ‘” ÌÊ”” ÌË” ÌË” ÌË” ÌË,—” ÌÌ” ÌÌ” ÌÌ” ÌÌ” ÌÌ” ÌÌ” ÌÌœ” ÌÍ” ÌÍ” ÌÍ” ÌÍ” ÌÍ” ÌÍ”  ÌÍ ”# ÌÍ#”% ÌÍ%”ÌX ÌÍÌX”ÌY ÌÍÌY”ÌZ ÌÍÌZ’” ÌÎ” ÌÎ‘”	 ÌÏ	’” ÌÐ” ÌÐ›” ÌÑ” ÌÑ” ÌÑ” ÌÑ”  ÌÑ ”! ÌÑ!”+ ÌÑ+”, ÌÑ,”0 ÌÑ0”1 ÌÑ1”2 ÌÑ2Ü ” ÌÒ” ÌÒ” ÌÒ” ÌÒ” ÌÒ” ÌÒ” ÌÒ”" ÌÒ"”$ ÌÒ$”Ìc ÌÒÌc”Ìe ÌÒÌe”Ìl ÌÒÌl”Ìn ÌÒÌn”Ìr ÌÒÌr”Ìs ÌÒÌs”Ìw ÌÒÌw”Ìx ÌÒÌx”Ìy ÌÒÌyÜ ” ÌÓ” ÌÓ” ÌÓ” ÌÓ”  ÌÓ ”! ÌÓ!”( ÌÓ(”) ÌÓ)”4 ÌÓ4”6 ÌÓ6”7 ÌÓ7”ÌD ÌÓÌD”ÌE ÌÓÌE”ÌL ÌÓÌL”ÌM ÌÓÌM”ÌN ÌÓÌNÜ ” ÌÔ” ÌÔ” ÌÔ” ÌÔ” ÌÔ” ÌÔ” ÌÔ”" ÌÔ"”$ ÌÔ$”Ì\ ÌÔÌ\”Ì^ ÌÔÌ^”Ìd ÌÔÌd”Ìe ÌÔÌe”Ìl ÌÔÌl”Ìm ÌÔÌm”Ìn ÌÔÌn”Ìo ÌÔÌo‘”	 ÌÕ	”” ÌÕ
-” ÌÕ” ÌÕ” ÌÕÜ ” ÌÖ” ÌÖ” ÌÖ” ÌÖ” ÌÖ”) ÌÖ)”. ÌÖ.”/ ÌÖ/”0 ÌÖ0”1 ÌÖ1”6 ÌÖ6”7 ÌÖ7”> ÌÖ>”? ÌÖ?”Ì@ ÌÖÌ@”ÌA ÌÖÌA”ÌG ÌÖÌG”ÌH ÌÖÌH”ÌM ÌÖÌM”ÌN ÌÖÌN”ÌO ÌÖÌOÜ ” Ì×” Ì×” Ì×” Ì×” Ì×”+ Ì×+”0 Ì×0”4 Ì×4”9 Ì×9”: Ì×:”? Ì×?”Ì@ Ì×Ì@”ÌA Ì×ÌA”ÌB Ì×ÌB”ÌG Ì×ÌG”ÌH Ì×ÌH”ÌM Ì×ÌM”ÌN Ì×ÌN”ÌO Ì×ÌO”ÌP Ì×ÌP”ÌR Ì×ÌR”ÌS Ì×ÌSž” ÌØ” ÌØ” ÌØ” ÌØ” ÌØ” ÌØ”  ÌØ ”# ÌØ#”% ÌØ%”ÌZ ÌØÌZ”Ì\ ÌØÌ\”Ì_ ÌØÌ_”Ì` ÌØÌ`”Ìa ÌØÌaž” ÌÙ” ÌÙ” ÌÙ” ÌÙ” ÌÙ” ÌÙ”  ÌÙ ”# ÌÙ#”% ÌÙ%”ÌK ÌÙÌK”ÌM ÌÙÌM”ÌR ÌÙÌR”ÌS ÌÙÌS”ÌT ÌÙÌT‘”	 ÌÚ	’” ÌÛ” ÌÛ‘” ÌÝ‘” Ìß”” Ìá” Ìá” Ìá” Ìá'” Ìâ” Ìâ” Ìâ” Ìâ” Ìâ”. Ìâ#”/ Ìâ$”3 Ìâ(”5 Ìâ*”; Ìâ0”= Ìâ2”? Ìâ4”Ì@ Ìâ5Ÿ” Ìâ” Ìâ” Ìã” Ìã” Ìã” Ìã” Ìã”0 Ìã,”1 Ìã-”5 Ìã1”7 Ìã3”ÌA Ìã=”ÌC Ìã?”ÌE ÌãÌA”ÌF ÌãÌBÜ ” Ìâ” Ìâ” Ìä” Ìä” Ìä” Ìä”  Ìä”* Ìä&”+ Ìä'”/ Ìä+”0 Ìä,”ÌA Ìä=”ÌB Ìä>”ÌF ÌäÌB”ÌH ÌäÌD”ÌS ÌäÌO”ÌU ÌäÌQ”Ì_ ÌäÌ[”Ì` ÌäÌ\”Ìa ÌäÌ]–” Ìâ” Ìâ” Ìå” Ìå” Ìå” Ìå’” Ìâ” Ìâ‘” Ìæ‘” Ìè‘” Ìê”” Ìì” Ìì” Ìì” Ìì%” Ìí” Ìí”# Ìí”' Ìí”( Ìí”9 Ìí%”: Ìí&”> Ìí*”Ì@ Ìí,”ÌF Ìí2”ÌH Ìí4”ÌJ Ìí6”ÌK Ìí7Ÿ” Ìí” Ìí” Ìî” Ìî” Ìî”  Ìî”! Ìî”2 Ìî,”3 Ìî-”7 Ìî1”9 Ìî3”ÌC Ìî=”ÌE Ìî?”ÌG ÌîÌA”ÌH ÌîÌBÜ ” Ìí” Ìí” Ìï” Ìï” Ìï”! Ìï”" Ìï”, Ìï&”- Ìï'”1 Ìï+”2 Ìï,”ÌC Ìï=”ÌD Ìï>”ÌH ÌïÌB”ÌJ ÌïÌD”ÌU ÌïÌO”ÌW ÌïÌQ”Ìa ÌïÌ[”Ìb ÌïÌ\”Ìc ÌïÌ]–” Ìí” Ìí” Ìð” Ìð”  Ìð”! Ìð–” Ìí” Ìí” Ìñ” Ìñ” Ìñ” Ìñ–” Ìí” Ìí” Ìò” Ìò” Ìò” Ìò—” Ìí” Ìí” Ìó” Ìó” Ìó” Ìó”  Ìó˜” Ìô” Ìô” Ìô”  Ìô ”! Ìô!”% Ìô%”& Ìô&”' Ìô'’” Ìõ” Ìõ’” Ìí” Ìí‘” Ìö‘” Ìø‘” Ìú”” Ìü” Ìü” Ìü” Ìü+Ÿ” Ìý” Ìý” Ìý” Ìý”& Ìý"”' Ìý#”+ Ìý'”- Ìý)”: Ìý6”< Ìý8”= Ìý9”> Ìý:”ÌC Ìý?”ÌD ÌýÌ@”ÌF ÌýÌB’” Ìþ”# Ìþ’” Ìÿ” Ìÿ’” Ìþ”# Ìþ–” Ìÿ” Ìÿ” Í”$ Í”% Í”+ Í’” Í ” Í —” Í”  Í”! Í”+ Í#”7 Í$”< Í)”= Í*Ü ”; Í ”? Í ”Ì@ Í ”ÌH Í %”Ìb Í”Ìc Í”Ìh Í)”Ìj Í+”Ìl Í-”Ìm Í.”Ìp Í1”Ìu Í6”Ìv Í7”Ìx Í9”Ì| Í=”Ì€ ÍÌA”Ì ÍÌB”ÌŽ ÍÌO”Ì ÍÌQ’” Í ” Í ’” Ìþ” Ìþ’” Ìÿ” Ìÿ‘” Í	‘” Í’” Í”% Í’” Í” Í’” Í”% Í–” Í” Í” Í”! Í”" Í”( Í’” Í” Í—” Í	”  Í	”! Í	”+ Í	#”7 Í	$”< Í	)”= Í	*Ü ”; Í”? Í”Ì@ Í”ÌH Í%”Ìb Í
-”Ìc Í
-”Ìh Í
-)”Ìj Í
-+”Ìl Í
--”Ìm Í
-.”Ìp Í
-1”Ìu Í
-6”Ìv Í
-7”Ìx Í
-9”Ì| Í
-=”Ì€ Í
-ÌA”Ì Í
-ÌB”ÌŽ Í
-ÌO”Ì Í
-ÌQ’” Í” Í’” Í”! Í’” Í” Í‘” Í	‘” Í‘” Í‘” Í”” Í” Í” Í” Í(’” Í” Í’” Í” Í—” Í” Í” Í” Í”+ Í ”0 Í%”1 Í&Ü ”/ Í”3 Í”4 Í”< Í!”ÌV Í”ÌW Í”Ì\ Í%”Ì^ Í'”Ì` Í)”Ìa Í*”Ìd Í-”Ìi Í2”Ìj Í3”Ìl Í5”Ìp Í9”Ìt Í=”Ìu Í>”Ì‚ ÍÌK”Ì„ ÍÌM’” Í” Í’” Í” Í‘” Í‘” Í‘” Í”” Í ” Í ” Í ” Í /–” Í!” Í!” Í!” Í!” Í!”  Í! –” Í"” Í"” Í"” Í"”  Í"!”( Í")‘”	 Í#	œ” Í%” Í%” Í%” Í%” Í%” Í%” Í%” Í%” Í%”! Í%!”% Í%%”& Í%&œ” Í&” Í&” Í&” Í&” Í&” Í&” Í&” Í&” Í&”! Í&!”% Í&%”& Í&&œ” Í'” Í'” Í'” Í'” Í'” Í'” Í'” Í'” Í'”  Í' ”$ Í'$”% Í'%˜” Í(” Í(” Í(” Í(” Í(” Í(” Í(” Í(’” Í*” Í*˜” Í+” Í+” Í+” Í+” Í+” Í+” Í+” Í+œ” Í,” Í,” Í,” Í,” Í,” Í,”! Í,!”" Í,"”& Í,&”+ Í,+”. Í,.”/ Í,/’” Í-” Í-ÔrH–§version¤file§sources®sourcesContent¥names¨mappingsÀ‘À‘ÀÜÃ‘”    ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”  	 ‘”  
- ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”   ‘”    ‘”  ! ‘”  " ‘”  # ‘”  $ ‘”  % ‘”  & ‘”  ' ‘”  ( ‘”  ) ‘”  * ‘”  + ‘”  , ‘”  - ‘”  . ‘”  / ‘”  0 ‘”  1 ‘”  2 ‘”  3 ‘”  4 ‘”  5 ‘”  6 ‘”  7 ‘”  8 ‘”  9 ‘”  : ‘”  ; ‘”  < ‘”  = ‘”  > ‘”  ? ‘”  Ì@ ‘”  ÌA ‘”  ÌB ‘”  ÌC ‘”  ÌD ‘”  ÌE ‘”  ÌF ‘”  ÌG ‘”  ÌH ‘”  ÌI ‘”  ÌJ ‘”  ÌK ‘”  ÌL ‘”  ÌM ‘”  ÌN ‘”  ÌO ‘”  ÌP ‘”  ÌQ ‘”  ÌR ‘”  ÌS ‘”  ÌT ‘”  ÌU ‘”  ÌV ‘”  ÌW ‘”  ÌX ‘”  ÌY ‘”  ÌZ ‘”  Ì[ ‘”  Ì\ ‘”  Ì] ‘”  Ì^ ‘”  Ì_ ‘”  Ì` ‘”  Ìa ‘”  Ìb ‘”  Ìc ‘”  Ìd ‘”  Ìe ‘”  Ìf ‘”  Ìg ‘”  Ìh ‘”  Ìi ‘”  Ìj ‘”  Ìk ‘”  Ìl ‘”  Ìm ‘”  Ìn ‘”  Ìo ‘”  Ìp ‘”  Ìq ‘”  Ìr ‘”  Ìs ‘”  Ìt ‘”  Ìu ‘”  Ìv ‘”  Ìw ‘”  Ìx ‘”  Ìy ‘”  Ìz ‘”  Ì{ ‘”  Ì| ‘”  Ì} ‘”  Ì~ ‘”  Ì ‘”  Ì€ ‘”  Ì ‘”  Ì‚ ‘”  Ìƒ ‘”  Ì„ ‘”  Ì… ‘”  Ì† ‘”  Ì‡ ‘”  Ìˆ ‘”  Ì‰ ‘”  ÌŠ ‘”  Ì‹ ‘”  ÌŒ ‘”  Ì ‘”  ÌŽ ‘”  Ì ‘”  Ì ‘”  Ì‘ ‘”  Ì’ ‘”  Ì“ ‘”  Ì” ‘”  Ì• ‘”  Ì– ‘”  Ì— ‘”  Ì˜ ‘”  Ì™ ‘”  Ìš ‘”  Ì› ‘”  Ìœ ‘”  Ì ‘”  Ìž ‘”  ÌŸ ‘”  Ì  ‘”  Ì¡ ‘”  Ì¢ ‘”  Ì£ ‘”  Ì¤ ‘”  Ì¥ ‘”  Ì¦ ‘”  Ì§ ‘”  Ì¨ ‘”  Ì© ‘”  Ìª ‘”  Ì« ‘”  Ì¬ ‘”  Ì­ ‘”  Ì® ‘”  Ì¯ ‘”  Ì° ‘”  Ì± ‘”  Ì² ‘”  Ì³ ‘”  Ì´ ‘”  Ìµ ‘”  Ì¶ ‘”  Ì· ‘”  Ì¸ ‘”  Ì¹ ‘”  Ìº ‘”  Ì» ‘”  Ì¼ ‘”  Ì½ ‘”  Ì¾ ‘”  Ì¿ ‘”  ÌÀ ‘”  ÌÁ ‘”  ÌÂ ‘”  ÌÃ ‘”  ÌÄ ‘”  ÌÅ ‘”  ÌÆ ‘”  ÌÇ ‘”  ÌÈ ‘”  ÌÉ ‘”  ÌÊ ‘”  ÌË ‘”  ÌÌ ‘”  ÌÍ ‘”  ÌÎ ‘”  ÌÏ ‘”  ÌÐ ‘”  ÌÑ ‘”  ÌÒ ‘”  ÌÓ ‘”  ÌÔ ‘”  ÌÕ ‘”  ÌÖ ‘”  Ì× ‘”  ÌØ ‘”  ÌÙ ‘”  ÌÚ ‘”  ÌÛ ‘”  ÌÜ ‘”  ÌÝ ‘”  ÌÞ ‘”  Ìß ‘”  Ìà ‘”  Ìá ‘”  Ìâ ‘”  Ìã ‘”  Ìä ‘”  Ìå ‘”  Ìæ ‘”  Ìç ‘”  Ìè ‘”  Ìé ‘”  Ìê ‘”  Ìë ‘”  Ìì ‘”  Ìí ‘”  Ìî ‘”  Ìï ‘”  Ìð ‘”  Ìñ ‘”  Ìò ‘”  Ìó ‘”  Ìô ‘”  Ìõ ‘”  Ìö ‘”  Ì÷ ‘”  Ìø ‘”  Ìù ‘”  Ìú ‘”  Ìû ‘”  Ìü ‘”  Ìý ‘”  Ìþ ‘”  Ìÿ ‘”  Í  ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í	 ‘”  Í
- ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í ‘”  Í  ‘”  Í! ‘”  Í" ‘”  Í# ‘”  Í$ ‘”  Í% ‘”  Í& ‘”  Í' ‘”  Í( ‘”  Í) ‘”  Í* ‘”  Í+ ‘”  Í, ‘”  Í- ‘”  Í. ‘”  Í/ ‘”  Í0 ‘”  Í1 ‘”  Í2 ‘”  Í3 ‘”  Í4 ‘”  Í5 ‘”  Í6 ‘”  Í7 ‘”  Í8 ‘”  Í9 ‘”  Í: ‘”  Í; ‘”  Í< ‘”  Í= ‘”  Í> ‘”  Í? ‘”  Í@ ‘”  ÍA ‘”  ÍB ‘”  ÍC ‘”  ÍD ‘”  ÍE ‘”  ÍF ‘”  ÍG ‘”  ÍH ‘”  ÍI ‘”  ÍJ ‘”  ÍK ‘”  ÍL ‘”  ÍM ‘”  ÍN ‘”  ÍO ‘”  ÍP ‘”  ÍQ ‘”  ÍR ‘”  ÍS ‘”  ÍT ‘”  ÍU ‘”  ÍV ‘”  ÍW ‘”  ÍX ‘”  ÍY ‘”  ÍZ ‘”  Í[ ‘”  Í\ ‘”  Í] ‘”  Í^ ‘”  Í_ ‘”  Í` ‘”  Ía ‘”  Íb ‘”  Íc ‘”  Íd ‘”  Íe ‘”  Íf ‘”  Íg ‘”  Íh ‘”  Íi ‘”  Íj ‘”  Ík ‘”  Íl ‘”  Ím ‘”  Ín ‘”  Ío ‘”  Íp ‘”  Íq ‘”  Ír ‘”  Ís ‘”  Ít ‘”  Íu ‘”  Ív ‘”  Íw ‘”  Íx ‘”  Íy ‘”  Íz ‘”  Í{ ‘”  Í| ‘”  Í} ‘”  Í~ ‘”  Í ‘”  Í€ ‘”  Í ‘”  Í‚ ‘”  Íƒ ‘”  Í„ ‘”  Í… ‘”  Í† ‘”  Í‡ ‘”  Íˆ ‘”  Í‰ ‘”  ÍŠ ‘”  Í‹ ‘”  ÍŒ ‘”  Í ‘”  ÍŽ ‘”  Í ‘”  Í ‘”  Í‘ ‘”  Í’ ‘”  Í“ ‘”  Í” ‘”  Í• ‘”  Í– ‘”  Í— ‘”  Í˜ ‘”  Í™ ‘”  Íš ‘”  Í› ‘”  Íœ ‘”  Í ‘”  Íž ‘”  ÍŸ ‘”  Í  ‘”  Í¡ ‘”  Í¢ ‘”  Í£ ‘”  Í¤ ‘”  Í¥ ‘”  Í¦ ‘”  Í§ ‘”  Í¨ ‘”  Í© ‘”  Íª ‘”  Í« ‘”  Í¬ ‘”  Í­ ‘”  Í® ‘”  Í¯ ‘”  Í° ‘”  Í± ‘”  Í² ‘”  Í³ ‘”  Í´ ‘”  Íµ ‘”  Í¶ ‘”  Í· ‘”  Í¸ ‘”  Í¹ ‘”  Íº ‘”  Í» ‘”  Í¼ ‘”  Í½ ‘”  Í¾ ‘”  Í¿ ‘”  ÍÀ ‘”  ÍÁ ‘”  ÍÂ ÂÔ  ÔrI”²dynamicImportCache¹exportAllDeclarationCache»exportNamedDeclarationCache«importCache‘ÔrJ•¤type¥start£endªspecifiers¦source±ImportDeclarationÌ€Ì ‘ÔrK”¤type¥start£end¥local¶ImportDefaultSpecifierÌ‡ÌŒÔrL”¤type¥start£end¤nameªIdentifierÌ‡ÌŒ¥hilogÔrM•¤type¥start£end¥value£raw§LiteralÌ’ÌŸ«@ohos.hilog­'@ohos.hilog'

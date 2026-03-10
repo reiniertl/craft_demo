@@ -6,3 +6,27 @@ dist/
 # SSH keys
 ssh.key
 ssh.key.pub
+
+# Claude local settings (machine-specific)
+.claude/settings.local.json
+
+# HarmonyOS machine-specific SDK path
+src/oh/local.properties
+
+# Hvigor build cache, logs, and timestamped reports (auto-generated)
+src/oh/.hvigor/cache/
+src/oh/.hvigor/outputs/
+src/oh/.hvigor/report/
+
+# OH compiler cache (auto-generated from source)
+src/oh/entry/build/default/cache/
+
+# OH build intermediates (auto-generated)
+src/oh/entry/build/default/intermediates/
+
+# OH IDE config
+src/oh/.idea/
+
+# OH package manager downloads
+src/oh/oh_modules/.ohpm/oh_modules/
+src/oh/oh_modules/@ohos/
