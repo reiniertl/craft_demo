@@ -93,6 +93,8 @@ export default class CraftAbility extends UIAbility {
             // CraftPage.aboutToAppear() runs during loadContent, so the runtime
             // must already be in AppStorage for the page to subscribe to state.
             AppStorage.setOrCreate('craftRuntime', this.runtime);
+            AppStorage.setOrCreate('craftViewTree', null);
+            AppStorage.setOrCreate('craftUpdateCounter', 0);
             hilog.info(DOMAIN, TAG, '[CRAFT][Ability][INFO] Runtime stored in AppStorage');
 
             // Load CraftPage - page subscribes to state updates in aboutToAppear()

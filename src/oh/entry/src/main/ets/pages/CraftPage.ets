@@ -24,8 +24,8 @@ struct CraftPage {
     @StorageLink('activityRef') activityRef: number = 0;
     @StorageLink('craftError') craftError: string = '';
 
-    @State viewTree: SerializedView | null = null;
-    @State updateCounter: number = 0;
+    @StorageLink('craftViewTree') viewTree: SerializedView | null = null;
+    @StorageLink('craftUpdateCounter') updateCounter: number = 0;
     @State errorMessage: string = '';
     @State isLoading: boolean = true;
     private diagTimer: number = -1;
@@ -49,20 +49,24 @@ struct CraftPage {
             stateManager.subscribe(() => {
                 hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] State update received');
                 const state = stateManager.getState();
-                this.viewTree = state.root as SerializedView;
-                this.updateCounter++;
+                // Use AppStorage directly so ArkUI's @StorageLink detects the
+                // change and re-runs build().  Setting @State / @StorageLink via
+                // `this` inside an external callback is not reliably observed.
+                AppStorage.setOrCreate('craftViewTree', state.root);
+                AppStorage.setOrCreate('craftUpdateCounter', state.version);
                 this.isLoading = false;
 
-                hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] View tree updated: counter=%{public}d', this.updateCounter);
+                hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] View tree updated: counter=%{public}d', state.version);
 
-                if (this.viewTree) {
-                    hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Root view type: %{public}s', this.viewTree.type);
+                const rootView = state.root as SerializedView | null;
+                if (rootView) {
+                    hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Root view type: %{public}s', rootView.type);
                     // Diagnostic: log text from root or first child to verify data flow
-                    if (this.viewTree.type === 'TextView') {
-                        const displayText = this.viewTree.props?.text !== undefined ? String(this.viewTree.props.text) : '<undefined>';
+                    if (rootView.type === 'TextView') {
+                        const displayText = rootView.props?.text !== undefined ? String(rootView.props.text) : '<undefined>';
                         hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Root text="%{public}s"', displayText);
-                    } else if (this.viewTree.children && this.viewTree.children.length > 0) {
-                        const firstChild = this.viewTree.children[0];
+                    } else if (rootView.children && rootView.children.length > 0) {
+                        const firstChild = rootView.children[0];
                         if (firstChild.type === 'TextView') {
                             const displayText = firstChild.props?.text !== undefined ? String(firstChild.props.text) : '<undefined>';
                             hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Display text="%{public}s"', displayText);
@@ -74,7 +78,8 @@ struct CraftPage {
             // Get initial state
             const initialState = stateManager.getState();
             if (initialState.root) {
-                this.viewTree = initialState.root as SerializedView;
+                AppStorage.setOrCreate('craftViewTree', initialState.root);
+                AppStorage.setOrCreate('craftUpdateCounter', initialState.version);
                 this.isLoading = false;
                 hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Initial state loaded');
             }
