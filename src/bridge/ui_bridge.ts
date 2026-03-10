@@ -80,7 +80,12 @@ export class UIBridge {
     }
 
     node.properties.set(property, value);
-    this.stateManager.notifyUpdate();
+    // Re-serialize tree so the serialized state reflects the updated property
+    if (this.rootView) {
+      this.stateManager.setRootView(this.rootView);
+    } else {
+      this.stateManager.notifyUpdate();
+    }
   }
 
   /**
@@ -118,7 +123,12 @@ export class UIBridge {
 
     child.parent = parent;
     parent.children.push(child);
-    this.stateManager.notifyUpdate();
+    // Re-serialize tree so the serialized state reflects the new child
+    if (this.rootView) {
+      this.stateManager.setRootView(this.rootView);
+    } else {
+      this.stateManager.notifyUpdate();
+    }
   }
 
   /**
