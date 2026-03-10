@@ -7,6 +7,15 @@ dist/
 ssh.key
 ssh.key.pub
 
+# Compiled binary artifacts
+*.apk
+*.dex
+*.hap
+*.abc
+*.jar
+*.class
+*.so
+
 # Claude local settings (machine-specific)
 .claude/settings.local.json
 
