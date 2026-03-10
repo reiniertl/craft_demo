@@ -10,12 +10,10 @@ const TAG = 'CRAFT';
 /**
  * CRAFT Entry Ability - Full runtime host for Android APKs
  *
- * Launch with external APK:
+ * Launch with APK:
+ *   hdc file send my_app.apk /data/app/my_app.apk
  *   hdc shell aa start -a EntryAbility -b com.craft.runtime \
- *     --ps apk_path /data/app/hello_world.apk
- *
- * Launch with bundled APK (no parameters needed):
- *   hdc shell aa start -a EntryAbility -b com.craft.runtime
+ *     --ps apk_path /data/app/my_app.apk
  *
  * View logs:
  *   hdc hilog -T CRAFT
@@ -23,19 +21,19 @@ const TAG = 'CRAFT';
 export default class CraftAbility extends UIAbility {
     private runtime: CraftRuntime | null = null;
     private apkPath: string = '';
-    private useBundledApk: boolean = false;
     private activityRef: number = 0;
     onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
         hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] onCreate');
-        // Extract APK path from Want parameters
+        // Require apk_path launch parameter
         if (want.parameters && want.parameters['apk_path']) {
             this.apkPath = want.parameters['apk_path'] as string;
-            this.useBundledApk = false;
             hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] APK path: %{public}s', this.apkPath);
         }
         else {
-            this.useBundledApk = true;
-            hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] No apk_path provided, will use bundled APK');
+            const msg = 'No apk_path provided. Launch with: --ps apk_path /data/app/my_app.apk';
+            hilog.error(DOMAIN, TAG, '[CraftAbility][ERROR] %{public}s', msg);
+            AppStorage.setOrCreate('craftError', msg);
+            return;
         }
         // Initialize CRAFT runtime
         try {
@@ -72,25 +70,16 @@ export default class CraftAbility extends UIAbility {
             if (!this.runtime) {
                 throw new Error('Runtime not initialized');
             }
-            // Load APK - either from filesystem or bundled rawfile
+            // Load APK from filesystem path provided via apk_path launch parameter.
             // All operations are synchronous to avoid lifecycle timing issues.
-            hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Loading APK...');
-            if (this.useBundledApk) {
-                const rawData = this.context.resourceManager.getRawFileContentSync('hello_world.apk');
-                const apkData = new Uint8Array(rawData.buffer);
-                this.runtime.loadAPK(apkData);
-                hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Bundled APK loaded (%{public}d bytes)', apkData.length);
-            }
-            else {
-                // Read external APK synchronously (no dynamic import needed)
-                const file = fs.openSync(this.apkPath, fs.OpenMode.READ_ONLY);
-                const stat = fs.statSync(this.apkPath);
-                const buf = new ArrayBuffer(stat.size);
-                fs.readSync(file.fd, buf);
-                fs.closeSync(file);
-                this.runtime.loadAPK(new Uint8Array(buf));
-                hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] APK loaded from path (%{public}d bytes)', stat.size);
-            }
+            hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] Loading APK from %{public}s...', this.apkPath);
+            const file = fs.openSync(this.apkPath, fs.OpenMode.READ_ONLY);
+            const stat = fs.statSync(this.apkPath);
+            const buf = new ArrayBuffer(stat.size);
+            fs.readSync(file.fd, buf);
+            fs.closeSync(file);
+            this.runtime.loadAPK(new Uint8Array(buf));
+            hilog.info(DOMAIN, TAG, '[CraftAbility][INFO] APK loaded (%{public}d bytes)', stat.size);
             // Share runtime with page via AppStorage BEFORE loading page.
             // CraftPage.aboutToAppear() runs during loadContent, so the runtime
             // must already be in AppStorage for the page to subscribe to state.

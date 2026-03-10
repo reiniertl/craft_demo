@@ -25,6 +25,29 @@
         "BUILD_OPTION": {
           "debuggable": true
         }
+      },
+      "charlotte": {
+        "SOURCE_ROOT": "D:\\craft\\craft\\src\\oh\\entry\\src\\main",
+        "RESOURCES_PATH": [
+          "D:\\craft\\craft\\src\\oh\\entry\\src\\main\\resources"
+        ],
+        "BUILD_PATH": {
+          "OUTPUT_PATH": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\outputs\\charlotte",
+          "INTERMEDIA_PATH": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\intermediates",
+          "JS_ASSETS_PATH": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\intermediates\\loader_out\\charlotte",
+          "JS_LITE_ASSETS_PATH": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\intermediates\\loader_out_lite\\charlotte",
+          "RES_PATH": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\intermediates\\res\\charlotte",
+          "RES_PROFILE_PATH": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\intermediates\\res\\charlotte\\resources\\base\\profile",
+          "ETS_SUPER_VISUAL_PATH": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\cache\\charlotte\\charlotte@CompileArkTS\\esmodule",
+          "JS_SUPER_VISUAL_PATH": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\cache\\charlotte\\charlotte@CompileJS\\jsbundle",
+          "WORKER_LOADER": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\intermediates\\loader\\charlotte\\loader.json",
+          "MANIFEST_JSON": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\intermediates\\manifest\\charlotte",
+          "OUTPUT_METADATA_JSON": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\intermediates\\hap_metadata\\charlotte\\output_metadata.json",
+          "SOURCE_MAP_DIR": "D:\\craft\\craft\\src\\oh\\entry\\build\\default\\intermediates\\source_map\\charlotte"
+        },
+        "BUILD_OPTION": {
+          "debuggable": true
+        }
       }
     },
     "BUILD_OPTION": {
@@ -40,6 +63,10 @@
         {
           "name": "default",
           "runtimeOS": "OpenHarmony"
+        },
+        {
+          "name": "charlotte",
+          "runtimeOS": "HarmonyOS"
         }
       ]
     },
@@ -62,6 +89,12 @@
             "applyToProducts": [
               "default"
             ]
+          },
+          {
+            "name": "charlotte",
+            "applyToProducts": [
+              "charlotte"
+            ]
           }
         ],
         "belongProjectPath": "D:\\craft\\craft\\src\\oh"
@@ -81,6 +114,18 @@
               "storeFile": "C:/Users/Bluezone1/.ohos/config/openharmony/default_oh_h5JrLrWxJFb_tKtNLUNrh2JLR29lovqyhZUCN-3A77c=.p12",
               "storePassword": "0000001B6E69E83414B18E6704AF9979889DABF10A65E7D2612378E13810B10B43C45756C506ECB1294259"
             }
+          },
+          {
+            "name": "charlotte",
+            "material": {
+              "certpath": "",
+              "keyAlias": "",
+              "keyPassword": "",
+              "profile": "",
+              "signAlg": "SHA256withECDSA",
+              "storeFile": "",
+              "storePassword": ""
+            }
           }
         ],
         "products": [
@@ -91,6 +136,13 @@
             "compatibleSdkVersion": 12,
             "runtimeOS": "OpenHarmony",
             "targetSdkVersion": 12
+          },
+          {
+            "name": "charlotte",
+            "signingConfig": "charlotte",
+            "compileSdkVersion": "5.0.0(12)",
+            "compatibleSdkVersion": "5.0.0(12)",
+            "runtimeOS": "HarmonyOS"
           }
         ],
         "buildModeSet": [
@@ -111,6 +163,12 @@
               "name": "default",
               "applyToProducts": [
                 "default"
+              ]
+            },
+            {
+              "name": "charlotte",
+              "applyToProducts": [
+                "charlotte"
               ]
             }
           ]
