@@ -31,32 +31,43 @@ struct CraftPage {
     private diagTimer: number = -1;
 
     aboutToAppear(): void {
-        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] aboutToAppear');
-        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] runtime available: %{public}s', String(this.runtime !== null));
+        hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] aboutToAppear');
+        hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] runtime available: %{public}s', String(this.runtime !== null));
 
         if (!this.runtime) {
             this.errorMessage = 'Runtime not available';
             this.isLoading = false;
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Runtime not found in AppStorage');
+            hilog.error(DOMAIN, TAG, '[CRAFT][Page][ERROR] Runtime not found in AppStorage');
             return;
         }
 
         try {
             // Subscribe to UI updates from StateManager
             const stateManager = this.runtime.getUIBridge().getStateManager();
-            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Subscribed to state updates');
+            hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Subscribed to state updates');
 
             stateManager.subscribe(() => {
-                hilog.info(DOMAIN, TAG, '[CraftPage][INFO] State update received');
+                hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] State update received');
                 const state = stateManager.getState();
                 this.viewTree = state.root as SerializedView;
                 this.updateCounter++;
                 this.isLoading = false;
 
-                hilog.info(DOMAIN, TAG, '[CraftPage][INFO] View tree updated: counter=%{public}d', this.updateCounter);
+                hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] View tree updated: counter=%{public}d', this.updateCounter);
 
                 if (this.viewTree) {
-                    hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Root view type: %{public}s', this.viewTree.type);
+                    hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Root view type: %{public}s', this.viewTree.type);
+                    // Diagnostic: log text from root or first child to verify data flow
+                    if (this.viewTree.type === 'TextView') {
+                        const displayText = this.viewTree.props?.text !== undefined ? String(this.viewTree.props.text) : '<undefined>';
+                        hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Root text="%{public}s"', displayText);
+                    } else if (this.viewTree.children && this.viewTree.children.length > 0) {
+                        const firstChild = this.viewTree.children[0];
+                        if (firstChild.type === 'TextView') {
+                            const displayText = firstChild.props?.text !== undefined ? String(firstChild.props.text) : '<undefined>';
+                            hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Display text="%{public}s"', displayText);
+                        }
+                    }
                 }
             });
 
@@ -65,13 +76,13 @@ struct CraftPage {
             if (initialState.root) {
                 this.viewTree = initialState.root as SerializedView;
                 this.isLoading = false;
-                hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Initial state loaded');
+                hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Initial state loaded');
             }
 
             // Diagnostic timeout: if still loading after 3 seconds, show status
             this.diagTimer = setTimeout(() => {
                 if (this.isLoading) {
-                    hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Still loading after 3s, craftError=%{public}s', this.craftError);
+                    hilog.error(DOMAIN, TAG, '[CRAFT][Page][ERROR] Still loading after 3s, craftError=%{public}s', this.craftError);
                     if (this.craftError) {
                         this.errorMessage = this.craftError;
                     } else {
@@ -85,12 +96,12 @@ struct CraftPage {
             const msg = error instanceof Error ? error.message : String(error);
             this.errorMessage = `Setup failed: ${msg}`;
             this.isLoading = false;
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Setup failed: %{public}s', msg);
+            hilog.error(DOMAIN, TAG, '[CRAFT][Page][ERROR] Setup failed: %{public}s', msg);
         }
     }
 
     aboutToDisappear(): void {
-        hilog.info(DOMAIN, TAG, '[CraftPage][INFO] aboutToDisappear');
+        hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] aboutToDisappear');
         if (this.diagTimer !== -1) {
             clearTimeout(this.diagTimer);
             this.diagTimer = -1;
@@ -104,7 +115,12 @@ struct CraftPage {
             } else if (this.errorMessage) {
                 this.errorView();
             } else if (this.viewTree !== null) {
-                this.renderView(this.viewTree);
+                // Wrap root view in ForEach with update-keyed identity so ArkUI
+                // re-creates the component when view properties change.
+                // (Child views inside layouts already get this via ForEach + viewKey.)
+                ForEach([this.viewTree], (view: SerializedView) => {
+                    this.renderView(view);
+                }, (view: SerializedView) => this.viewKey(view))
             } else {
                 this.emptyView();
             }
@@ -203,19 +219,19 @@ struct CraftPage {
      */
     private handleClick(view: SerializedView): void {
         if (!this.runtime) {
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Click ignored: runtime is null');
+            hilog.error(DOMAIN, TAG, '[CRAFT][Page][ERROR] Click ignored: runtime is null');
             return;
         }
         try {
             const viewRef = this.getViewRef(view);
-            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Click on viewRef=%{public}d type=%{public}s', viewRef, view.type);
+            hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Click on viewRef=%{public}d type=%{public}s', viewRef, view.type);
             const handled = this.runtime.getUIBridge().dispatchClick(viewRef);
-            hilog.info(DOMAIN, TAG, '[CraftPage][INFO] Click dispatched: handled=%{public}s', String(handled));
+            hilog.info(DOMAIN, TAG, '[CRAFT][Page][INFO] Click dispatched: handled=%{public}s counter=%{public}d', String(handled), this.updateCounter);
         } catch (error) {
             const msg = error instanceof Error ? error.message : String(error);
             const stack = error instanceof Error && error.stack ? error.stack : '';
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Click handler failed: %{public}s', msg);
-            hilog.error(DOMAIN, TAG, '[CraftPage][ERROR] Stack: %{public}s', stack);
+            hilog.error(DOMAIN, TAG, '[CRAFT][Page][ERROR] Click handler failed: %{public}s', msg);
+            hilog.error(DOMAIN, TAG, '[CRAFT][Page][ERROR] Stack: %{public}s', stack);
         }
     }
 
@@ -247,6 +263,15 @@ struct CraftPage {
     }
 
     /**
+     * Generate a ForEach key that changes when view props change.
+     * Uses prop values directly so ArkUI recreates items on data change.
+     */
+    private viewKey(child: SerializedView): string {
+        const text = child.props?.text !== undefined ? String(child.props.text) : '';
+        return `${child.id}_${text}_${child.children ? child.children.length : 0}_v${this.updateCounter}`;
+    }
+
+    /**
      * Render LinearLayout as Column (vertical) or Row (horizontal)
      */
     @Builder
@@ -256,7 +281,7 @@ struct CraftPage {
             Column() {
                 ForEach(view.children, (child: SerializedView) => {
                     this.renderView(child);
-                }, (child: SerializedView) => `${child.id}_${this.updateCounter}`)
+                }, (child: SerializedView) => this.viewKey(child))
             }
             .width('100%')
         } else {
@@ -264,7 +289,7 @@ struct CraftPage {
             Row() {
                 ForEach(view.children, (child: SerializedView) => {
                     this.renderView(child);
-                }, (child: SerializedView) => `${child.id}_${this.updateCounter}`)
+                }, (child: SerializedView) => this.viewKey(child))
             }
             .width('100%')
         }
@@ -278,7 +303,7 @@ struct CraftPage {
         Column() {
             ForEach(view.children, (child: SerializedView) => {
                 this.renderView(child);
-            }, (child: SerializedView) => `${child.id}_${this.updateCounter}`)
+            }, (child: SerializedView) => this.viewKey(child))
         }
     }
 

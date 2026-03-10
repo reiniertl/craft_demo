@@ -196,10 +196,30 @@ export class UIBridge {
   dispatchClick(viewRef: number): boolean {
     const callback = this.clickCallbacks.get(viewRef);
     if (callback) {
+      const beforeVersion = this.stateManager.getState().version;
       callback();
+      const afterVersion = this.stateManager.getState().version;
+      console.info(`[CRAFT][UIBridge][INFO] dispatchClick view=${viewRef} version=${beforeVersion}->${afterVersion}`);
+      if (this.rootView) {
+        this.logTreeTextProps(this.rootView, 0);
+      }
       return true;
     }
     return false;
+  }
+
+  /**
+   * Log text properties of the view tree (for click diagnostics)
+   */
+  private logTreeTextProps(node: ViewNode, depth: number): void {
+    const text = node.properties.get('text');
+    if (text !== undefined) {
+      const indent = '  '.repeat(depth);
+      console.info(`[CRAFT][UIBridge][INFO] ${indent}${node.viewType}[${node.viewRef}] text="${text}"`);
+    }
+    for (const child of node.children) {
+      this.logTreeTextProps(child, depth + 1);
+    }
   }
 
   /**
