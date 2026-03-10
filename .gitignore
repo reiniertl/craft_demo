@@ -18,11 +18,8 @@ src/oh/.hvigor/cache/
 src/oh/.hvigor/outputs/
 src/oh/.hvigor/report/
 
-# OH compiler cache (auto-generated from source)
-src/oh/entry/build/default/cache/
-
-# OH build intermediates (auto-generated)
-src/oh/entry/build/default/intermediates/
+# OH build output (cache, intermediates, generated files, HAP outputs)
+src/oh/entry/build/
 
 # OH IDE config
 src/oh/.idea/
