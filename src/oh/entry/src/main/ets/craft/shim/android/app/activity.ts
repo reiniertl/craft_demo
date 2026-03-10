@@ -61,6 +61,9 @@ export function registerActivityShim(registry: ShimRegistry, uiBridge?: UIBridge
   // onDestroy()V
   registry.register(ACTIVITY_CLASS, 'onDestroy', '()V',
     (_interp, _heap, _thisRef, _args) => {
+      if (uiBridge) {
+        uiBridge.cancelAllTimers();
+      }
       return NULL_VALUE;
     }
   );

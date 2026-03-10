@@ -9,6 +9,17 @@ import { StateManager, ViewState } from './state_manager';
 import { Value } from '../core/types';
 
 /**
+ * PendingTimer represents a scheduled callback in the timer queue.
+ * Used by View.postDelayed / View.post to schedule Runnable execution.
+ */
+export interface PendingTimer {
+  viewRef: number;         // Heap reference to the View that posted the timer
+  runnableRef: number;     // Heap reference to the Runnable object
+  callback: () => void;    // Function to invoke when timer fires
+  fireAt: number;          // Date.now() + delayMs
+}
+
+/**
  * ViewNode represents a node in the UI tree
  * Maps Android View heap object to ArkUI component
  */
@@ -35,6 +46,8 @@ export class UIBridge {
   private stateManager: StateManager;
   private viewMap: Map<number, ViewNode> = new Map();
   private rootView: ViewNode | null = null;
+  private pendingTimers: PendingTimer[] = [];
+  private pollingHandle: number = -1;
 
   constructor(heap: Heap, stateManager: StateManager) {
     this.heap = heap;
@@ -174,9 +187,98 @@ export class UIBridge {
   }
 
   /**
+   * Schedule a timer callback (used by View.postDelayed / View.post)
+   * @param viewRef Heap reference to the View that posted the timer
+   * @param runnableRef Heap reference to the Runnable object
+   * @param callback Function to invoke when timer fires
+   * @param delayMs Delay in milliseconds
+   */
+  scheduleTimer(viewRef: number, runnableRef: number, callback: () => void, delayMs: number): void {
+    this.pendingTimers.push({
+      viewRef,
+      runnableRef,
+      callback,
+      fireAt: Date.now() + delayMs,
+    });
+    this.startPolling();
+  }
+
+  /**
+   * Cancel all timers for a specific Runnable on a specific View
+   * (used by View.removeCallbacks)
+   */
+  cancelTimersForRunnable(viewRef: number, runnableRef: number): void {
+    this.pendingTimers = this.pendingTimers.filter(
+      (t) => !(t.viewRef === viewRef && t.runnableRef === runnableRef)
+    );
+    if (this.pendingTimers.length === 0) {
+      this.stopPolling();
+    }
+  }
+
+  /**
+   * Cancel all pending timers and stop the polling loop
+   */
+  cancelAllTimers(): void {
+    this.pendingTimers = [];
+    this.stopPolling();
+  }
+
+  /**
+   * Get the number of pending timers (for testing)
+   */
+  getPendingTimerCount(): number {
+    return this.pendingTimers.length;
+  }
+
+  private startPolling(): void {
+    if (this.pollingHandle !== -1) {
+      return; // Already polling
+    }
+    this.pollingHandle = setInterval(() => this.processPendingTimers(), 50) as unknown as number;
+  }
+
+  private stopPolling(): void {
+    if (this.pollingHandle !== -1) {
+      clearInterval(this.pollingHandle);
+      this.pollingHandle = -1;
+    }
+  }
+
+  private processPendingTimers(): void {
+    const now = Date.now();
+    const ready: PendingTimer[] = [];
+    const remaining: PendingTimer[] = [];
+
+    for (const timer of this.pendingTimers) {
+      if (timer.fireAt <= now) {
+        ready.push(timer);
+      } else {
+        remaining.push(timer);
+      }
+    }
+
+    this.pendingTimers = remaining;
+
+    for (const timer of ready) {
+      try {
+        timer.callback();
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : String(e);
+        console.error(`[CRAFT][UIBridge][ERROR] Timer callback failed: ${msg}`);
+      }
+    }
+
+    if (this.pendingTimers.length === 0) {
+      this.stopPolling();
+    }
+  }
+
+  /**
    * Clear all views (for cleanup/reset)
    */
   clear(): void {
+    this.cancelAllTimers();
     this.viewMap.clear();
     this.rootView = null;
     this.stateManager.clear();

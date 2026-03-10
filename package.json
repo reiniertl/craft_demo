@@ -20,7 +20,8 @@
     "gen-integration-test": "ts-node tools/gen_integration_test.ts",
     "apk-onboard": "ts-node tools/apk_onboard.ts",
     "guard": "ts-node tools/regression_guard.ts",
-    "sync-oh": "ts-node tools/sync_oh.ts"
+    "sync-oh": "ts-node tools/sync_oh.ts",
+    "watch-sync": "ts-node tools/watch_sync.ts"
   },
   "keywords": [
     "android",

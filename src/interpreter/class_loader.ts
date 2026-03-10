@@ -226,6 +226,9 @@ export class ClassLoader {
       'Landroid/widget/LinearLayout;': 'Landroid/view/ViewGroup;',
       'Landroid/widget/Button;': 'Landroid/widget/TextView;',
       'Landroid/view/View$OnClickListener;': 'Ljava/lang/Object;',
+      // Java interfaces (treated as Object for hierarchy walking)
+      'Ljava/lang/Runnable;': 'Ljava/lang/Object;',
+      'Ljava/lang/CharSequence;': 'Ljava/lang/Object;',
     };
     if (descriptor in superMap) {
       return superMap[descriptor] ?? null;
@@ -242,6 +245,9 @@ export class ClassLoader {
       'Ljava/lang/StringBuilder;',
       'Ljava/lang/Class;',
       'Ljava/lang/System;',
+      // Java interfaces
+      'Ljava/lang/Runnable;',
+      'Ljava/lang/CharSequence;',
       // Stage 3 - android.*
       'Landroid/os/Bundle;',
       'Landroid/content/Context;',
@@ -507,7 +513,11 @@ export class ClassLoader {
       }
     }
 
-    throw new NoSuchMethodError(`${objectClass}.${name}${descriptor}`);
+    // Log diagnostics: dump the shim registry state for this class to aid debugging
+    const shimKey = `${objectClass}:${name}:${descriptor}`;
+    throw new NoSuchMethodError(
+      `${objectClass}.${name}${descriptor} [objectRef=${objectRef}, shimKey=${shimKey}, isShimClass=${this.shimRegistry.isShimClass(objectClass)}]`
+    );
   }
 
   /** Resolve super method (for invoke-super) */

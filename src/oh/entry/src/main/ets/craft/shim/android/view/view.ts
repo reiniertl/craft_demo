@@ -122,7 +122,7 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
     '(Ljava/lang/Runnable;J)Z',
     (interp, heap, thisRef, args) => {
       const runnableRef = args[0];
-      const delayMs = Number(
+      const delayMs: number = Number(
         args[1].type === 'long'
           ? (args[1] as { type: 'long'; value: bigint }).value
           : (args[1] as { type: 'int'; value: number }).value
@@ -132,21 +132,87 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
         return intValue(0);
       }
 
-      setTimeout(() => {
-        try {
-          const runnableClass = heap.getClassDescriptor(runnableRef.ref);
-          if (runnableClass) {
-            interp.invoke(
-              runnableClass,
-              'run',
-              '()V',
-              [runnableRef]
-            );
-          }
-        } catch (_e) {
-          // Activity may have been destroyed; silently ignore
+      const callback = (): void => {
+        const runnableClass: string | null = heap.getClassDescriptor(runnableRef.ref);
+        if (runnableClass) {
+          interp.invoke(
+            runnableClass,
+            'run',
+            '()V',
+            [runnableRef]
+          );
         }
-      }, delayMs);
+      };
+
+      if (uiBridge) {
+        uiBridge.scheduleTimer(thisRef, runnableRef.ref, callback, delayMs);
+      } else {
+        setTimeout((): void => {
+          try {
+            callback();
+          } catch (e) {
+            const msg: string = e instanceof Error ? e.message : String(e);
+            console.error(`[CRAFT][View][ERROR] postDelayed callback failed: ${msg}`);
+          }
+        }, delayMs);
+      }
+
+      return intValue(1);
+    }
+  );
+
+  // post(Ljava/lang/Runnable;)Z
+  registry.register(VIEW_CLASS, 'post',
+    '(Ljava/lang/Runnable;)Z',
+    (interp, heap, thisRef, args) => {
+      const runnableRef = args[0];
+
+      if (runnableRef.type !== 'object' || runnableRef.ref === 0) {
+        return intValue(0);
+      }
+
+      const callback = (): void => {
+        const runnableClass: string | null = heap.getClassDescriptor(runnableRef.ref);
+        if (runnableClass) {
+          interp.invoke(
+            runnableClass,
+            'run',
+            '()V',
+            [runnableRef]
+          );
+        }
+      };
+
+      if (uiBridge) {
+        uiBridge.scheduleTimer(thisRef, runnableRef.ref, callback, 0);
+      } else {
+        setTimeout((): void => {
+          try {
+            callback();
+          } catch (e) {
+            const msg: string = e instanceof Error ? e.message : String(e);
+            console.error(`[CRAFT][View][ERROR] post callback failed: ${msg}`);
+          }
+        }, 0);
+      }
+
+      return intValue(1);
+    }
+  );
+
+  // removeCallbacks(Ljava/lang/Runnable;)Z
+  registry.register(VIEW_CLASS, 'removeCallbacks',
+    '(Ljava/lang/Runnable;)Z',
+    (_interp, _heap, thisRef, args) => {
+      const runnableRef = args[0];
+
+      if (runnableRef.type !== 'object' || runnableRef.ref === 0) {
+        return intValue(0);
+      }
+
+      if (uiBridge) {
+        uiBridge.cancelTimersForRunnable(thisRef, runnableRef.ref);
+      }
 
       return intValue(1);
     }

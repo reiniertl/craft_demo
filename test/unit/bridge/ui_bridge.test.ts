@@ -231,6 +231,139 @@ describe('UIBridge', () => {
     });
   });
 
+  describe('timer management', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      uiBridge.cancelAllTimers();
+      jest.useRealTimers();
+    });
+
+    it('should schedule a timer and fire it after delay', () => {
+      let fired = false;
+      const viewRef = 100;
+      const runnableRef = 200;
+
+      uiBridge.scheduleTimer(viewRef, runnableRef, () => { fired = true; }, 100);
+
+      expect(uiBridge.getPendingTimerCount()).toBe(1);
+      expect(fired).toBe(false);
+
+      // Advance past the polling interval + delay
+      jest.advanceTimersByTime(150);
+
+      expect(fired).toBe(true);
+      expect(uiBridge.getPendingTimerCount()).toBe(0);
+    });
+
+    it('should cancel timers for a specific runnable', () => {
+      let fired = false;
+      const viewRef = 100;
+      const runnableRef = 200;
+
+      uiBridge.scheduleTimer(viewRef, runnableRef, () => { fired = true; }, 100);
+      expect(uiBridge.getPendingTimerCount()).toBe(1);
+
+      uiBridge.cancelTimersForRunnable(viewRef, runnableRef);
+      expect(uiBridge.getPendingTimerCount()).toBe(0);
+
+      jest.advanceTimersByTime(200);
+      expect(fired).toBe(false);
+    });
+
+    it('should only cancel matching timers', () => {
+      let firedA = false;
+      let firedB = false;
+
+      uiBridge.scheduleTimer(100, 200, () => { firedA = true; }, 100);
+      uiBridge.scheduleTimer(100, 300, () => { firedB = true; }, 100);
+
+      expect(uiBridge.getPendingTimerCount()).toBe(2);
+
+      uiBridge.cancelTimersForRunnable(100, 200);
+      expect(uiBridge.getPendingTimerCount()).toBe(1);
+
+      jest.advanceTimersByTime(200);
+      expect(firedA).toBe(false);
+      expect(firedB).toBe(true);
+    });
+
+    it('should cancel all timers', () => {
+      let firedA = false;
+      let firedB = false;
+
+      uiBridge.scheduleTimer(100, 200, () => { firedA = true; }, 100);
+      uiBridge.scheduleTimer(100, 300, () => { firedB = true; }, 100);
+
+      uiBridge.cancelAllTimers();
+      expect(uiBridge.getPendingTimerCount()).toBe(0);
+
+      jest.advanceTimersByTime(200);
+      expect(firedA).toBe(false);
+      expect(firedB).toBe(false);
+    });
+
+    it('clear() should cancel all timers', () => {
+      let fired = false;
+
+      uiBridge.scheduleTimer(100, 200, () => { fired = true; }, 100);
+      uiBridge.clear();
+
+      jest.advanceTimersByTime(200);
+      expect(fired).toBe(false);
+      expect(uiBridge.getPendingTimerCount()).toBe(0);
+    });
+
+    it('should log errors from timer callbacks without crashing', () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      let secondFired = false;
+
+      uiBridge.scheduleTimer(100, 200, () => { throw new Error('boom'); }, 50);
+      uiBridge.scheduleTimer(100, 300, () => { secondFired = true; }, 50);
+
+      jest.advanceTimersByTime(100);
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Timer callback failed: boom')
+      );
+      expect(secondFired).toBe(true);
+
+      consoleSpy.mockRestore();
+    });
+
+    it('timer callback can schedule new timers (clock pattern)', () => {
+      const calls: number[] = [];
+      let callCount = 0;
+
+      const reschedule = () => {
+        callCount++;
+        calls.push(callCount);
+        if (callCount < 3) {
+          uiBridge.scheduleTimer(100, 200, reschedule, 200);
+        }
+      };
+
+      uiBridge.scheduleTimer(100, 200, reschedule, 200);
+
+      // Fire first timer (delay=200, poll at 50ms intervals)
+      jest.advanceTimersByTime(250);
+      expect(calls).toEqual([1]);
+
+      // Fire second timer (rescheduled from first)
+      jest.advanceTimersByTime(200);
+      expect(calls).toEqual([1, 2]);
+
+      // Fire third timer (rescheduled from second)
+      jest.advanceTimersByTime(200);
+      expect(calls).toEqual([1, 2, 3]);
+
+      // No more timers scheduled
+      expect(uiBridge.getPendingTimerCount()).toBe(0);
+    });
+  });
+
   describe('clear', () => {
     it('should clear all views and root', () => {
       const view1 = heap.allocate('Landroid/widget/TextView;');

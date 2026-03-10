@@ -7,7 +7,6 @@ export class InterpreterError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'InterpreterError';
-    Object.setPrototypeOf(this, new.target.prototype);
   }
 }
 

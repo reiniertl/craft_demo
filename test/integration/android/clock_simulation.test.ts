@@ -284,6 +284,119 @@ describe('Clock app simulation', () => {
     expect(state.root!.props['textSize']).toBe(48.0);
   });
 
+  // ─── postDelayed timer chain tests ───
+
+  it('postDelayed schedules a timer via UIBridge', () => {
+    jest.useFakeTimers();
+    try {
+      const { tvRef } = simulateClockOnCreate(BigInt(45045000));
+
+      // Create a Runnable object that the clock app would use
+      const runnableClass = 'Lcom/example/clock/MainActivity;';
+      const runnableRef = heap.allocate(runnableClass);
+
+      // Register a shim for Runnable.run() to track invocations
+      let runCalled = false;
+      registry.register(runnableClass, 'run', '()V', () => {
+        runCalled = true;
+        return NULL_VALUE;
+      });
+
+      // Call postDelayed
+      invokeShim('Landroid/view/View;', 'postDelayed', '(Ljava/lang/Runnable;J)Z', [
+        objectRef(tvRef), objectRef(runnableRef), longValue(BigInt(1000)),
+      ]);
+
+      expect(uiBridge.getPendingTimerCount()).toBe(1);
+
+      // Advance time past the delay + polling interval
+      jest.advanceTimersByTime(1100);
+
+      expect(runCalled).toBe(true);
+      expect(uiBridge.getPendingTimerCount()).toBe(0);
+    } finally {
+      uiBridge.cancelAllTimers();
+      jest.useRealTimers();
+    }
+  });
+
+  it('postDelayed chain continues across multiple ticks (clock pattern)', () => {
+    jest.useFakeTimers();
+    try {
+      const { tvRef } = simulateClockOnCreate(BigInt(45045000));
+
+      // Simulate the clock's self-rescheduling run() pattern
+      const runnableClass = 'Lcom/example/clock/ClockRunner;';
+      const runnableRef = heap.allocate(runnableClass);
+
+      let runCount = 0;
+      registry.register(runnableClass, 'run', '()V', () => {
+        runCount++;
+        // Reschedule (like the clock app does in run())
+        if (runCount < 3) {
+          invokeShim('Landroid/view/View;', 'postDelayed', '(Ljava/lang/Runnable;J)Z', [
+            objectRef(tvRef), objectRef(runnableRef), longValue(BigInt(1000)),
+          ]);
+        }
+        return NULL_VALUE;
+      });
+
+      // Initial postDelayed call (like onCreate does)
+      invokeShim('Landroid/view/View;', 'postDelayed', '(Ljava/lang/Runnable;J)Z', [
+        objectRef(tvRef), objectRef(runnableRef), longValue(BigInt(1000)),
+      ]);
+
+      // First tick
+      jest.advanceTimersByTime(1100);
+      expect(runCount).toBe(1);
+
+      // Second tick
+      jest.advanceTimersByTime(1100);
+      expect(runCount).toBe(2);
+
+      // Third tick
+      jest.advanceTimersByTime(1100);
+      expect(runCount).toBe(3);
+
+      // No more rescheduling
+      expect(uiBridge.getPendingTimerCount()).toBe(0);
+    } finally {
+      uiBridge.cancelAllTimers();
+      jest.useRealTimers();
+    }
+  });
+
+  it('onDestroy cancels all pending timers', () => {
+    jest.useFakeTimers();
+    try {
+      const { activityRef, tvRef } = simulateClockOnCreate(BigInt(45045000));
+
+      const runnableRef = heap.allocate('Lcom/example/clock/Runner;');
+      let runCalled = false;
+      registry.register('Lcom/example/clock/Runner;', 'run', '()V', () => {
+        runCalled = true;
+        return NULL_VALUE;
+      });
+
+      invokeShim('Landroid/view/View;', 'postDelayed', '(Ljava/lang/Runnable;J)Z', [
+        objectRef(tvRef), objectRef(runnableRef), longValue(BigInt(1000)),
+      ]);
+
+      expect(uiBridge.getPendingTimerCount()).toBe(1);
+
+      // Destroy the activity
+      invokeShim(ACTIVITY, 'onDestroy', '()V', [objectRef(activityRef)]);
+
+      expect(uiBridge.getPendingTimerCount()).toBe(0);
+
+      jest.advanceTimersByTime(2000);
+      expect(runCalled).toBe(false);
+    } finally {
+      uiBridge.cancelAllTimers();
+      jest.useRealTimers();
+    }
+  });
+
   // ─── StringBuilder tests (as used in clock) ───
 
   it('StringBuilder correctly chains long append and string append', () => {
