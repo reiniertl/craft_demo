@@ -37,6 +37,29 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 - [ArkUI Rendering Spec](arkui_rendering_spec.md) - ArkUI rendering patterns, constraints, and data flow
 - [Android Translation Spec Inventory](android_translation_spec_inventory.md) - Language-neutral spec inventory: 46 specs across P0–P3 + stdlib, coverage model, design invariants
 
+### Shim Layer API Specifications
+Prescriptive contracts for Layer 2 (shims) and Layer 3 (ViewNode properties).
+Use these when implementing, reviewing, or debugging any part of the translation pipeline.
+
+- **[specs/INDEX.md](specs/INDEX.md)** — master index, ViewNode key registry, class hierarchy, demo coverage matrix
+
+| Spec | Class | File |
+|------|-------|------|
+| JL-1 | `java.lang.Object` | [specs/java_lang_object.md](specs/java_lang_object.md) |
+| JL-2 | `java.lang.String` | [specs/java_lang_string.md](specs/java_lang_string.md) |
+| JL-3 | `java.lang.StringBuilder` | [specs/java_lang_string_builder.md](specs/java_lang_string_builder.md) |
+| JL-4 | `java.lang.System` | [specs/java_lang_system.md](specs/java_lang_system.md) |
+| JL-5 | `java.lang.Class` | [specs/java_lang_class.md](specs/java_lang_class.md) |
+| A-1 | `android.os.Bundle` | [specs/android_os_bundle.md](specs/android_os_bundle.md) |
+| A-2 | `android.content.Context` | [specs/android_content_context.md](specs/android_content_context.md) |
+| A-3 | `android.content.ContextWrapper` | [specs/android_content_context_wrapper.md](specs/android_content_context_wrapper.md) |
+| A-4 | `android.app.Activity` | [specs/android_app_activity.md](specs/android_app_activity.md) |
+| V-1 | `android.view.View` | [specs/android_view_view.md](specs/android_view_view.md) |
+| V-2 | `android.view.ViewGroup` | [specs/android_view_view_group.md](specs/android_view_view_group.md) |
+| V-3 | `android.widget.TextView` | [specs/android_widget_text_view.md](specs/android_widget_text_view.md) |
+| V-4 | `android.widget.LinearLayout` | [specs/android_widget_linear_layout.md](specs/android_widget_linear_layout.md) |
+| V-5 | `android.widget.Button` | [specs/android_widget_button.md](specs/android_widget_button.md) |
+
 ### Guides
 - [Deployment Guide](deployment_guide.md) - HAP/device deployment instructions
 - [APK Build Guide](apk_build_guide.md) - Building demo APKs (HelloWorld + Calculator)

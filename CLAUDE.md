@@ -29,6 +29,26 @@ Stage 5: Integration & Polish ✅ Tested on HarmonyOS Device
 - **Stage results:** `docs/stages/stage_N_results.md` - Completion reports (Stage 4 uses `stage_4_complete.md`; Stage 5 uses `docs/stage_5_status.md` at the docs root)
 - **Deployment:** `docs/stage_5_status.md` - Current deployment status
 - **Guides:** `docs/deployment_guide.md`, `docs/apk_build_guide.md`, `docs/hap_build_guide.md`, `docs/tools_guide.md`
+- **Shim specs:** `docs/specs/INDEX.md` - Prescriptive contracts for every implemented shim class
+
+## Shim Layer Specifications
+
+`docs/specs/` contains one spec file per implemented Android / Java stdlib class.
+**Consult these before implementing, modifying, reviewing, or debugging any shim or
+renderer code.** Each spec defines:
+- The exact method signatures and DEX descriptors to intercept
+- Pre/post conditions and class invariants that the implementation MUST satisfy
+- The ViewNode property keys written by the shim (Layer 2 → Layer 3 contract)
+- Event callback wiring between the shim and UIBridge
+- Host renderer hints for ArkUI
+
+| Task | Which spec to read |
+|------|--------------------|
+| Implementing a new shim method | Open the spec for that class |
+| Reviewing an existing shim | Check every method against its spec |
+| Debugging a rendering issue | Check the ViewNode Property Contract section |
+| Adding a ViewNode key | Register it in `docs/specs/INDEX.md` first |
+| Checking class hierarchy / inheritance | See class hierarchy tree in `docs/specs/INDEX.md` |
 
 ## Quick Reference
 
