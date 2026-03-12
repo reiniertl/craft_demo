@@ -548,7 +548,7 @@ npm run guard -- --fix
 [CRAFT][Guard][Info] Running regression guard...
 
 ✅ TypeScript: 0 errors
-✅ Tests: 568 passed, 0 failed
+✅ Tests: 660 passed, 0 failed
 ✅ Shims: All registered, 0 issues
 ✅ Opcodes: 218 registered
 

@@ -785,7 +785,7 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 | UI Integration | `test/integration/bridge/ui_integration.test.ts` | 8 | UI Bridge integration |
 | **Total Integration** | -- | **38** | -- |
 
-**Total: 568 tests across 32 test suites**
+**Total: 660 tests across 37 test suites**
 
 ---
 
@@ -795,7 +795,7 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| Test Pass Rate | 100% | 568/568 | ✅ |
+| Test Pass Rate | 100% | 660/660 | ✅ |
 | TypeScript Errors | 0 | 0 | ✅ |
 | Regression Rate | 0% | 0% | ✅ |
 | Code Coverage | >80% | ~85% | ✅ |

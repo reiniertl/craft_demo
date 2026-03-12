@@ -19,6 +19,8 @@ export function registerTextViewShim(registry: ShimRegistry, uiBridge?: UIBridge
       heap.setField(thisRef, 'mContext', args[0]);
       heap.setField(thisRef, 'mId', intValue(-1));
       heap.setField(thisRef, 'mVisibility', intValue(0));
+      // Initialize ViewGroup fields (spec V-2) — TextView extends ViewGroup
+      heap.setField(thisRef, '__childCount', intValue(0));
       // Initialize TextView fields — mText MUST NOT be null (spec V-3 invariant 1)
       heap.setField(thisRef, 'mText', objectRef(heap.internString('')));
       heap.setField(thisRef, 'mTextSize', floatValue(14.0));

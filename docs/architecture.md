@@ -322,7 +322,7 @@ interface Frame {
 ## Performance Characteristics
 
 **Current Status (Stages 1-5):**
-- Test suite: 568 tests in ~5 seconds
+- Test suite: 660 tests in ~5 seconds
 - Zero TypeScript compilation errors
 - Heap allocation: ~1000 objects for Hello World scenario
 - Opcode execution: ~500 instructions for Hello World

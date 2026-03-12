@@ -241,9 +241,9 @@ java.lang.Object
 │     └── android.content.ContextWrapper
 │           └── android.app.Activity
 └── android.view.View
-      ├── android.widget.TextView
-      │     └── android.widget.Button
       └── android.view.ViewGroup
+            ├── android.widget.TextView
+            │     └── android.widget.Button
             └── android.widget.LinearLayout
 ```
 
