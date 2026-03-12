@@ -34,6 +34,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 
 ### Technical Specifications
 - [Component Specifications](specification.md) - Detailed specs for all 12 CRAFT components
+- [ArkUI Rendering Spec](arkui_rendering_spec.md) - ArkUI rendering patterns, constraints, and data flow
 
 ### Guides
 - [Deployment Guide](deployment_guide.md) - HAP/device deployment instructions

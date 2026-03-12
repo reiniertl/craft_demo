@@ -14,9 +14,9 @@ Run Android APKs natively on OpenHarmony through bytecode interpretation.
 | **2** | Bytecode Interpreter & java.lang Shims | ✅ Complete | 118 / 118 |
 | **3** | Android API Shim Layer | ✅ Complete | 35 / 35 |
 | **4** | UI Bridge & OpenHarmony Host | ✅ Complete | 55 / 55 |
-| **5** | Integration & Polish | ✅ Complete | 568 total |
+| **5** | Integration & Polish | ✅ Complete | 660 total |
 
-**Total:** 568 tests passing | 0 TypeScript errors | 0 regressions | 218 opcodes implemented
+**Total:** 660 tests passing | 0 TypeScript errors | 0 regressions | 218 opcodes implemented
 
 **Stage 5 Status:**
 - ✅ All code implementation complete (EntryAbility.ets, CraftPage.ets, runtime integration)
@@ -90,7 +90,7 @@ craft/
 │   ├── hello_world/           # Simple Hello World app
 │   ├── calculator/            # Calculator with button grid
 │   └── clock/                 # Clock (System.currentTimeMillis)
-├── src/                        # Source code (39 files, ~8,990 lines)
+├── src/                        # Source code (39 files, ~9,307 lines)
 │   ├── parser/                # APK & DEX parsers
 │   ├── interpreter/           # Bytecode interpreter (218 opcodes)
 │   ├── shim/                  # API shims (java.lang + android.*)
@@ -98,7 +98,7 @@ craft/
 │   ├── core/                  # Core types & utilities
 │   ├── runtime.ts             # High-level CRAFT API
 │   └── oh/                    # OpenHarmony HAP project
-├── test/                       # Test suite (568 tests, 34 files)
+├── test/                       # Test suite (660 tests, 37 files)
 │   ├── unit/                  # Unit tests
 │   ├── integration/           # Integration tests
 │   ├── helpers/               # Test utilities
@@ -241,7 +241,7 @@ npm run dex-dump test/fixtures/hello_world.dex      # Inspect DEX
 | Metric | Value |
 |--------|-------|
 | **Stages Complete** | 5 / 5 ✅ |
-| **Tests** | 568 passing |
+| **Tests** | 660 passing |
 | **TypeScript Errors** | 0 |
 | **Regressions** | 0 |
 | **Opcodes Implemented** | 218 |
@@ -250,7 +250,7 @@ npm run dex-dump test/fixtures/hello_world.dex      # Inspect DEX
 | **Total Methods Shimmed** | 73 (32 java.lang + 41 android) |
 | **Source Files** | 39 |
 | **Test Files** | 34 |
-| **Lines of Code** | ~22,905 (8,990 src + 8,999 test + 4,916 tools) |
+| **Lines of Code** | ~25,220 (9,307 src + 10,897 test + 5,016 tools) |
 
 ---
 
@@ -344,6 +344,6 @@ MIT
 
 ---
 
-**Status:** 5 of 5 stages complete | 568 tests passing | APK built & verified | HarmonyOS device tested ✅
+**Status:** 5 of 5 stages complete | 660 tests passing | APK built & verified | HarmonyOS device tested ✅
 **Last Updated:** 2026-03-09
 **Version:** 0.1.0

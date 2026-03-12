@@ -439,15 +439,27 @@ const childrenMap = new Map<number, number[]>();
 
 **Location:** `src/bridge/`
 
+> **See also:** [arkui_rendering_spec.md](arkui_rendering_spec.md) for the full ArkUI rendering pattern reference including initialization order, reactivity constraints, ForEach keying, click dispatch, and timer queue.
+
 ### ViewNode Structure
 ```typescript
 interface ViewNode {
-  viewRef: number;              // Heap reference
-  viewType: string;             // 'TextView', 'ViewGroup'
-  properties: Map<string, any>; // text, textSize, etc.
+  viewRef: number;                                        // Heap reference to Android View
+  viewType: string;                                       // 'TextView', 'Button', 'LinearLayout', etc.
+  properties: Map<string, string | number | boolean>;    // text, textSize, textColor, orientation, etc.
   children: ViewNode[];
   parent: ViewNode | null;
-  arkuiId: string;              // Unique ID for ArkUI binding
+  arkuiId: string;                                        // Unique ID: 'view_<ref>'
+}
+```
+
+### PendingTimer Structure
+```typescript
+interface PendingTimer {
+  viewRef: number;       // View that posted the timer
+  runnableRef: number;   // Heap reference to Runnable object
+  callback: () => void;  // Function to invoke when timer fires
+  fireAt: number;        // Date.now() + delayMs
 }
 ```
 
@@ -455,13 +467,32 @@ interface ViewNode {
 ```typescript
 class UIBridge {
   constructor(heap: Heap, stateManager: StateManager)
+
+  // View registration and property updates
   registerView(viewRef: number, viewType: string): void
-  updateViewProperty(viewRef: number, property: string, value: any): void
+  updateViewProperty(viewRef: number, property: string,
+                     value: string | number | boolean): void
   setRootView(viewRef: number): void
   addChildView(parentRef: number, childRef: number): void
+
+  // View queries
   getRootView(): ViewNode | null
   getViewNode(viewRef: number): ViewNode | null
   getStateManager(): StateManager
+
+  // Click handling
+  setClickCallback(viewRef: number, callback: () => void): void
+  hasClickCallback(viewRef: number): boolean
+  dispatchClick(viewRef: number): boolean   // returns true if handler found
+
+  // Timer queue (View.post / View.postDelayed)
+  scheduleTimer(viewRef: number, runnableRef: number,
+                callback: () => void, delayMs: number): void
+  cancelTimersForRunnable(viewRef: number, runnableRef: number): void
+  cancelAllTimers(): void
+  getPendingTimerCount(): number
+
+  // Cleanup
   clear(): void
 }
 ```
@@ -469,26 +500,28 @@ class UIBridge {
 ### StateManager (Reactive)
 ```typescript
 interface SerializedView {
-  id: string
-  type: string
-  props: Record<string, any>
+  id: string                                         // 'view_<ref>'
+  type: string                                       // 'TextView', 'Button', etc.
+  props: Record<string, string | number | boolean>  // Serialized properties (plain object)
   children: SerializedView[]
 }
 
 interface ViewState {
-  version: number
-  root: SerializedView | null
+  version: number              // Monotonically increasing; change triggers ArkUI re-render
+  root: SerializedView | null  // Full serialized tree snapshot
 }
 
 class StateManager {
-  setRootView(node: ViewNode): void
-  notifyUpdate(): void                    // Increments version
-  subscribe(callback: () => void): void   // ArkUI subscribes
+  setRootView(node: ViewNode): void   // Serialize tree + increment version + notify
+  notifyUpdate(): void                // Increment version + notify (without re-serializing)
+  subscribe(callback: () => void): void
   unsubscribe(callback: () => void): void
-  getState(): ViewState                   // Serialized view tree
+  getState(): ViewState
   clear(): void
 }
 ```
+
+**Serialization boundary:** `ViewNode` (uses `Map`) is converted to `SerializedView` (uses `Record`) on every `setRootView()` call. ArkUI's reactivity system cannot observe `Map` mutations — only plain object reference replacement.
 
 ### LifecycleBridge
 ```typescript
@@ -560,48 +593,93 @@ class CraftRuntime {
 
 **Location:** `src/oh/`
 
+> **See also:** [arkui_rendering_spec.md](arkui_rendering_spec.md) for full rendering pattern reference.
+
 ### CraftAbility (UIAbility)
+
+Launch with APK path parameter:
+```bash
+hdc shell aa start -a EntryAbility -b com.craft.runtime --ps apk_path /data/app/my_app.apk
+```
+
+Lifecycle implementation:
 ```typescript
 export default class CraftAbility extends UIAbility {
   onCreate(want: Want, launchParam): void {
-    // 1. Load APK
-    // 2. Create Interpreter
-    // 3. Load MainActivity
-    // 4. Call Activity.onCreate()
-  }
-
-  onForeground(): void {
-    // Call Activity.onResume()
+    // Extract apk_path from want.parameters
+    // Initialize CraftRuntime
+    // On error: AppStorage.setOrCreate('craftError', msg)
   }
 
   onWindowStageCreate(windowStage): void {
-    // Load CraftPage for rendering
+    // STRICT ORDER (see arkui_rendering_spec.md Pattern 1):
+    // 1. runtime.loadAPK(data)               ← sync file read via fs.openSync
+    // 2. AppStorage.setOrCreate('craftRuntime', runtime)
+    // 3. AppStorage.setOrCreate('craftViewTree', null)
+    // 4. AppStorage.setOrCreate('craftUpdateCounter', 0)
+    // 5. windowStage.loadContent('pages/CraftPage', callback)
+    //    └── [page subscribes to state in aboutToAppear()]
+    // 6. [in callback] runtime.createActivity()
+    // 7. [in callback] runtime.resumeActivity()
   }
+
+  onForeground(): void  { runtime.resumeActivity(); }
+  onBackground(): void  { runtime.pauseActivity(); }
+  onDestroy(): void     { runtime.destroyActivity(); runtime.shutdown(); }
 }
 ```
 
+### AppStorage Keys
+
+| Key | Type | Written by | Read by | Purpose |
+|-----|------|-----------|---------|---------|
+| `craftRuntime` | `CraftRuntime` | Ability | Page | Access to UIBridge and state |
+| `craftViewTree` | `SerializedView \| null` | Ability (via StateManager callback) | Page | Current view tree snapshot |
+| `craftUpdateCounter` | `number` | Ability (via StateManager callback) | Page | Version counter, triggers re-render |
+| `craftError` | `string` | Ability | Page | Error message for display |
+| `activityRef` | `number` | Ability | Page | Heap ref to Activity instance |
+
 ### CraftPage (ArkUI)
+
 ```typescript
 @Entry
 @Component
 struct CraftPage {
-  @State viewState: ViewState;
+  @StorageLink('craftRuntime')      runtime: CraftRuntime | null = null;
+  @StorageLink('craftViewTree')     viewTree: SerializedView | null = null;
+  @StorageLink('craftUpdateCounter') updateCounter: number = 0;
+  @StorageLink('craftError')        craftError: string = '';
+  @State errorMessage: string = '';
+  @State isLoading: boolean = true;
+
+  aboutToAppear(): void {
+    // Subscribe to StateManager; update AppStorage on each notification
+    // Start 3-second diagnostic timeout
+  }
 
   build() {
     Column() {
-      this.renderView(this.viewState.root);
-    }
-  }
-
-  @Builder renderView(node: ViewNode) {
-    if (node.viewType === 'TextView') {
-      Text(node.properties.get('text'))
-        .fontSize(node.properties.get('textSize'))
-        .fontColor(node.properties.get('textColor'));
+      if (this.isLoading)         { this.loadingView(); }
+      else if (this.errorMessage) { this.errorView(); }
+      else if (this.viewTree)     {
+        ForEach([this.viewTree], (v) => { this.renderView(v); },
+                (v) => this.viewKey(v))
+      }
+      else                        { this.emptyView(); }
     }
   }
 }
 ```
+
+### View Type → ArkUI Component Mapping
+
+| Android View | ArkUI Component | Props | Click |
+|---|---|---|---|
+| `TextView` | `Text()` | `text`, `textSize`, `textColor` | No |
+| `Button` | `Button()` | `text`, `textSize`, `textColor` | Yes — via `UIBridge.dispatchClick()` |
+| `LinearLayout` (orientation=1) | `Column()` | `orientation`, children | No |
+| `LinearLayout` (orientation=0) | `Row()` | `orientation`, children | No |
+| `ViewGroup` | `Column()` | children | No |
 
 ---
 

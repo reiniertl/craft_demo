@@ -150,6 +150,76 @@ This document describes the system architecture for running Android APKs on Open
    → CraftPage.build() renders Text("Hello World")
 ```
 
+### ArkUI Rendering Flow
+
+```
+EntryAbility.onWindowStageCreate()
+  │
+  ├── 1. fs.openSync(apkPath) + runtime.loadAPK(data)   [sync]
+  │
+  ├── 2. AppStorage.setOrCreate('craftRuntime', runtime)
+  │        AppStorage.setOrCreate('craftViewTree', null)
+  │        AppStorage.setOrCreate('craftUpdateCounter', 0)
+  │
+  ├── 3. windowStage.loadContent('pages/CraftPage', callback)
+  │        │
+  │        └── ArkUI creates CraftPage
+  │              └── aboutToAppear()
+  │                    └── stateManager.subscribe(fn)   ← PAGE NOW LISTENING
+  │
+  └── 4. [in loadContent callback]
+           runtime.createActivity()
+             │
+             └── Dalvik: Activity.onCreate()
+                   └── setContentView(rootView)
+                         └── UIBridge.setRootView()
+                               └── StateManager.setRootView()
+                                     │  version++, serialize tree
+                                     └── notify subscribers
+                                           │
+                                           └── CraftPage callback:
+                                                 AppStorage.setOrCreate('craftViewTree', root)
+                                                 AppStorage.setOrCreate('craftUpdateCounter', n)
+                                                       │
+                                                       └── ArkUI detects @StorageLink change
+                                                             └── build() re-runs
+                                                                   └── ForEach → renderView()
+```
+
+### Serialization Boundary
+
+```
+Android runtime (TypeScript)         ArkUI (ArkTS)
+────────────────────────────         ─────────────────────────────
+ViewNode                             SerializedView
+  viewType: string            →        type: string
+  properties: Map<K,V>        →        props: Record<K,V>   ← POJO required
+  children: ViewNode[]        →        children: SerializedView[]
+  arkuiId: string             →        id: string
+
+Map<string, V> cannot cross         ArkUI reactivity only observes
+the serialization boundary.         plain object reference changes.
+```
+
+### Click Event Flow
+
+```
+ArkUI Button.onClick()
+  │
+  ├── viewRef = parseInt(view.id.replace('view_', ''))
+  │
+  └── UIBridge.dispatchClick(viewRef)
+        │
+        └── clickCallbacks.get(viewRef)()
+              │
+              └── Interpreter: listener.onClick(view)   [Dalvik bytecode]
+                    │
+                    └── Android code: display.setText("42")
+                          └── UIBridge.updateViewProperty()
+                                └── StateManager version++
+                                      └── CraftPage re-renders
+```
+
 ### Method Invocation Flow
 
 ```

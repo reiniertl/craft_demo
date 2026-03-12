@@ -4,7 +4,7 @@ CRAFT (Compatibility Runtime for Android Framework Translation) - An Android APK
 
 ## Current Stage: 5 Complete - All Stages Done
 
-**Status:** 568 tests passing | 0 TypeScript errors | 0 regressions | Device Tested ✅
+**Status:** 660 tests passing | 0 TypeScript errors | 0 regressions | Device Tested ✅
 
 Stage 1: APK/DEX/Manifest parsing ✅
 Stage 2: Bytecode interpretation ✅
@@ -26,7 +26,7 @@ Stage 5: Integration & Polish ✅ Tested on HarmonyOS Device
 - **Specification:** `docs/specification.md` - Component specs (12 components)
 - **Implementation plan:** `docs/implementation_plan.md` - 5-stage roadmap
 - **Stage plans:** `docs/stages/stage_N_plan.md` - Detailed planning for each stage
-- **Stage results:** `docs/stages/stage_N_results.md` - Completion reports
+- **Stage results:** `docs/stages/stage_N_results.md` - Completion reports (Stage 4 uses `stage_4_complete.md`; Stage 5 uses `docs/stage_5_status.md` at the docs root)
 - **Deployment:** `docs/stage_5_status.md` - Current deployment status
 - **Guides:** `docs/deployment_guide.md`, `docs/apk_build_guide.md`, `docs/hap_build_guide.md`, `docs/tools_guide.md`
 

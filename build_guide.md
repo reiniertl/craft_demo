@@ -337,7 +337,7 @@ The full CRAFT test suite runs on any machine with Node.js — no device require
 ```bash
 cd /mnt/d/craft/craft
 
-# Run all 357 tests
+# Run all 660 tests
 npm test
 
 # Run specific component tests
