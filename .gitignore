@@ -36,3 +36,4 @@ src/oh/.idea/
 # OH package manager downloads
 src/oh/oh_modules/.ohpm/oh_modules/
 src/oh/oh_modules/@ohos/
+.alloy.tmp
