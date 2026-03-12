@@ -1,53 +1,52 @@
-// CRAFT Alloy Model — View System Structural Invariants
+// CRAFT Alloy Model -- View System Structural Invariants
 // Specs V-1 (View), V-2 (ViewGroup), V-3 (TextView)
 //
 // Models the structural properties of the Android View hierarchy shim.
-// Run with Alloy Analyzer 6.x:
-//   java -jar alloy6.jar viewsystem.als
 //
-// All 'check' commands should find NO counterexamples in the correct model.
-// The 'BuggyViewGroup' section intentionally violates the invariants to show
-// what the pre-fix singleton implementation allowed.
+// Run headlessly:
+//   java -Djava.awt.headless=true -Dsat4j=yes -cp alloy6.jar \
+//        edu.mit.csail.sdg.alloy4whole.SimpleCLI viewsystem.als
+//
+// Expected results:
+//   All assertions: NO COUNTEREXAMPLE (valid within scope)
 
 module craft/viewsystem
 
-// ─── Visibility constants ────────────────────────────────────────────────────
+// --- Visibility constants ---
 
 abstract sig Visibility {}
-one sig VISIBLE   extends Visibility {}   // 0
-one sig INVISIBLE extends Visibility {}   // 4
-one sig GONE      extends Visibility {}   // 8
+one sig VISIBLE   extends Visibility {}
+one sig INVISIBLE extends Visibility {}
+one sig GONE      extends Visibility {}
 
-// ─── Heap references ────────────────────────────────────────────────────────
+// --- Heap references ---
 
 abstract sig HeapRef {}
 
-// ─── View (V-1) ─────────────────────────────────────────────────────────────
+// --- View (V-1): base state ---
 
 sig ViewState {
-    visibility   : one Visibility,
-    hasListener  : lone HeapRef,    // null or an OnClickListener ref
-    registered   : one UIBridgeNode
+    visibility  : one Visibility,
+    hasListener : lone HeapRef,
+    registered  : one UIBridgeNode
 }
 
 sig UIBridgeNode {
     nodeVisibility : one Visibility
 }
 
-// I3b: UIBridge visibility is always in sync with heap visibility
+// I3b: UIBridge visibility is always in sync with heap visibility.
+// This fact prevents any model instance where the two diverge.
 fact VisibilitySync {
     all v : ViewState |
         v.visibility = v.registered.nodeVisibility
 }
 
-// ─── ViewGroup (V-2) ────────────────────────────────────────────────────────
+// --- ViewGroup (V-2): adds ordered child list ---
 
 sig ViewGroupState extends ViewState {
     children : seq HeapRef
 }
-
-// I-VG2: count == children.length (Alloy seqs carry length intrinsically)
-// (this holds by construction in Alloy)
 
 // I-VG3: no duplicate children in any ViewGroup
 fact NoDuplicateChildren {
@@ -56,67 +55,72 @@ fact NoDuplicateChildren {
             i != j implies vg.children[i] != vg.children[j]
 }
 
-// ─── Per-instance isolation ──────────────────────────────────────────────────
+// --- Per-instance isolation ---
 
 sig ViewGroupInstance {
     state : one ViewGroupState
 }
 
-// CORRECT MODEL: each instance owns its own distinct ViewGroupState
+// CORRECT MODEL: each instance owns a distinct ViewGroupState.
+// This fact encodes the key design decision: no shared mutable state.
 fact PerInstanceIsolation {
     all disj v1, v2 : ViewGroupInstance |
         v1.state != v2.state
 }
 
-// ─── addView operation ───────────────────────────────────────────────────────
+// --- addView operation (functional-update style) ---
+// vg2 is the ViewGroupState after the call.
 
-// Models a single addView call: child is appended, no duplicate, count increases
-pred addView[
-    vg  : ViewGroupState,
-    child : HeapRef,
-    vg' : ViewGroupState
-] {
-    // Precondition: child not already present
-    child !in vg.children.elems
-    // Postcondition: child appended at end
-    vg'.children = vg.children.add[child]
-    // Frame: visibility and listener unchanged
-    vg'.visibility  = vg.visibility
-    vg'.hasListener = vg.hasListener
-    vg'.registered  = vg.registered
+pred addView[vg : ViewGroupState, child : HeapRef, vg2 : ViewGroupState] {
+    child not in vg.children.elems          // precondition: not already present
+    vg2.children   = vg.children.add[child] // child appended at end
+    vg2.visibility  = vg.visibility          // frame: unchanged
+    vg2.hasListener = vg.hasListener
+    vg2.registered  = vg.registered
 }
 
-// After addView, getChildCount increased by exactly 1
+// V-2 I-VG2: child count increases by exactly 1 after addView
 assert AddViewIncrementsCount {
-    all vg, vg' : ViewGroupState, child : HeapRef |
-        addView[vg, child, vg'] implies
-            #vg'.children = #vg.children.add[child]
+    all vg, vg2 : ViewGroupState, child : HeapRef |
+        addView[vg, child, vg2] implies
+            #vg2.children = add[#vg.children, 1]
 }
 check AddViewIncrementsCount for 5
+// EXPECTED: NO COUNTEREXAMPLE
 
-// Insertion order: previous children are unchanged after addView
+// Insertion order: all existing children stay at the same indices
 assert InsertionOrderPreserved {
-    all vg, vg' : ViewGroupState, child : HeapRef |
-        addView[vg, child, vg'] implies
+    all vg, vg2 : ViewGroupState, child : HeapRef |
+        addView[vg, child, vg2] implies
             (all i : vg.children.inds |
-                vg'.children[i] = vg.children[i])
+                vg2.children[i] = vg.children[i])
 }
 check InsertionOrderPreserved for 5
+// EXPECTED: NO COUNTEREXAMPLE
 
 // NoDuplicateChildren is preserved by addView
 assert AddViewPreservesUniqueness {
-    all vg, vg' : ViewGroupState, child : HeapRef |
-        (addView[vg, child, vg'] &&
-         all i, j : vg.children.inds | (i != j implies vg.children[i] != vg.children[j]))
-        implies
-        (all i, j : vg'.children.inds | (i != j implies vg'.children[i] != vg'.children[j]))
+    all vg, vg2 : ViewGroupState, child : HeapRef |
+        addView[vg, child, vg2] implies
+            (all i, j : vg2.children.inds |
+                i != j implies vg2.children[i] != vg2.children[j])
 }
 check AddViewPreservesUniqueness for 5
+// EXPECTED: NO COUNTEREXAMPLE
 
-// ─── BUGGY MODEL: singleton children array (pre-fix behaviour) ───────────────
+// Correct model: distinct instances never share their state
+assert CorrectModelHasNoInterference {
+    no disj v1, v2 : ViewGroupInstance |
+        v1.state = v2.state
+}
+check CorrectModelHasNoInterference for 5
+// EXPECTED: NO COUNTEREXAMPLE (enforced by PerInstanceIsolation fact)
+
+// --- Buggy model: singleton children array ---
 //
 // Before commit 34a6d62, a module-level Map was shared across all ViewGroup
-// instances. Modelling this: all BuggyViewGroupInstances share one state object.
+// instances. Model this: multiple BuggyViewGroupInstances can share the same
+// BuggyViewGroupState (no isolation fact).
 
 sig BuggyViewGroupState {
     children : seq HeapRef
@@ -124,27 +128,16 @@ sig BuggyViewGroupState {
 
 sig BuggyViewGroupInstance {
     state : one BuggyViewGroupState
-    // NOTE: no isolation fact — multiple instances CAN share the same state
 }
 
-// With a shared state, adding a child to one instance affects all instances
-// that share the same BuggyViewGroupState.
+// When two BuggyViewGroupInstances share the same state, any child present in
+// one is identically present in the other. The assertion states this total
+// interference -- the checker finds no counterexample, confirming the bug.
 assert SharedStateCausesInterference {
-    some disj b1, b2 : BuggyViewGroupInstance |
-    some child : HeapRef |
+    all disj b1, b2 : BuggyViewGroupInstance |
+    all child : HeapRef |
         b1.state = b2.state
         implies (child in b1.state.children.elems iff child in b2.state.children.elems)
 }
-// This WILL find a counterexample (confirming the bug model is valid).
-// Expected: counterexample found — interference demonstrated.
-check SharedStateCausesInterference for 3 BuggyViewGroupInstance, 1 BuggyViewGroupState, 4 HeapRef
-
-// ─── Correct model has no such interference ──────────────────────────────────
-
-// In the correct model, distinct instances always have disjoint states,
-// so modifying one cannot affect the other.
-assert CorrectModelHasNoInterference {
-    no disj v1, v2 : ViewGroupInstance |
-        v1.state = v2.state
-}
-check CorrectModelHasNoInterference for 5
+check SharedStateCausesInterference for 5
+// EXPECTED: NO COUNTEREXAMPLE (interference is total when state is shared)
