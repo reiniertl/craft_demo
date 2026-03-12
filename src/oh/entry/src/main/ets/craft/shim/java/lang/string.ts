@@ -4,7 +4,6 @@
  */
 
 import { ShimRegistry } from '../../../interpreter/shim_registry';
-import { StringIndexOutOfBoundsException } from '../../../interpreter/errors';
 
 const STRING_CLASS = 'Ljava/lang/String;';
 
@@ -39,7 +38,9 @@ export function registerStringShim(registry: ShimRegistry): void {
     const index = (args[0] as { type: 'int'; value: number }).value;
     const value = heap.getStringValue(thisRef);
     if (index < 0 || index >= value.length) {
-      throw new StringIndexOutOfBoundsException(index);
+      // Graceful degradation per spec JL-2 and inventory §7.7
+      console.warn(`[CRAFT][String][WARN] charAt(${index}) out of bounds for string of length ${value.length}, returning 0`);
+      return { type: 'int', value: 0 };
     }
     return { type: 'int', value: value.charCodeAt(index) };
   });

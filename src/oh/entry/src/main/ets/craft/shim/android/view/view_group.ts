@@ -5,21 +5,9 @@
 
 import { ShimRegistry } from '../../../interpreter/shim_registry';
 import { UIBridge } from '../../../bridge/ui_bridge';
-import { Value, NULL_VALUE, intValue, objectRef } from '../../../core/types';
+import { NULL_VALUE, intValue } from '../../../core/types';
 
 const VIEW_GROUP_CLASS = 'Landroid/view/ViewGroup;';
-
-/** Internal storage for ViewGroup children, keyed by heap reference */
-const childrenMap = new Map<number, number[]>();
-
-function getChildren(ref: number): number[] {
-  let children = childrenMap.get(ref);
-  if (!children) {
-    children = [];
-    childrenMap.set(ref, children);
-  }
-  return children;
-}
 
 export function registerViewGroupShim(registry: ShimRegistry, uiBridge?: UIBridge): void {
 
@@ -27,17 +15,13 @@ export function registerViewGroupShim(registry: ShimRegistry, uiBridge?: UIBridg
   registry.register(VIEW_GROUP_CLASS, '<init>',
     '(Landroid/content/Context;)V',
     (_interp, heap, thisRef, args) => {
-      // Initialize View fields
       heap.setField(thisRef, 'mContext', args[0]);
       heap.setField(thisRef, 'mId', intValue(-1));
       heap.setField(thisRef, 'mVisibility', intValue(0));
-      getChildren(thisRef);
-
-      // Register with UI bridge
+      heap.setField(thisRef, '__childCount', intValue(0));
       if (uiBridge) {
         uiBridge.registerView(thisRef, 'ViewGroup');
       }
-
       return NULL_VALUE;
     }
   );
@@ -45,25 +29,30 @@ export function registerViewGroupShim(registry: ShimRegistry, uiBridge?: UIBridg
   // addView(Landroid/view/View;)V
   registry.register(VIEW_GROUP_CLASS, 'addView',
     '(Landroid/view/View;)V',
-    (_interp, _heap, thisRef, args) => {
+    (_interp, heap, thisRef, args) => {
       const childRef = (args[0] as { type: 'object'; ref: number }).ref;
-      const children = getChildren(thisRef);
-      children.push(childRef);
-
-      // Notify UI bridge of hierarchy change
+      // Increment heap counter (used when UIBridge is absent, e.g. in unit tests)
+      const prev = heap.getField(thisRef, '__childCount');
+      const prevCount = prev.type === 'int' ? prev.value : 0;
+      heap.setField(thisRef, '__childCount', intValue(prevCount + 1));
       if (uiBridge) {
         uiBridge.addChildView(thisRef, childRef);
       }
-
       return NULL_VALUE;
     }
   );
 
   // getChildCount()I
+  // Authoritative source is the UIBridge ViewNode when available; falls back to
+  // the heap counter for test contexts that run without UIBridge.
   registry.register(VIEW_GROUP_CLASS, 'getChildCount', '()I',
-    (_interp, _heap, thisRef, _args) => {
-      const children = getChildren(thisRef);
-      return intValue(children.length);
+    (_interp, heap, thisRef, _args) => {
+      if (uiBridge) {
+        const node = uiBridge.getViewNode(thisRef);
+        if (node) return intValue(node.children.length);
+      }
+      const cnt = heap.getField(thisRef, '__childCount');
+      return intValue(cnt.type === 'int' ? cnt.value : 0);
     }
   );
 }

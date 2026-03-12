@@ -1,33 +1,24 @@
 /**
  * CRAFT - android.os.Bundle Shim
  * Minimal key-value container for passing data between components.
+ *
+ * State is stored directly on the heap object using prefixed field names
+ * (__bundle_<key>) so it is automatically scoped to the object's lifetime
+ * and requires no module-level cleanup.
  */
 
 import { ShimRegistry } from '../../../interpreter/shim_registry';
-import { Value, NULL_VALUE, intValue, objectRef } from '../../../core/types';
-import { Heap } from '../../../interpreter/heap';
+import { Value, NULL_VALUE, intValue } from '../../../core/types';
 
 const BUNDLE_CLASS = 'Landroid/os/Bundle;';
-
-/** Internal storage for Bundle data, keyed by heap reference */
-const bundleDataMap = new Map<number, Map<string, Value>>();
-
-/** Get or create bundle data for a given heap ref */
-function getBundleData(ref: number): Map<string, Value> {
-  let data = bundleDataMap.get(ref);
-  if (!data) {
-    data = new Map();
-    bundleDataMap.set(ref, data);
-  }
-  return data;
-}
+const KEY_PREFIX = '__bundle_';
+const EXISTS_PREFIX = '__bundleExists_';
 
 export function registerBundleShim(registry: ShimRegistry): void {
 
   // <init>()V
   registry.register(BUNDLE_CLASS, '<init>', '()V',
-    (_interp, _heap, thisRef, _args) => {
-      getBundleData(thisRef);
+    (_interp, _heap, _thisRef, _args) => {
       return NULL_VALUE;
     }
   );
@@ -38,8 +29,8 @@ export function registerBundleShim(registry: ShimRegistry): void {
     (_interp, heap, thisRef, args) => {
       const keyRef = (args[0] as { type: 'object'; ref: number }).ref;
       const key = heap.getStringValue(keyRef);
-      const data = getBundleData(thisRef);
-      data.set(key, args[1]);
+      heap.setField(thisRef, KEY_PREFIX + key, args[1]);
+      heap.setField(thisRef, EXISTS_PREFIX + key, intValue(1));
       return NULL_VALUE;
     }
   );
@@ -50,8 +41,8 @@ export function registerBundleShim(registry: ShimRegistry): void {
     (_interp, heap, thisRef, args) => {
       const keyRef = (args[0] as { type: 'object'; ref: number }).ref;
       const key = heap.getStringValue(keyRef);
-      const data = getBundleData(thisRef);
-      return data.get(key) ?? NULL_VALUE;
+      const val = heap.getField(thisRef, KEY_PREFIX + key);
+      return val ?? NULL_VALUE;
     }
   );
 
@@ -61,8 +52,8 @@ export function registerBundleShim(registry: ShimRegistry): void {
     (_interp, heap, thisRef, args) => {
       const keyRef = (args[0] as { type: 'object'; ref: number }).ref;
       const key = heap.getStringValue(keyRef);
-      const data = getBundleData(thisRef);
-      return intValue(data.has(key) ? 1 : 0);
+      const sentinel = heap.getField(thisRef, EXISTS_PREFIX + key);
+      return intValue(sentinel && sentinel.type === 'int' ? 1 : 0);
     }
   );
 }
