@@ -1,0 +1,147 @@
+// CRAFT JML Specification — android.widget.TextView (Spec V-3)
+//
+// Formal behavioral contracts for the TextView shim.
+// Implementation: src/shim/android/widget/textview.ts
+// Descriptive guide: docs/specs/android_widget_text_view.md   ← read this first
+//
+// Inherits all invariants and method contracts from ViewGroup (V-2) and View (V-1).
+// This file specifies only the TextView-specific additions.
+//
+// Verification: openjml --esc android_widget_text_view.jml
+//
+// Model variable mapping:
+//   _mText          heap.getStringValue(heap.getField(thisRef, 'mText').ref)
+//   _mTextSize      heap.getField(thisRef, 'mTextSize').value  (float)
+//   _mTextColor     heap.getField(thisRef, 'mTextColor').value (int)
+//   _uiText         uiBridge.getViewNode(thisRef).properties['text']
+//   _uiTextSize     uiBridge.getViewNode(thisRef).properties['textSize']
+//   _uiTextColor    uiBridge.getViewNode(thisRef).properties['textColor']
+
+package android.widget;
+
+public class TextView extends android.view.ViewGroup {
+
+    // ─── Model fields ────────────────────────────────────────────────────────
+
+    //@ public model String _mText;
+    //@ public model float  _mTextSize;
+    //@ public model int    _mTextColor;
+
+    //@ public model String _uiText;
+    //@ public model float  _uiTextSize;
+    //@ public model int    _uiTextColor;
+
+    // ─── Class invariants ────────────────────────────────────────────────────
+
+    //@ public invariant _mText != null;
+    // I-TV1: mText is never null. After construction and after every setText call,
+    //        mText holds a valid (possibly empty) string.
+
+    //@ public invariant _mTextSize > 0.0f;
+    // I-TV2: mTextSize is always positive. The shim MUST reject non-positive sizes.
+
+    //@ public invariant _isRegistered ==> (_uiText != null && _uiText.equals(_mText));
+    // I-TV3: UIBridge 'text' property is always in sync with heap mText field.
+
+    //@ public invariant _isRegistered ==> (_uiTextSize == _mTextSize);
+    // I-TV4: UIBridge 'textSize' property is always in sync with mTextSize.
+
+    //@ public invariant _isRegistered ==> (_uiTextColor == _mTextColor);
+    // I-TV5: UIBridge 'textColor' property is always in sync with mTextColor.
+
+    // All ViewGroup (V-2) and View (V-1) invariants apply (inherited).
+    // In particular, _childCount >= 0 and _childCount == _children.length
+    // MUST hold even though TextView itself never calls addView.
+    // The constructor MUST initialize __childCount to satisfy these invariants.
+
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires context != null;
+      @ assignable _mContext, _mId, _mVisibility, _hasListener, _isRegistered,
+      @            _uiVisibility, _childCount, _children,
+      @            _mText, _mTextSize, _mTextColor,
+      @            _uiText, _uiTextSize, _uiTextColor;
+      @
+      @ ensures _mText != null && _mText.equals("");
+      @ ensures _mTextSize == 14.0f;
+      @ ensures _mTextColor == 0xFF000000;
+      @
+      @ // UIBridge node registered with type 'TextView' (not 'ViewGroup' or 'View')
+      @ ensures (* uiBridge.getViewNode(thisRef).viewType.equals("TextView") *);
+      @
+      @ // UIBridge properties initialised from field defaults — I-TV3/4/5 must hold
+      @ // immediately after construction, before any other method is called.
+      @ ensures _uiText != null && _uiText.equals("");
+      @ ensures _uiTextSize == 14.0f;
+      @ ensures _uiTextColor == 0xFF000000;
+      @
+      @ // Inherited ViewGroup invariants must hold from the start
+      @ ensures _childCount == 0;
+      @ ensures _mId == -1;
+      @ ensures _mVisibility == 0;
+      @*/
+    public TextView(android.content.Context context);
+
+    // ─── setText ─────────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires text != null;
+      @ // 'text' is a non-null CharSequence heap ref whose string value is resolvable
+      @
+      @ assignable _mText, _uiText;
+      @ ensures _mText != null;
+      @ ensures _mText.equals((*heap.getStringValue(text.ref)*));
+      @ ensures _uiText != null && _uiText.equals(_mText);
+      @ // I-TV3 maintained: heap and UIBridge in sync after call
+      @
+      @ also
+      @
+      @ public normal_behavior
+      @ requires text == null;
+      @ assignable _mText, _uiText;
+      @ ensures _mText != null && _mText.equals("");
+      @ ensures _uiText != null && _uiText.equals("");
+      @ // Null CharSequence degrades gracefully to empty string; I-TV1 maintained.
+      @*/
+    public void setText(java.lang.CharSequence text);
+
+    // ─── getText ─────────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ assignable \nothing;
+      @ ensures \result != null;
+      @ ensures (*heap.getStringValue(\result.ref)*).equals(_mText);
+      @ // Callers MUST NOT rely on reference identity across calls.
+      @*/
+    public /*@ pure @*/ java.lang.CharSequence getText();
+
+    // ─── setTextSize ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires size > 0.0f;
+      @ assignable _mTextSize, _uiTextSize;
+      @ ensures _mTextSize == size;
+      @ ensures _uiTextSize == size;
+      @ // I-TV4 maintained: heap and UIBridge in sync.
+      @
+      @ also
+      @
+      @ public exceptional_behavior
+      @ requires size <= 0.0f;
+      @ assignable \nothing;
+      @ signals_only java.lang.IllegalArgumentException;
+      @ // I-TV2 maintained: a non-positive size is never written to mTextSize.
+      @*/
+    public void setTextSize(float size);
+
+    // ─── setTextColor ────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ assignable _mTextColor, _uiTextColor;
+      @ ensures _mTextColor == color;
+      @ ensures _uiTextColor == color;
+      @ // I-TV5 maintained. Any 32-bit ARGB integer is accepted without validation.
+      @*/
+    public void setTextColor(int color);
+}

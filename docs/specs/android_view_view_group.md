@@ -85,6 +85,44 @@ Inherits click and timer callbacks from `View` (V-1).
 
 ---
 
+## Formal Specification Guide
+
+> Structured annotation for LLMs writing `android_view_view_group.jml` or
+> the ViewGroup portion of `viewsystem.als`.
+
+**JML model variable bindings:**
+- `_childCount` → `uiBridge.getViewNode(thisRef).children.length` (when UIBridge present)
+  OR `heap.getField(thisRef, '__childCount').value` (test contexts without UIBridge)
+- `_children[i]` → the i-th heap ref in `uiBridge.getViewNode(thisRef).children`
+
+**The critical invariants to capture formally:**
+
+1. **I-VG2 (count consistency)** — `_childCount == _children.length` is the invariant
+   that would have caught the singleton-store bug mechanically. In Alloy, this is
+   automatically true because seqs carry their own length. In JML, it requires an
+   explicit `invariant` clause tying `_childCount` to `_children.length`.
+
+2. **I-VG3 (no duplicates)** — state this as a JML `\forall` over all pairs `(i, j)`.
+   The spec says "undefined behaviour" for duplicates; the JML precondition on `addView`
+   should state the obligation: `requires child not in _children[0.._childCount-1]`.
+
+3. **I-VG-ISOLATION** — this invariant cannot be expressed in standard JML (it requires
+   referring to OTHER instances). Encode it in Alloy as the `PerInstanceIsolation` fact,
+   and in the TypeScript contracts as the cross-instance test helper.
+
+**addView assignable clause** must include BOTH `_childCount` AND `_children`, because
+the old singleton implementation changed a shared data structure — failing to list both
+in the frame would mask that violation.
+
+**Alloy guidance:**
+- `ViewGroupState` should have `children : seq HeapRef` (Alloy seqs enforce ordering
+  and provide `#seq` for count).
+- The `PerInstanceIsolation` fact (`all disj v1, v2 : ViewGroupInstance | v1.state != v2.state`)
+  must be a `fact`, not just an `assert` — it is a design decision, not something to verify.
+- The `BuggyViewGroupInstance` section uses a `sig BuggyViewGroupState` that multiple
+  instances can share. The `SharedStateCausesInterference` assert then FINDS a
+  counterexample, demonstrating the bug.
+
 ## Host Renderer Hints
 
 Children MUST be rendered in the order they appear in the ViewNode's `children`

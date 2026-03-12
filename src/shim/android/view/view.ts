@@ -25,6 +25,8 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
       heap.setField(thisRef, 'mVisibility', intValue(VISIBLE));
       if (uiBridge) {
         uiBridge.registerView(thisRef, 'View');
+        // I3b: UIBridge visibility must be in sync from construction (JML invariant V-1 I3b)
+        uiBridge.updateViewProperty(thisRef, 'visibility', VISIBLE);
       }
       return NULL_VALUE;
     }

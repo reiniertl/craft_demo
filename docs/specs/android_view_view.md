@@ -165,6 +165,41 @@ Calls `uiBridge.cancelTimersForRunnable(thisRef, rRef)`. Returns `true`.
 
 ---
 
+## Formal Specification Guide
+
+> This section is a structured annotation for LLMs writing or reviewing the formal
+> JML / Alloy specifications in `docs/specs/formal/`. Read this before touching
+> `android_view_view.jml` or `viewsystem.als`.
+
+**JML model variable bindings** (what each `_model` field maps to in the shim):
+- `_isRegistered` → `uiBridge.getViewNode(thisRef) != null`
+- `_mVisibility` → `heap.getField(thisRef, 'mVisibility').value`
+- `_uiVisibility` → `uiBridge.getViewNode(thisRef).properties['visibility']`
+- `_hasListener` → `heap.getField(thisRef, 'mOnClickListener').ref != 0`
+
+**Non-obvious invariants that MUST be in the JML:**
+1. I1 (`_isRegistered`) — the UIBridge call happens inside the constructor body, not
+   via a virtual dispatch. Subclass constructors call `registerView` again to override
+   the node type; the base class registers first. Alloy `viewsystem.als` models this.
+2. I3b (heap ↔ UIBridge sync) — `_mVisibility == _uiVisibility` must hold at every
+   observable state. `setVisibility` MUST write to BOTH; omitting the UIBridge call
+   is a spec violation even if the heap field is correct.
+3. `removeCallbacks` scope — the cancellation is **global** (all Views), not per-`this`.
+   The JML `ensures` must use an informal predicate because JML cannot express
+   cross-object state without a frame model.
+
+**Edge cases requiring explicit JML branches (`also` clauses):**
+- `setVisibility` with out-of-range value → `exceptional_behavior`
+- `setOnClickListener(null)` → listener removal path
+- `post(null)` / `postDelayed(null, ...)` / `removeCallbacks(null)` → return 0, no effect
+
+**Alloy guidance (`viewsystem.als`):**
+- Model `ViewState` as a sig with a `visibility` field constrained to the three constants.
+- Add a `VisibilitySync` fact connecting `ViewState.visibility` to the UIBridgeNode's
+  `nodeVisibility` — this encodes I3b structurally.
+- The `BuggyViewGroup` section should show that shared `children` relations violate
+  per-instance isolation, even though the View level itself has no children.
+
 ## Host Renderer Hints
 
 | Key | ArkUI behaviour |

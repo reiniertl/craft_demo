@@ -1,0 +1,192 @@
+// CRAFT JML Specification — android.view.View (Spec V-1)
+//
+// Formal behavioral contracts for the View shim.
+// Implementation: src/shim/android/view/view.ts
+// Descriptive guide: docs/specs/android_view_view.md   ← read this first
+//
+// Verification: openjml --esc android_view_view.jml
+//
+// Model variable mapping (JML model field → heap storage):
+//   _mContext       heap.getField(thisRef, 'mContext')
+//   _mId            heap.getField(thisRef, 'mId').value
+//   _mVisibility    heap.getField(thisRef, 'mVisibility').value
+//   _hasListener    heap.getField(thisRef, 'mOnClickListener').ref != 0
+//   _isRegistered   uiBridge.getViewNode(thisRef) != null
+//   _uiVisibility   uiBridge.getViewNode(thisRef).properties['visibility']
+
+package android.view;
+
+public class View {
+
+    // ─── Model fields (abstract over heap.getField / UIBridge) ───────────────
+
+    //@ public model android.content.Context _mContext;
+    //@ public model int  _mId;
+    //@ public model int  _mVisibility;
+    //@ public model boolean _hasListener;      // mOnClickListener != null
+    //@ public model boolean _isRegistered;     // UIBridge node exists for thisRef
+    //@ public model int  _uiVisibility;        // UIBridge viewNode.properties['visibility']
+
+    // ─── Class invariants ────────────────────────────────────────────────────
+
+    //@ public invariant _isRegistered;
+    // I1: Every View MUST have a UIBridge node registered before any method is called.
+
+    //@ public invariant _mVisibility == 0 || _mVisibility == 4 || _mVisibility == 8;
+    // I3: mVisibility is always one of the three Android visibility constants.
+
+    //@ public invariant _isRegistered ==> (_uiVisibility == _mVisibility);
+    // I3b: Heap state and UIBridge state are always in sync for visibility.
+
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires context != null;
+      @ assignable _mContext, _mId, _mVisibility, _hasListener, _isRegistered,
+      @            _uiVisibility;
+      @ ensures _mContext == context;
+      @ ensures _mId == -1;
+      @ ensures _mVisibility == 0;
+      @ ensures !_hasListener;
+      @ ensures _isRegistered;
+      @ ensures _uiVisibility == 0;
+      @*/
+    public View(android.content.Context context);
+
+    // ─── getContext ───────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ assignable \nothing;
+      @ ensures \result == _mContext;
+      @ ensures \result != null;
+      @*/
+    public /*@ pure @*/ android.content.Context getContext();
+
+    // ─── setId / getId ────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ assignable _mId;
+      @ ensures _mId == id;
+      @*/
+    public void setId(int id);
+
+    /*@ public normal_behavior
+      @ assignable \nothing;
+      @ ensures \result == _mId;
+      @*/
+    public /*@ pure @*/ int getId();
+
+    // ─── setVisibility ────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires visibility == 0 || visibility == 4 || visibility == 8;
+      @ assignable _mVisibility, _uiVisibility;
+      @ ensures _mVisibility == visibility;
+      @ ensures _uiVisibility == visibility;
+      @ // I3b maintained: heap and UIBridge are in sync after the call
+      @
+      @ also
+      @
+      @ public exceptional_behavior
+      @ requires visibility != 0 && visibility != 4 && visibility != 8;
+      @ assignable \nothing;
+      @ signals_only java.lang.IllegalArgumentException;
+      @*/
+    public void setVisibility(int visibility);
+
+    /*@ public normal_behavior
+      @ assignable \nothing;
+      @ ensures \result == _mVisibility;
+      @*/
+    public /*@ pure @*/ int getVisibility();
+
+    // ─── setOnClickListener ──────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires l != null;
+      @ assignable _hasListener;
+      @ ensures _hasListener;
+      @ ensures (* uiBridge.clickCallback(thisRef) dispatches l.onClick(thisRef)
+      @            via the interpreter when invoked *);
+      @
+      @ also
+      @
+      @ public normal_behavior
+      @ requires l == null;
+      @ assignable _hasListener;
+      @ ensures !_hasListener;
+      @ ensures (* uiBridge.clickCallback(thisRef) is null — no stale handler *);
+      @*/
+    public void setOnClickListener(OnClickListener l);
+
+    // ─── performClick ────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires _hasListener;
+      @ assignable \nothing;
+      @ ensures \result == 1;
+      @ ensures (* mOnClickListener.onClick(thisRef) was invoked via interpreter *);
+      @
+      @ also
+      @
+      @ public normal_behavior
+      @ requires !_hasListener;
+      @ assignable \nothing;
+      @ ensures \result == 0;
+      @*/
+    public int performClick();
+
+    // ─── post ────────────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires r != null;
+      @ assignable \nothing;
+      @ ensures \result == 1;
+      @ ensures (* uiBridge.scheduleTimer(thisRef, r.ref, fn, 0) was called *);
+      @
+      @ also
+      @
+      @ public normal_behavior
+      @ requires r == null;
+      @ assignable \nothing;
+      @ ensures \result == 0;
+      @*/
+    public int post(java.lang.Runnable r);
+
+    // ─── postDelayed ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires r != null;
+      @ requires delayMillis >= 0L;
+      @ assignable \nothing;
+      @ ensures \result == 1;
+      @ ensures (* uiBridge.scheduleTimer(thisRef, r.ref, fn, delayMillis) called *);
+      @
+      @ also
+      @
+      @ public normal_behavior
+      @ requires r == null;
+      @ assignable \nothing;
+      @ ensures \result == 0;
+      @*/
+    public int postDelayed(java.lang.Runnable r, long delayMillis);
+
+    // ─── removeCallbacks ─────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires r != null;
+      @ assignable \nothing;
+      @ ensures \result == 1;
+      @ ensures (* ALL pending timers in UIBridge whose runnableRef == r.ref
+      @            are cancelled, regardless of which View posted them.
+      @            Scope is global across all View instances — NOT per-this. *);
+      @
+      @ also
+      @
+      @ public normal_behavior
+      @ requires r == null;
+      @ assignable \nothing;
+      @ ensures \result == 0;
+      @*/
+    public int removeCallbacks(java.lang.Runnable r);
+}

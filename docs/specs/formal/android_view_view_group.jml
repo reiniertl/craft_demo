@@ -1,0 +1,96 @@
+// CRAFT JML Specification — android.view.ViewGroup (Spec V-2)
+//
+// Formal behavioral contracts for the ViewGroup shim.
+// Implementation: src/shim/android/view/view_group.ts
+// Descriptive guide: docs/specs/android_view_view_group.md   ← read this first
+//
+// Inherits all invariants and method contracts from View (V-1).
+// This file specifies only the ViewGroup-specific additions.
+//
+// Verification: openjml --esc android_view_view_group.jml
+//
+// Model variable mapping:
+//   _childCount     heap.getField(thisRef, '__childCount').value
+//                   OR uiBridge.getViewNode(thisRef).children.length (when UIBridge present)
+//   _uiChildCount   uiBridge.getViewNode(thisRef).children.length
+
+package android.view;
+
+public class ViewGroup extends View {
+
+    // ─── Model fields ────────────────────────────────────────────────────────
+
+    //@ public model int _childCount;
+    // Logical count of children. Authoritative source is UIBridge when present;
+    // falls back to heap.__childCount in test contexts without UIBridge.
+
+    //@ public model \bigint[] _children;
+    // Ordered sequence of child heap refs. _children[i] is the heap ref of the
+    // i-th child added via addView.
+
+    // ─── Class invariants ────────────────────────────────────────────────────
+
+    //@ public invariant _childCount >= 0;
+    // I-VG1: Child count is never negative.
+
+    //@ public invariant _childCount == _children.length;
+    // I-VG2: Count is always consistent with the actual child sequence length.
+    //        This invariant detects the singleton-store bug: if two ViewGroup
+    //        instances shared a module-level children array, modifying one
+    //        would silently change _childCount for the other.
+
+    /*@ public invariant (\forall int i, j;
+      @     0 <= i && i < _childCount && 0 <= j && j < _childCount && i != j;
+      @     _children[i] != _children[j]);
+      @*/
+    // I-VG3: No duplicate children. Each child heap ref appears at most once.
+
+    // All View (V-1) invariants also apply (inherited).
+
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires context != null;
+      @ assignable _mContext, _mId, _mVisibility, _hasListener, _isRegistered,
+      @            _uiVisibility, _childCount, _children;
+      @ ensures _childCount == 0;
+      @ ensures _children.length == 0;
+      @ ensures _mId == -1;
+      @ ensures _mVisibility == 0;
+      @ ensures _isRegistered;
+      @ // UIBridge node type may be 'ViewGroup' or a subclass type —
+      @ // subclass constructors MUST call registerView again to override the type.
+      @*/
+    public ViewGroup(android.content.Context context);
+
+    // ─── addView ─────────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires child != null;
+      @ requires (\forall int i; 0 <= i && i < _childCount;
+      @               _children[i] != child.ref);
+      @ // Pre: child must not already be present (duplicate = undefined behaviour per spec)
+      @
+      @ assignable _childCount, _children;
+      @ ensures _childCount == \old(_childCount) + 1;
+      @ ensures _children[_childCount - 1] == child.ref;
+      @ // Post: child is appended at the end; previous children unchanged.
+      @
+      @ ensures (\forall int i; 0 <= i && i < \old(_childCount);
+      @              _children[i] == \old(_children[i]));
+      @ // Post: insertion order of prior children is preserved.
+      @
+      @ ensures (* uiBridge.getViewNode(thisRef).children contains child's node
+      @            as the last element, when UIBridge is present *);
+      @*/
+    public void addView(View child);
+
+    // ─── getChildCount ───────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ assignable \nothing;
+      @ ensures \result == _childCount;
+      @ ensures \result >= 0;
+      @*/
+    public /*@ pure @*/ int getChildCount();
+}

@@ -1,0 +1,126 @@
+// CRAFT JML Specification — android.os.Bundle (Spec A-1)
+//
+// Formal behavioral contracts for the Bundle shim.
+// Implementation: src/shim/android/os/bundle.ts
+// Descriptive guide: docs/specs/android_os_bundle.md   ← read this first
+//
+// Verification: openjml --esc android_os_bundle.jml
+//
+// Implementation note: the shim stores Bundle data as heap fields with prefixed
+// key names (__bundle_<key> for values, __bundleExists_<key> for presence flags).
+// This per-heap-object storage guarantees instance isolation; the JML abstracts
+// this as a logical map _store.
+//
+// Model variable mapping:
+//   _store(k)       heap.getField(thisRef, '__bundle_' + k)   — the stored Value
+//   _exists(k)      heap.getField(thisRef, '__bundleExists_' + k).value == 1
+
+package android.os;
+
+public class Bundle {
+
+    // ─── Model fields ────────────────────────────────────────────────────────
+
+    //@ public model java.util.Map<String, Object> _store;
+    // Logical key-value store. Keys are Java string values (not heap refs).
+    // Values are arbitrary Value instances (including null).
+
+    //@ public model java.util.Set<String> _exists;
+    // The set of keys that have been explicitly put. A key is in _exists iff
+    // putString has been called with that key at least once.
+
+    // ─── Class invariants ────────────────────────────────────────────────────
+
+    //@ public invariant _store != null;
+    // I-B1: The store is never null (empty map, not null map).
+
+    //@ public invariant _exists != null;
+    // I-B2: The exists set is never null.
+
+    //@ public invariant _exists.equals(_store.keySet());
+    // I-B3: _exists and _store.keySet() are always identical.
+    //       This prevents the case where containsKey returns true but getString
+    //       returns null because the value was never stored.
+
+    /*@ public invariant
+      @ // I-B4 (ISOLATION): this instance's store is independent of all other
+      @ // Bundle instances. No module-level singleton may be used as the backing
+      @ // store. Each Bundle heap object owns its own __bundle_* fields.
+      @ (* \forall Bundle b; b != this;
+      @      \forall String k;
+      @        _store.get(k) != b._store.get(k) || !_store.containsKey(k) ) *);
+      @*/
+    // NOTE: I-B4 is expressed informally because JML cannot directly reference
+    // other heap instances. The Alloy model bundle_isolation.als encodes this
+    // property as a mechanically checked assertion.
+
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ assignable _store, _exists;
+      @ ensures _store != null && _store.isEmpty();
+      @ ensures _exists != null && _exists.isEmpty();
+      @ // Post: a freshly constructed Bundle has no keys.
+      @*/
+    public Bundle();
+
+    // ─── putString ───────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires key != null;
+      @ // 'key' is a non-null String heap ref. Its string value is used as the map key.
+      @
+      @ assignable _store, _exists;
+      @ ensures _store.containsKey((*heap.getStringValue(key.ref)*));
+      @ ensures _store.get((*heap.getStringValue(key.ref)*)) == value;
+      @ // value MAY be null — null is stored as-is, not rejected.
+      @
+      @ ensures _exists.contains((*heap.getStringValue(key.ref)*));
+      @ // I-B3 maintained: key added to both _store and _exists simultaneously.
+      @
+      @ ensures (\forall String k; !k.equals((*heap.getStringValue(key.ref)*));
+      @              _store.get(k) == \old(_store.get(k)));
+      @ // Frame: only the entry for 'key' changes; all other entries unchanged.
+      @*/
+    public void putString(String key, String value);
+
+    // ─── getString ───────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires key != null;
+      @
+      @ assignable \nothing;
+      @
+      @ ensures _exists.contains((*heap.getStringValue(key.ref)*))
+      @         && _store.get((*heap.getStringValue(key.ref)*)) != null
+      @         ==> \result != null
+      @             && \result == _store.get((*heap.getStringValue(key.ref)*));
+      @ // Post: if key is present with a non-null value, return that value.
+      @
+      @ ensures !_exists.contains((*heap.getStringValue(key.ref)*))
+      @         ==> \result == null;
+      @ // Post: if key is absent, return null (not an exception).
+      @
+      @ ensures _exists.contains((*heap.getStringValue(key.ref)*))
+      @         && _store.get((*heap.getStringValue(key.ref)*)) == null
+      @         ==> \result == null;
+      @ // Post: if key is present but value is null, return null.
+      @*/
+    public /*@ pure @*/ String getString(String key);
+
+    // ─── containsKey ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @ requires key != null;
+      @
+      @ assignable \nothing;
+      @
+      @ ensures \result == (_exists.contains((*heap.getStringValue(key.ref)*)) ? 1 : 0);
+      @ // Post: returns 1 iff the key was previously passed to putString,
+      @ //       regardless of whether the stored value is null or non-null.
+      @
+      @ ensures \result == 1 <==>
+      @         _exists.contains((*heap.getStringValue(key.ref)*));
+      @*/
+    public /*@ pure @*/ int containsKey(String key);
+}

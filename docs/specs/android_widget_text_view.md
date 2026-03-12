@@ -113,6 +113,44 @@ Inherits from `View` (V-1):
 
 ---
 
+## Formal Specification Guide
+
+> Structured annotation for LLMs writing `android_widget_text_view.jml`.
+> TextView extends ViewGroup (V-2) which extends View (V-1) — all inherited
+> invariants apply.
+
+**JML model variable bindings:**
+- `_mText` → `heap.getStringValue(heap.getField(thisRef, 'mText').ref)`
+  (note: two-level dereference — heap ref → string value)
+- `_mTextSize` → `heap.getField(thisRef, 'mTextSize').value` (float)
+- `_mTextColor` → `heap.getField(thisRef, 'mTextColor').value` (signed int32)
+- `_uiText` → `uiBridge.getViewNode(thisRef).properties['text']`
+
+**The five sync invariants (I-TV3/4/5 and their counterparts) are the most
+important to capture.** Every property-writing method (setText, setTextSize,
+setTextColor) has an `assignable` clause covering BOTH the heap field AND
+the UIBridge model variable. Missing either from `assignable` or `ensures`
+is a spec violation.
+
+**Constructor obligations that tripped the last audit:**
+- The constructor MUST initialize `__childCount = 0` (V-2 invariant, inherited).
+  This is NOT done by calling the ViewGroup constructor — TextView registers its
+  own shim constructor and must reproduce all ViewGroup initialization. The JML
+  `ensures _childCount == 0` makes this obligation explicit.
+- UIBridge node type MUST be `'TextView'`, not `'ViewGroup'` — the constructor
+  calls `registerView(thisRef, 'TextView')` which overrides the type set by any
+  prior View-level registration. The JML postcondition names this explicitly.
+- All UIBridge properties MUST be initialized to defaults in the constructor
+  (I-TV3/4/5 must hold from the very first moment before any app code runs).
+
+**setText edge case:** the spec requires graceful handling of a null CharSequence
+ref — degrade to `""` rather than propagate null into `mText`. Write two
+`normal_behavior` branches in the JML `also` clause.
+
+**setTextSize exceptional branch:** size ≤ 0 MUST be an `exceptional_behavior`
+clause with `signals_only IllegalArgumentException`. This is what guarantees
+I-TV2 is maintained — the field is never written with a bad value.
+
 ## Host Renderer Hints
 
 | Key | ArkUI mapping | Conversion |
