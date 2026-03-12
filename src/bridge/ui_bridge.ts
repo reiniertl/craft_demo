@@ -63,8 +63,11 @@ export class UIBridge {
    * @param viewType View type name (e.g., 'TextView', 'ViewGroup')
    */
   registerView(viewRef: number, viewType: string): void {
-    if (this.viewMap.has(viewRef)) {
-      // Already registered, skip
+    const existing = this.viewMap.get(viewRef);
+    if (existing) {
+      // A more-specific subclass constructor is registering after the base class —
+      // update the type so the concrete type wins (e.g. 'LinearLayout' over 'View').
+      existing.viewType = viewType;
       return;
     }
 
@@ -182,6 +185,14 @@ export class UIBridge {
   }
 
   /**
+   * Remove click callback for a view (called when setOnClickListener(null) is invoked)
+   * @param viewRef Heap reference to the View object
+   */
+  removeClickCallback(viewRef: number): void {
+    this.clickCallbacks.delete(viewRef);
+  }
+
+  /**
    * Check if a view has a click handler
    */
   hasClickCallback(viewRef: number): boolean {
@@ -240,12 +251,12 @@ export class UIBridge {
   }
 
   /**
-   * Cancel all timers for a specific Runnable on a specific View
-   * (used by View.removeCallbacks)
+   * Cancel all timers for a specific Runnable, regardless of which View posted them.
+   * (used by View.removeCallbacks — spec V-1 invariant 5)
    */
   cancelTimersForRunnable(viewRef: number, runnableRef: number): void {
     this.pendingTimers = this.pendingTimers.filter(
-      (t) => !(t.viewRef === viewRef && t.runnableRef === runnableRef)
+      (t) => t.runnableRef !== runnableRef
     );
     if (this.pendingTimers.length === 0) {
       this.stopPolling();

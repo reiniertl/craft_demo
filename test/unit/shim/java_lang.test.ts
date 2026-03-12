@@ -5,7 +5,6 @@
 import { ShimRegistry } from '../../../src/interpreter/shim_registry';
 import { Heap } from '../../../src/interpreter/heap';
 import { Value, intValue, longValue, objectRef, NULL_VALUE } from '../../../src/core/types';
-import { StringIndexOutOfBoundsException } from '../../../src/interpreter/errors';
 import { createShimTestContext, ShimTestContext } from '../../helpers/shim_test_utils';
 
 describe('java.lang.* shims', () => {
@@ -104,11 +103,10 @@ describe('java.lang.* shims', () => {
       expect(result).toEqual(intValue(66)); // 'B' = 66
     });
 
-    it('charAt throws on out of bounds', () => {
+    it('charAt returns 0 on out of bounds (graceful degradation)', () => {
       const ref = makeString('ABC');
-      expect(() =>
-        invokeShim('Ljava/lang/String;', 'charAt', '(I)C', [objectRef(ref), intValue(5)])
-      ).toThrow(StringIndexOutOfBoundsException);
+      const result = invokeShim('Ljava/lang/String;', 'charAt', '(I)C', [objectRef(ref), intValue(5)]);
+      expect(result).toEqual(intValue(0));
     });
 
     it('equals returns true for same content', () => {

@@ -23,6 +23,9 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
       heap.setField(thisRef, 'mContext', args[0]);
       heap.setField(thisRef, 'mId', intValue(-1));
       heap.setField(thisRef, 'mVisibility', intValue(VISIBLE));
+      if (uiBridge) {
+        uiBridge.registerView(thisRef, 'View');
+      }
       return NULL_VALUE;
     }
   );
@@ -54,6 +57,10 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
   registry.register(VIEW_CLASS, 'setVisibility', '(I)V',
     (_interp, heap, thisRef, args) => {
       heap.setField(thisRef, 'mVisibility', args[0]);
+      if (uiBridge) {
+        const visibility = args[0].type === 'int' ? args[0].value : VISIBLE;
+        uiBridge.updateViewProperty(thisRef, 'visibility', visibility);
+      }
       return NULL_VALUE;
     }
   );
@@ -72,21 +79,26 @@ export function registerViewShim(registry: ShimRegistry, uiBridge?: UIBridge): v
       const listenerRef = args[0];
       heap.setField(thisRef, 'mOnClickListener', listenerRef);
 
-      if (uiBridge && listenerRef.type === 'object' && listenerRef.ref !== 0) {
-        const capturedListenerRef = listenerRef;
-        const capturedThisRef = thisRef;
-        const callback = (): void => {
-          const listenerClass = heap.getClassDescriptor(capturedListenerRef.ref);
-          if (listenerClass) {
-            interp.invoke(
-              listenerClass,
-              'onClick',
-              '(Landroid/view/View;)V',
-              [capturedListenerRef, objectRef(capturedThisRef)]
-            );
-          }
-        };
-        uiBridge.setClickCallback(thisRef, callback);
+      if (uiBridge) {
+        if (listenerRef.type === 'object' && listenerRef.ref !== 0) {
+          const capturedListenerRef = listenerRef;
+          const capturedThisRef = thisRef;
+          const callback = (): void => {
+            const listenerClass = heap.getClassDescriptor(capturedListenerRef.ref);
+            if (listenerClass) {
+              interp.invoke(
+                listenerClass,
+                'onClick',
+                '(Landroid/view/View;)V',
+                [capturedListenerRef, objectRef(capturedThisRef)]
+              );
+            }
+          };
+          uiBridge.setClickCallback(thisRef, callback);
+        } else {
+          // null listener — remove any previously registered callback
+          uiBridge.removeClickCallback(thisRef);
+        }
       }
 
       return NULL_VALUE;

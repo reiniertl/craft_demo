@@ -50,7 +50,9 @@ describe('android.widget.Button shim', () => {
   it('constructor initializes TextView fields', () => {
     const actRef = createActivity();
     const btnRef = createButton(actRef);
-    expect(heap.getField(btnRef, 'mText')).toEqual(NULL_VALUE);
+    const mText = heap.getField(btnRef, 'mText');
+    expect(mText.type).toBe('object');
+    expect(heap.getStringValue((mText as { type: 'object'; ref: number }).ref)).toBe('');
     expect(heap.getField(btnRef, 'mTextSize')).toEqual({ type: 'float', value: 14.0 });
     expect(heap.getField(btnRef, 'mTextColor')).toEqual(intValue(0xFF000000 | 0));
   });

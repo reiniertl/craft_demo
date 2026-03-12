@@ -240,7 +240,8 @@ describe('Android API shims', () => {
       const result = invokeShim(TEXTVIEW, 'getText', '()Ljava/lang/CharSequence;', [
         objectRef(ref),
       ]);
-      expect(result.type).toBe('null');
+      expect(result.type).toBe('object');
+      expect(heap.getStringValue((result as { type: 'object'; ref: number }).ref)).toBe('');
     });
 
     it('setText stores text', () => {

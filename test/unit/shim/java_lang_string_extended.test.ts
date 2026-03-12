@@ -5,7 +5,6 @@
 import { ShimRegistry } from '../../../src/interpreter/shim_registry';
 import { Heap } from '../../../src/interpreter/heap';
 import { Value, intValue, longValue, objectRef, NULL_VALUE } from '../../../src/core/types';
-import { StringIndexOutOfBoundsException } from '../../../src/interpreter/errors';
 import { createShimTestContext, ShimTestContext } from '../../helpers/shim_test_utils';
 
 describe('java.lang.String extended edge cases', () => {
@@ -25,18 +24,16 @@ describe('java.lang.String extended edge cases', () => {
   }
 
   describe('charAt edge cases', () => {
-    it('throws on negative index', () => {
+    it('returns 0 on negative index (graceful degradation)', () => {
       const ref = makeString('ABC');
-      expect(() =>
-        invokeShim('Ljava/lang/String;', 'charAt', '(I)C', [objectRef(ref), intValue(-1)])
-      ).toThrow(StringIndexOutOfBoundsException);
+      const result = invokeShim('Ljava/lang/String;', 'charAt', '(I)C', [objectRef(ref), intValue(-1)]);
+      expect(result).toEqual(intValue(0));
     });
 
-    it('throws on index equal to length', () => {
+    it('returns 0 on index equal to length (graceful degradation)', () => {
       const ref = makeString('AB');
-      expect(() =>
-        invokeShim('Ljava/lang/String;', 'charAt', '(I)C', [objectRef(ref), intValue(2)])
-      ).toThrow(StringIndexOutOfBoundsException);
+      const result = invokeShim('Ljava/lang/String;', 'charAt', '(I)C', [objectRef(ref), intValue(2)]);
+      expect(result).toEqual(intValue(0));
     });
 
     it('works at index 0', () => {

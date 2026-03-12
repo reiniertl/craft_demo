@@ -19,8 +19,8 @@ export function registerTextViewShim(registry: ShimRegistry, uiBridge?: UIBridge
       heap.setField(thisRef, 'mContext', args[0]);
       heap.setField(thisRef, 'mId', intValue(-1));
       heap.setField(thisRef, 'mVisibility', intValue(0));
-      // Initialize TextView fields
-      heap.setField(thisRef, 'mText', NULL_VALUE);
+      // Initialize TextView fields — mText MUST NOT be null (spec V-3 invariant 1)
+      heap.setField(thisRef, 'mText', objectRef(heap.internString('')));
       heap.setField(thisRef, 'mTextSize', floatValue(14.0));
       heap.setField(thisRef, 'mTextColor', intValue(0xFF000000 | 0));
 
@@ -39,17 +39,11 @@ export function registerTextViewShim(registry: ShimRegistry, uiBridge?: UIBridge
     (_interp, heap, thisRef, args) => {
       heap.setField(thisRef, 'mText', args[0]);
 
-      // Notify UI bridge of text change
       if (uiBridge) {
-        // Extract text value from String object
         const textRef = args[0];
-        let textValue = '';
-        if (textRef.type === 'object' && textRef.ref !== 0) {
-          const textObj = heap.getObject(textRef.ref);
-          if (textObj && textObj.stringValue !== undefined) {
-            textValue = textObj.stringValue;
-          }
-        }
+        const textValue = (textRef.type === 'object' && textRef.ref !== 0)
+          ? heap.getStringValue(textRef.ref)
+          : '';
         uiBridge.updateViewProperty(thisRef, 'text', textValue);
       }
 
