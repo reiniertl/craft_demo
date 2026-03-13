@@ -1,0 +1,76 @@
+// JML Formal Specification — android.widget.Button (Spec V-5)
+//
+// Button extends TextView (V-3). It introduces no new heap fields or methods.
+// The sole new obligation is that the UIBridge node type MUST be 'Button'.
+// All TextView, ViewGroup, and View invariants apply without modification.
+//
+// See: docs/specs/android_widget_button.md (descriptive guide)
+//      docs/specs/formal/android_widget_text_view.jml (V-3 full contracts)
+//      docs/specs/formal/viewsystem.als (structural isolation model)
+
+public class Button extends TextView {
+
+    // ─── Model variable bindings ──────────────────────────────────────────────
+    //
+    // All heap model variables are inherited from TextView (V-3):
+    //   _mText       — heap.getField(thisRef, 'mText')       : String
+    //   _mTextSize   — heap.getField(thisRef, 'mTextSize')   : float
+    //   _mTextColor  — heap.getField(thisRef, 'mTextColor')  : int
+    //   _mVisibility — heap.getField(thisRef, 'mVisibility') : int
+    //   _mId         — heap.getField(thisRef, 'mId')         : int
+    //   _childCount  — UIBridge node children.length          : int
+    //
+    // UIBridge model (additional):
+    //   _uiBridgeType — uiBridge.getViewNode(thisRef).viewType : string
+
+    //@ public model String _uiBridgeType;
+
+    // ─── Inherited invariants (V-1, V-2, V-3 — all apply unchanged) ──────────
+    //
+    // V-1 I1:  uiBridge.getViewNode(this) != null
+    // V-1 I3:  _mVisibility in {0, 4, 8}
+    // V-1 I3b: UIBridge 'visibility' == _mVisibility
+    // V-2 I-VG1: _childCount >= 0
+    // V-2 I-VG2: UIBridge children.length == _childCount
+    // V-2 I-VG3: no duplicate children
+    // V-3 I-TV1: _mText != null
+    // V-3 I-TV2: _mTextSize > 0.0f
+    // V-3 I-TV3: UIBridge 'text'      == _mText
+    // V-3 I-TV4: UIBridge 'textSize'  == _mTextSize
+    // V-3 I-TV5: UIBridge 'textColor' == _mTextColor
+
+    // ─── New invariant (V-5 I-BT1) ───────────────────────────────────────────
+
+    //@ invariant (* _uiBridgeType == 'Button' *);
+    // Rationale: The host renderer uses the node type to select the ArkUI Button()
+    // component. If it were 'TextView' the node would render as non-interactive text.
+
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   requires context != null;
+      @   ensures  (* heap fields initialised: mId=-1, mVisibility=0, mText="",
+      @               mTextSize=14.0, mTextColor=0xFF000000 *);
+      @   ensures  (* UIBridge: registerView(this, 'Button') called *);
+      @   ensures  (* _uiBridgeType == 'Button' *);
+      @   ensures  (* UIBridge 'visibility' == 0 *);
+      @   ensures  (* UIBridge 'text'       == "" *);
+      @   ensures  (* UIBridge 'textSize'   == 14.0 *);
+      @   ensures  (* UIBridge 'textColor'  == 0xFF000000 *);
+      @   assignable \everything;
+      @*/
+    public Button(Context context) { super(context); }
+
+    // ─── All other methods inherited from TextView (V-3) ─────────────────────
+    //
+    // No override — method resolution must follow:
+    //   Button -> TextView -> ViewGroup -> View -> Object
+    //
+    // setText(CharSequence)   : V-3 contracts apply
+    // setTextSize(float)      : V-3 contracts apply
+    // setTextColor(int)       : V-3 contracts apply
+    // setVisibility(int)      : V-1 contracts apply
+    // setOnClickListener(...) : V-1 contracts apply
+    // addView(View)           : V-2 contracts apply
+    // getChildCount()         : V-2 contracts apply
+}

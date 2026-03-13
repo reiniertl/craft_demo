@@ -1,0 +1,96 @@
+// JML Formal Specification — android.content.Context (A-2)
+//                           android.content.ContextWrapper (A-3)
+//
+// Context is an abstract base providing environment access to Android components.
+// ContextWrapper wraps a base Context and delegates to it. Both are never
+// instantiated directly — only via Activity (A-4) or other concrete subclasses.
+//
+// See: docs/specs/android_content_context.md (descriptive guide)
+
+// ─── A-2: android.content.Context ────────────────────────────────────────────
+
+public abstract class Context extends Object {
+
+    // No heap model variables — Context stores no state in the CRAFT shim.
+
+    // ─── Class invariants ─────────────────────────────────────────────────────
+
+    //@ invariant (* Context is abstract — never instantiated directly *);
+    // I-C1: Only concrete subclasses (ContextWrapper, Activity) are allocated.
+    // Not checkable at construction time; enforced by shim registration only.
+
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   ensures true;
+      @   assignable \nothing;
+      @*/
+    public Context();
+    // No-op. Only called as part of a subclass super-chain.
+
+    // ─── getApplicationContext ────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   ensures \result != null;
+      @   assignable \nothing;
+      @*/
+    public Context getApplicationContext();
+    // I-C2: Returns a non-null Context ref. Base implementation returns this.
+    // Concrete subclasses may override; the non-null guarantee is unconditional.
+}
+
+// ─── A-3: android.content.ContextWrapper ─────────────────────────────────────
+
+public class ContextWrapper extends Context {
+
+    // ─── Model variable bindings ──────────────────────────────────────────────
+    //
+    //   _mBase — heap.getField(thisRef, 'mBase') : object ref | null
+    //            The wrapped base context. Set by the Context-arg constructor.
+    //            Remains unset (null-valued) when the no-arg constructor is used.
+
+    //@ public model Object _mBase;
+
+    // ─── Class invariants ─────────────────────────────────────────────────────
+
+    // No class invariant on _mBase: the no-arg constructor (used by Activity's
+    // super-chain) leaves _mBase unset. The invariant would be too strict.
+    // If getBaseContext() is called when mBase is unset, the return is null —
+    // this is acceptable because Activity never calls getBaseContext() itself.
+
+    // ─── Constructors ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   ensures true;
+      @   assignable \nothing;
+      @*/
+    public ContextWrapper();
+    // No-arg constructor. Used by Activity super-chain. mBase is not set.
+
+    /*@ public normal_behavior
+      @   requires context != null;
+      @   ensures  _mBase == context;
+      @   assignable _mBase;
+      @*/
+    public ContextWrapper(Context context);
+    // Sets mBase to the wrapped Context.
+
+    // ─── getBaseContext ───────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   ensures \result == _mBase;
+      @   assignable \nothing;
+      @*/
+    public Context getBaseContext();
+    // Returns mBase. May be null if the no-arg constructor was used.
+
+    // ─── getApplicationContext ────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   ensures \result != null;
+      @   assignable \nothing;
+      @*/
+    public Context getApplicationContext();
+    // I-CW1: Returns this. Non-null by construction (this is never null).
+    // Overrides Context.getApplicationContext() with identical guarantee.
+}

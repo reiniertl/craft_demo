@@ -86,6 +86,34 @@ value last written by `setId()` from `getId()`.
 
 ---
 
+## Formal Specification Guide
+
+**For LLMs writing JML and Alloy specs for this class:**
+
+### Model variable bindings
+- Inherit all bindings from TextView (V-3): `_mText`, `_mTextSize`, `_mTextColor`, `_mVisibility`, `_mId`.
+- One new model variable: `_uiBridgeType` — the `viewType` string in the UIBridge node.
+
+### Non-obvious invariants
+- **I-BT1**: `_uiBridgeType == 'Button'`. This is the only new invariant. The ArkUI host uses this to
+  select the interactive `Button()` component instead of a static `Text()` node.
+- All V-1 I3b, V-3 I-TV3/4/5 sync invariants apply to Button as well. The constructor must
+  initialize all UIBridge properties (visibility, text, textSize, textColor) just as TextView does
+  — the difference is only the node type string.
+
+### JML guidance
+- Constructor: requires both `uiBridge.registerView(this, 'Button')` AND four `updateViewProperty`
+  calls for visibility/text/textSize/textColor. An LLM implementing this class must not just copy
+  the `registerView` call from the super-constructor — it needs the explicit property syncs too.
+- All other method contracts are purely inherited. Use `also` with `@see` to reference V-3/V-2/V-1.
+- No `exceptional_behavior` needed in Button's own constructor; domain errors belong to inherited methods.
+
+### Alloy guidance
+- No new Alloy model needed. Button's structural properties are a strict subset of `viewsystem.als`:
+  it uses `ViewGroupState` (with `children`) and `ViewState` (with `visibility`).
+- The only new property (`_uiBridgeType`) is a string constant, not a structural invariant requiring
+  Alloy's relational reasoning.
+
 ## Host Renderer Hints
 
 | Key | ArkUI mapping | Notes |

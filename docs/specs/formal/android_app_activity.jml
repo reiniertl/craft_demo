@@ -1,0 +1,118 @@
+// JML Formal Specification — android.app.Activity (Spec A-4)
+//
+// Activity is the entry point for an app screen. App bytecode subclasses it,
+// overrides lifecycle methods, and calls setContentView to attach the view tree.
+// The shim provides base no-op implementations so super-calls don't fail.
+//
+// See: docs/specs/android_app_activity.md (descriptive guide)
+//      src/bridge/lifecycle_bridge.ts (UIAbility → Activity dispatch)
+
+public class Activity extends ContextWrapper {
+
+    // ─── Model variable bindings ──────────────────────────────────────────────
+    //
+    //   _mContentView — heap.getField(thisRef, 'mContentView') : object ref | null
+    //   _mFinished    — heap.getField(thisRef, 'mFinished')    : int (0 or 1)
+
+    //@ public model Object _mContentView;
+    //@ public model int    _mFinished;
+
+    // ─── Class invariants ─────────────────────────────────────────────────────
+
+    //@ invariant _mFinished == 0 || _mFinished == 1;
+    // I-AC1: mFinished is a boolean flag (0=running, 1=finished).
+
+    //@ invariant (* _mFinished transitions from 0 to 1 monotonically — never resets *);
+    // I-AC2: Once finish() is called (_mFinished=1) the flag must not revert.
+    // Not expressible as a pure state invariant; enforced as a method postcondition
+    // and tested via temporal sequence in the compliance suite.
+
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   ensures _mContentView == null;
+      @   ensures _mFinished == 0;
+      @   assignable \everything;
+      @*/
+    public Activity() { super(); }
+
+    // ─── Lifecycle methods (base no-ops) ─────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   requires savedInstanceState != null;
+      @   ensures  true;
+      @   assignable \nothing;
+      @*/
+    public void onCreate(Bundle savedInstanceState);
+    // Base implementation is a no-op. The runtime invokes this on the app
+    // subclass AFTER construction; savedInstanceState MUST NOT be null (may be empty).
+
+    /*@ public normal_behavior
+      @   ensures true;
+      @   assignable \nothing;
+      @*/
+    public void onStart();
+
+    /*@ public normal_behavior
+      @   ensures true;
+      @   assignable \nothing;
+      @*/
+    public void onResume();
+
+    /*@ public normal_behavior
+      @   ensures true;
+      @   assignable \nothing;
+      @*/
+    public void onPause();
+
+    /*@ public normal_behavior
+      @   ensures true;
+      @   assignable \nothing;
+      @*/
+    public void onStop();
+
+    /*@ public normal_behavior
+      @   ensures (* all UIBridge timers associated with this Activity are cancelled *);
+      @   assignable (* UIBridge timer registry *);
+      @*/
+    public void onDestroy();
+    // I-AC3: post:onDestroy — timer cleanup prevents leaked callbacks after
+    // the Ability is destroyed.
+
+    // ─── setContentView ──────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   requires view != null;
+      @   ensures  _mContentView == view;
+      @   ensures  (* uiBridge.getRootView() == view *);
+      @   assignable _mContentView;
+      @*/
+    public void setContentView(View view);
+    // I-AC4 (call-once): the spec says setContentView MUST be called at most once
+    // per Activity, from within onCreate. Calling it twice results in undefined
+    // behaviour. This is modelled as an informal predicate rather than a JML ensures
+    // because it is a temporal property (requires two-state reasoning).
+
+    // ─── finish ──────────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   ensures _mFinished == 1;
+      @   assignable _mFinished;
+      @*/
+    public void finish();
+    // Post: _mFinished == 1. By I-AC2 it will never revert to 0.
+
+    // ─── Stubs (no postconditions beyond null return) ─────────────────────────
+
+    /*@ public normal_behavior
+      @   ensures \result == null;
+      @   assignable \nothing;
+      @*/
+    public View findViewById(int id);
+
+    /*@ public normal_behavior
+      @   ensures \result == null;
+      @   assignable \nothing;
+      @*/
+    public Intent getIntent();
+}

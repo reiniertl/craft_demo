@@ -90,6 +90,41 @@ additional event interfaces.
 
 ---
 
+## Formal Specification Guide
+
+**For LLMs writing JML and Alloy specs for this class:**
+
+### Model variable bindings
+- Inherited from ViewGroup/View: `_mVisibility`, `_mId`, `_childCount`.
+- New: `_mOrientation` — `heap.getField(thisRef, 'mOrientation')`, type `int`.
+- New UIBridge property: `_uiOrientation` — `node.properties.get('orientation')`, type `number`.
+
+### Non-obvious invariants
+- **I-LL1**: `_mOrientation == 0 || _mOrientation == 1`. Domain is {0, 1} — no other values are valid.
+  The current shim does NOT validate this in `setOrientation`; it silently accepts any int. This means
+  a caller passing `2` would violate I-LL1. The precondition is the caller's obligation.
+- **I-LL2**: `_uiOrientation == _mOrientation`. Analogous to V-1 I3b — every `setOrientation` call
+  must update BOTH the heap field AND the UIBridge property. Forgetting one is the typical bug pattern.
+- Constructor must initialize both `mOrientation = 0` AND `uiBridge.updateViewProperty(this, 'orientation', 0)`.
+  Also inherits V-1 I3b: must also call `updateViewProperty(this, 'visibility', 0)`.
+
+### JML guidance
+- `setOrientation`: write two `normal_behavior` / `exceptional_behavior` branches with `also`.
+  The `exceptional_behavior` for invalid input is informational — the current shim doesn't throw —
+  but it documents the contract violation.
+- `getOrientation`: pure method, `assignable \nothing`, `ensures \result == _mOrientation`.
+- Frame condition for `setOrientation`: `assignable _mOrientation` (only the orientation field changes;
+  `_mVisibility`, `_mId`, and `_childCount` are unaffected).
+
+### Alloy guidance
+- See `docs/specs/formal/linear_layout.als` for the orientation domain model.
+- Key pattern: `abstract sig Orientation {} one sig HORIZONTAL one sig VERTICAL` captures the domain
+  as a type — Alloy's type system enforces I-LL1 by construction (no Int needed).
+- Per-instance isolation fact: `all disj i1, i2 : LinearLayoutInstance | i1.state != i2.state`
+  detects a shared-orientation singleton bug analogous to the Bundle/ViewGroup bugs.
+- The `run OrientationsDiffer` predicate confirms the correct model allows two instances to have
+  different orientations (independence property).
+
 ## Host Renderer Hints
 
 | `orientation` value | ArkUI container |

@@ -13,3 +13,7 @@ export { ViewContracts }               from './view_contracts';
 export { ViewGroupContracts }          from './view_group_contracts';
 export { TextViewContracts }           from './textview_contracts';
 export { BundleContracts }             from './bundle_contracts';
+export { ButtonContracts }             from './button_contracts';
+export { LinearLayoutContracts }       from './linear_layout_contracts';
+export { ActivityContracts }           from './activity_contracts';
+export { ContextContracts, ContextWrapperContracts } from './context_contracts';

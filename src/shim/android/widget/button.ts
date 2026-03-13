@@ -24,9 +24,13 @@ export function registerButtonShim(registry: ShimRegistry, uiBridge?: UIBridge):
       heap.setField(thisRef, 'mTextSize', floatValue(14.0));
       heap.setField(thisRef, 'mTextColor', intValue(0xFF000000 | 0));
 
-      // Register with UI bridge
+      // Register with UI bridge and sync all properties (V-1 I3b, V-3 I-TV3/4/5)
       if (uiBridge) {
         uiBridge.registerView(thisRef, 'Button');
+        uiBridge.updateViewProperty(thisRef, 'visibility', 0);
+        uiBridge.updateViewProperty(thisRef, 'text', '');
+        uiBridge.updateViewProperty(thisRef, 'textSize', 14.0);
+        uiBridge.updateViewProperty(thisRef, 'textColor', 0xFF000000 | 0);
       }
 
       return NULL_VALUE;

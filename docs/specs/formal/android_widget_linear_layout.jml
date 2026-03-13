@@ -1,0 +1,88 @@
+// JML Formal Specification — android.widget.LinearLayout (Spec V-4)
+//
+// LinearLayout extends ViewGroup (V-2) and arranges children along one axis.
+// New field: mOrientation in {0=HORIZONTAL, 1=VERTICAL}.
+// New UIBridge property: 'orientation' must stay in sync with mOrientation.
+//
+// See: docs/specs/android_widget_linear_layout.md (descriptive guide)
+//      docs/specs/formal/android_view_view_group.jml (V-2 full contracts)
+//      docs/specs/formal/linear_layout.als (orientation structural model)
+
+public class LinearLayout extends ViewGroup {
+
+    // ─── Constants ────────────────────────────────────────────────────────────
+
+    //@ static final int HORIZONTAL = 0;
+    //@ static final int VERTICAL   = 1;
+
+    // ─── Model variable bindings ──────────────────────────────────────────────
+    //
+    // Inherited from ViewGroup/View:
+    //   _mVisibility — heap.getField(thisRef, 'mVisibility') : int
+    //   _mId         — heap.getField(thisRef, 'mId')         : int
+    //   _childCount  — UIBridge children.length               : int
+    //
+    // New:
+    //   _mOrientation — heap.getField(thisRef, 'mOrientation') : int
+    //   _uiOrientation — uiBridge.getViewNode(thisRef).properties.get('orientation') : int
+
+    //@ public model int _mOrientation;
+    //@ public model int _uiOrientation;
+
+    // ─── Inherited invariants (V-1, V-2 — all apply unchanged) ──────────────
+    //
+    // V-1 I1:  uiBridge node registered
+    // V-1 I3:  _mVisibility in {0, 4, 8}
+    // V-1 I3b: UIBridge 'visibility' == _mVisibility
+    // V-2 I-VG1: _childCount >= 0
+    // V-2 I-VG2: UIBridge children.length == _childCount
+    // V-2 I-VG3: no duplicate children
+
+    // ─── New invariants (V-4) ─────────────────────────────────────────────────
+
+    //@ invariant _mOrientation == HORIZONTAL || _mOrientation == VERTICAL;
+    // I-LL1: orientation is always 0 or 1.
+
+    //@ invariant (* _uiOrientation == _mOrientation *);
+    // I-LL2: UIBridge 'orientation' stays in sync with the heap field.
+    // Analogue of V-1 I3b for orientation.
+
+    // ─── Constructor ─────────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   requires context != null;
+      @   ensures  _mOrientation == HORIZONTAL;
+      @   ensures  (* UIBridge: registerView(this, 'LinearLayout') called *);
+      @   ensures  (* UIBridge 'orientation' == HORIZONTAL *);
+      @   ensures  (* UIBridge 'visibility'  == 0 *);
+      @   ensures  _childCount == 0;
+      @   assignable \everything;
+      @*/
+    public LinearLayout(Context context) { super(context); }
+
+    // ─── setOrientation ──────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   requires orientation == HORIZONTAL || orientation == VERTICAL;
+      @   ensures  _mOrientation == orientation;
+      @   ensures  (* UIBridge 'orientation' == orientation *);
+      @   assignable _mOrientation;
+      @ also
+      @ public exceptional_behavior
+      @   requires orientation != HORIZONTAL && orientation != VERTICAL;
+      @   signals_only IllegalArgumentException;
+      @   assignable \nothing;
+      @*/
+    public void setOrientation(int orientation);
+    // Note: the current shim does NOT validate the domain — it silently accepts
+    // any int. The precondition is the caller's obligation (spec I-LL1 would be
+    // violated if a bad value reaches the heap). A future guard may throw.
+
+    // ─── getOrientation ──────────────────────────────────────────────────────
+
+    /*@ public normal_behavior
+      @   ensures \result == _mOrientation;
+      @   assignable \nothing;
+      @*/
+    public int getOrientation();
+}

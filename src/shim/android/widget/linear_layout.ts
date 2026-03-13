@@ -25,9 +25,11 @@ export function registerLinearLayoutShim(registry: ShimRegistry, uiBridge?: UIBr
       // Initialize LinearLayout fields
       heap.setField(thisRef, 'mOrientation', intValue(HORIZONTAL));
 
-      // Register with UI bridge
+      // Register with UI bridge and sync all properties (V-1 I3b, V-4 I-LL1 sync)
       if (uiBridge) {
         uiBridge.registerView(thisRef, 'LinearLayout');
+        uiBridge.updateViewProperty(thisRef, 'visibility', 0);
+        uiBridge.updateViewProperty(thisRef, 'orientation', HORIZONTAL);
       }
 
       return NULL_VALUE;

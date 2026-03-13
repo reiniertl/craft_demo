@@ -28,6 +28,10 @@ import { ViewContracts }          from '../../../src/contracts/view_contracts';
 import { ViewGroupContracts }     from '../../../src/contracts/view_group_contracts';
 import { TextViewContracts }      from '../../../src/contracts/textview_contracts';
 import { BundleContracts }        from '../../../src/contracts/bundle_contracts';
+import { ButtonContracts }        from '../../../src/contracts/button_contracts';
+import { LinearLayoutContracts }  from '../../../src/contracts/linear_layout_contracts';
+import { ActivityContracts }      from '../../../src/contracts/activity_contracts';
+import { ContextContracts, ContextWrapperContracts } from '../../../src/contracts/context_contracts';
 import { checkAll }               from '../../../src/contracts/contract_types';
 
 // ─── Test harness ─────────────────────────────────────────────────────────────
@@ -535,5 +539,391 @@ describe('Spec A-1 — android.os.Bundle', () => {
 
     // b2 must be unaffected
     expect(BundleContracts.invariantIsolation(heap, b2, TEST_KEYS, countBefore)).toBeNull();
+  });
+});
+
+// ─── Spec V-5: android.widget.Button ─────────────────────────────────────────
+
+describe('Spec V-5 — android.widget.Button', () => {
+  const BTN = 'Landroid/widget/Button;';
+
+  function makeButton() {
+    const h = makeHarness();
+    const ctx = h.makeContext();
+    const ref = h.heap.allocate(BTN);
+    h.invoke(BTN, '<init>', '(Landroid/content/Context;)V', [objectRef(ref), objectRef(ctx)]);
+    return { ...h, ref };
+  }
+
+  // --- Constructor postconditions ---
+
+  test('V-5 post:constructor — UIBridge node type is "Button"', () => {
+    const { bridge, ref } = makeButton();
+    expect(ButtonContracts.postConstructorNodeType(bridge, ref)).toBeNull();
+  });
+
+  test('V-5 post:constructor — UIBridge text synced to ""', () => {
+    const { heap, bridge, ref } = makeButton();
+    expect(ButtonContracts.postConstructorTextSync(heap, bridge, ref)).toBeNull();
+  });
+
+  test('V-5 post:constructor — UIBridge textSize synced to 14.0', () => {
+    const { heap, bridge, ref } = makeButton();
+    expect(ButtonContracts.postConstructorTextSizeSync(heap, bridge, ref)).toBeNull();
+  });
+
+  test('V-5 post:constructor — UIBridge textColor synced to 0xFF000000', () => {
+    const { heap, bridge, ref } = makeButton();
+    expect(ButtonContracts.postConstructorTextColorSync(heap, bridge, ref)).toBeNull();
+  });
+
+  test('V-5 post:constructor — UIBridge visibility synced to 0', () => {
+    const { heap, bridge, ref } = makeButton();
+    expect(ButtonContracts.postConstructorVisibilitySync(heap, bridge, ref)).toBeNull();
+  });
+
+  // --- I-BT1: node type invariant ---
+
+  test('V-5 I-BT1 — UIBridge node type stays "Button" after setText', () => {
+    const TV = 'Landroid/widget/TextView;';
+    const { heap, bridge, ref, invoke } = makeButton();
+    const textRef = heap.internString('Click me');
+    invoke(TV, 'setText', '(Ljava/lang/CharSequence;)V', [objectRef(ref), objectRef(textRef)]);
+    expect(ButtonContracts.invariantNodeType(bridge, ref)).toBeNull();
+  });
+
+  // --- Inherited V-3 invariants ---
+
+  test('V-5 inherits V-3 I-TV1 — mText not null after construction', () => {
+    const { heap, ref } = makeButton();
+    expect(TextViewContracts.invariantTextNotNull(heap, ref)).toBeNull();
+  });
+
+  test('V-5 inherits V-3 I-TV2 — mTextSize > 0 after construction', () => {
+    const { heap, ref } = makeButton();
+    expect(TextViewContracts.invariantTextSizePositive(heap, ref)).toBeNull();
+  });
+
+  test('V-5 inherits V-3 I-TV3 — UIBridge text in sync after setText', () => {
+    const TV = 'Landroid/widget/TextView;';
+    const { heap, bridge, ref, invoke } = makeButton();
+    const textRef = heap.internString('OK');
+    invoke(TV, 'setText', '(Ljava/lang/CharSequence;)V', [objectRef(ref), objectRef(textRef)]);
+    expect(TextViewContracts.invariantTextSync(heap, bridge, ref)).toBeNull();
+  });
+
+  // --- Inherited V-1 invariants ---
+
+  test('V-5 inherits V-1 I3b — visibility sync after setVisibility', () => {
+    const VIEW_CLS = 'Landroid/view/View;';
+    const { heap, bridge, ref, invoke } = makeButton();
+    invoke(VIEW_CLS, 'setVisibility', '(I)V', [objectRef(ref), intValue(4)]);
+    expect(ViewContracts.invariantVisibilitySync(heap, bridge, ref)).toBeNull();
+  });
+
+  // --- All invariants sweep ---
+
+  test('V-5 all invariants — full sweep after construction', () => {
+    const { heap, bridge, ref } = makeButton();
+    const violations = checkAll([
+      () => ButtonContracts.invariantNodeType(bridge, ref),
+      () => TextViewContracts.invariantTextNotNull(heap, ref),
+      () => TextViewContracts.invariantTextSizePositive(heap, ref),
+      () => TextViewContracts.invariantTextSync(heap, bridge, ref),
+      () => TextViewContracts.invariantTextSizeSync(heap, bridge, ref),
+      () => TextViewContracts.invariantTextColorSync(heap, bridge, ref),
+      () => ViewContracts.invariantRegistered(bridge, ref),
+      () => ViewContracts.invariantVisibilityDomain(heap, ref),
+      () => ViewContracts.invariantVisibilitySync(heap, bridge, ref),
+    ]);
+    expect(violations).toEqual([]);
+  });
+});
+
+// ─── Spec V-4: android.widget.LinearLayout ───────────────────────────────────
+
+describe('Spec V-4 — android.widget.LinearLayout', () => {
+  const LL   = 'Landroid/widget/LinearLayout;';
+  const VIEW = 'Landroid/view/View;';
+
+  function makeLinearLayout() {
+    const h = makeHarness();
+    const ctx = h.makeContext();
+    const ref = h.heap.allocate(LL);
+    h.invoke(LL, '<init>', '(Landroid/content/Context;)V', [objectRef(ref), objectRef(ctx)]);
+    return { ...h, ref, ctx };
+  }
+
+  // --- Constructor postconditions ---
+
+  test('V-4 post:constructor — mOrientation == 0 (HORIZONTAL)', () => {
+    const { heap, ref } = makeLinearLayout();
+    expect(LinearLayoutContracts.postConstructorOrientation(heap, ref)).toBeNull();
+  });
+
+  test('V-4 post:constructor — UIBridge node type is "LinearLayout"', () => {
+    const { bridge, ref } = makeLinearLayout();
+    expect(LinearLayoutContracts.postConstructorNodeType(bridge, ref)).toBeNull();
+  });
+
+  test('V-4 post:constructor — UIBridge orientation synced to 0', () => {
+    const { heap, bridge, ref } = makeLinearLayout();
+    expect(LinearLayoutContracts.postConstructorOrientationSync(heap, bridge, ref)).toBeNull();
+  });
+
+  test('V-4 post:constructor — UIBridge visibility synced to 0', () => {
+    const { heap, bridge, ref } = makeLinearLayout();
+    expect(LinearLayoutContracts.postConstructorVisibilitySync(heap, bridge, ref)).toBeNull();
+  });
+
+  // --- I-LL1: orientation domain invariant ---
+
+  test('V-4 I-LL1 — orientation domain holds after construction', () => {
+    const { heap, ref } = makeLinearLayout();
+    expect(LinearLayoutContracts.invariantOrientationDomain(heap, ref)).toBeNull();
+  });
+
+  // --- I-LL2: orientation sync invariant ---
+
+  test('V-4 I-LL2 — orientation sync holds after construction', () => {
+    const { heap, bridge, ref } = makeLinearLayout();
+    expect(LinearLayoutContracts.invariantOrientationSync(heap, bridge, ref)).toBeNull();
+  });
+
+  // --- setOrientation pre/postconditions ---
+
+  test('V-4 pre:setOrientation — accepts 0 (HORIZONTAL)', () => {
+    expect(LinearLayoutContracts.preSetOrientation(0)).toBeNull();
+  });
+
+  test('V-4 pre:setOrientation — accepts 1 (VERTICAL)', () => {
+    expect(LinearLayoutContracts.preSetOrientation(1)).toBeNull();
+  });
+
+  test('V-4 pre:setOrientation — rejects 2 (invalid)', () => {
+    expect(LinearLayoutContracts.preSetOrientation(2)).not.toBeNull();
+  });
+
+  test('V-4 post:setOrientation — heap and UIBridge updated to VERTICAL', () => {
+    const { heap, bridge, ref, invoke } = makeLinearLayout();
+    invoke(LL, 'setOrientation', '(I)V', [objectRef(ref), intValue(1)]);
+    expect(LinearLayoutContracts.postSetOrientation(heap, bridge, ref, 1)).toBeNull();
+  });
+
+  test('V-4 I-LL1 — domain invariant holds after setOrientation', () => {
+    const { heap, ref, invoke } = makeLinearLayout();
+    invoke(LL, 'setOrientation', '(I)V', [objectRef(ref), intValue(1)]);
+    expect(LinearLayoutContracts.invariantOrientationDomain(heap, ref)).toBeNull();
+  });
+
+  test('V-4 I-LL2 — sync invariant holds after setOrientation', () => {
+    const { heap, bridge, ref, invoke } = makeLinearLayout();
+    invoke(LL, 'setOrientation', '(I)V', [objectRef(ref), intValue(1)]);
+    expect(LinearLayoutContracts.invariantOrientationSync(heap, bridge, ref)).toBeNull();
+  });
+
+  // --- getOrientation postcondition ---
+
+  test('V-4 post:getOrientation — returns mOrientation', () => {
+    const { heap, ref, invoke } = makeLinearLayout();
+    invoke(LL, 'setOrientation', '(I)V', [objectRef(ref), intValue(1)]);
+    const result = invoke(LL, 'getOrientation', '()I', [objectRef(ref)]);
+    expect(LinearLayoutContracts.postGetOrientation(heap, ref, (result as { value: unknown }).value)).toBeNull();
+  });
+
+  // --- Inherited V-2 invariants ---
+
+  test('V-4 inherits V-2 post:constructor — _childCount == 0', () => {
+    const { heap, bridge, ref } = makeLinearLayout();
+    expect(ViewGroupContracts.postConstructorChildCount(heap, bridge, ref)).toBeNull();
+  });
+
+  test('V-4 inherits V-2 post:addView — count increases', () => {
+    const VG = 'Landroid/view/ViewGroup;';
+    const { heap, bridge, ref, ctx, invoke } = makeLinearLayout();
+    const countBefore = ViewGroupContracts.getChildCount(heap, bridge, ref);
+    const childRef = heap.allocate(VIEW);
+    invoke(VIEW, '<init>', '(Landroid/content/Context;)V', [objectRef(childRef), objectRef(ctx)]);
+    invoke(VG, 'addView', '(Landroid/view/View;)V', [objectRef(ref), objectRef(childRef)]);
+    expect(ViewGroupContracts.postAddViewCount(heap, bridge, ref, countBefore)).toBeNull();
+  });
+
+  // --- All invariants sweep ---
+
+  test('V-4 all invariants — full sweep after construction', () => {
+    const { heap, bridge, ref } = makeLinearLayout();
+    const violations = checkAll([
+      () => LinearLayoutContracts.invariantOrientationDomain(heap, ref),
+      () => LinearLayoutContracts.invariantOrientationSync(heap, bridge, ref),
+      () => ViewGroupContracts.invariantChildCountNonNegative(heap, bridge, ref),
+      () => ViewGroupContracts.invariantCountConsistency(heap, bridge, ref),
+      () => ViewContracts.invariantRegistered(bridge, ref),
+      () => ViewContracts.invariantVisibilityDomain(heap, ref),
+      () => ViewContracts.invariantVisibilitySync(heap, bridge, ref),
+    ]);
+    expect(violations).toEqual([]);
+  });
+});
+
+// ─── Spec A-4: android.app.Activity ──────────────────────────────────────────
+
+describe('Spec A-4 — android.app.Activity', () => {
+  const ACT  = 'Landroid/app/Activity;';
+  const VIEW = 'Landroid/view/View;';
+
+  function makeActivity() {
+    const h = makeHarness();
+    const ref = h.heap.allocate(ACT);
+    h.invoke(ACT, '<init>', '()V', [objectRef(ref)]);
+    return { ...h, ref };
+  }
+
+  // --- Constructor postconditions ---
+
+  test('A-4 post:constructor — mContentView is null', () => {
+    const { heap, ref } = makeActivity();
+    expect(ActivityContracts.postConstructorContentView(heap, ref)).toBeNull();
+  });
+
+  test('A-4 post:constructor — mFinished is 0', () => {
+    const { heap, ref } = makeActivity();
+    expect(ActivityContracts.postConstructorFinished(heap, ref)).toBeNull();
+  });
+
+  // --- I-AC1: mFinished domain invariant ---
+
+  test('A-4 I-AC1 — mFinished domain holds after construction', () => {
+    const { heap, ref } = makeActivity();
+    expect(ActivityContracts.invariantFinishedDomain(heap, ref)).toBeNull();
+  });
+
+  test('A-4 I-AC1 — mFinished domain holds after finish()', () => {
+    const { heap, ref, invoke } = makeActivity();
+    invoke(ACT, 'finish', '()V', [objectRef(ref)]);
+    expect(ActivityContracts.invariantFinishedDomain(heap, ref)).toBeNull();
+  });
+
+  // --- I-AC2: monotone transition ---
+
+  test('A-4 I-AC2 — mFinished does not decrease after finish()', () => {
+    const { heap, ref, invoke } = makeActivity();
+    const before = ActivityContracts.getMFinished(heap, ref);
+    invoke(ACT, 'finish', '()V', [objectRef(ref)]);
+    expect(ActivityContracts.invariantFinishedMonotone(heap, ref, before)).toBeNull();
+  });
+
+  // --- setContentView postconditions ---
+
+  test('A-4 post:setContentView — heap mContentView updated', () => {
+    const { heap, bridge, ref, makeContext, invoke } = makeActivity();
+    const ctx      = makeContext();
+    const viewRef  = heap.allocate(VIEW);
+    invoke(VIEW, '<init>', '(Landroid/content/Context;)V', [objectRef(viewRef), objectRef(ctx)]);
+    invoke(ACT, 'setContentView', '(Landroid/view/View;)V', [objectRef(ref), objectRef(viewRef)]);
+    expect(ActivityContracts.postSetContentViewHeap(heap, ref, viewRef)).toBeNull();
+  });
+
+  test('A-4 post:setContentView — UIBridge root view set', () => {
+    const { heap, bridge, ref, makeContext, invoke } = makeActivity();
+    const ctx      = makeContext();
+    const viewRef  = heap.allocate(VIEW);
+    invoke(VIEW, '<init>', '(Landroid/content/Context;)V', [objectRef(viewRef), objectRef(ctx)]);
+    invoke(ACT, 'setContentView', '(Landroid/view/View;)V', [objectRef(ref), objectRef(viewRef)]);
+    expect(ActivityContracts.postSetContentViewUIBridge(bridge, viewRef)).toBeNull();
+  });
+
+  // --- finish postconditions ---
+
+  test('A-4 post:finish — mFinished == 1', () => {
+    const { heap, ref, invoke } = makeActivity();
+    invoke(ACT, 'finish', '()V', [objectRef(ref)]);
+    expect(ActivityContracts.postFinish(heap, ref)).toBeNull();
+  });
+
+  // --- Lifecycle no-ops (register / call without error) ---
+
+  test('A-4 lifecycle — onCreate does not throw', () => {
+    const h = makeHarness();
+    const BUNDLE = 'Landroid/os/Bundle;';
+    const actRef = h.heap.allocate(ACT);
+    h.invoke(ACT, '<init>', '()V', [objectRef(actRef)]);
+    const bRef = h.heap.allocate(BUNDLE);
+    h.invoke(BUNDLE, '<init>', '()V', [objectRef(bRef)]);
+    expect(() => h.invoke(ACT, 'onCreate',
+      '(Landroid/os/Bundle;)V', [objectRef(actRef), objectRef(bRef)])).not.toThrow();
+  });
+
+  test('A-4 lifecycle — onDestroy does not throw', () => {
+    const { ref, invoke } = makeActivity();
+    expect(() => invoke(ACT, 'onDestroy', '()V', [objectRef(ref)])).not.toThrow();
+  });
+});
+
+// ─── Spec A-2/A-3: android.content.Context / ContextWrapper ──────────────────
+
+describe('Spec A-2 — android.content.Context', () => {
+  const CTX = 'Landroid/content/Context;';
+
+  // --- getApplicationContext postcondition ---
+
+  test('A-2 I-C2 — getApplicationContext() returns non-null', () => {
+    const h = makeHarness();
+    const ref = h.heap.allocate(CTX);
+    h.invoke(CTX, '<init>', '()V', [objectRef(ref)]);
+    const result = h.invoke(CTX, 'getApplicationContext',
+      '()Landroid/content/Context;', [objectRef(ref)]);
+    expect(ContextContracts.postGetApplicationContext(
+      result as { type: string; ref?: number }
+    )).toBeNull();
+  });
+});
+
+describe('Spec A-3 — android.content.ContextWrapper', () => {
+  const CW  = 'Landroid/content/ContextWrapper;';
+  const CTX = 'Landroid/content/Context;';
+
+  function makeContextWrapper() {
+    const h = makeHarness();
+    const ctx = h.makeContext();
+    const ref = h.heap.allocate(CW);
+    h.invoke(CW, '<init>', '(Landroid/content/Context;)V', [objectRef(ref), objectRef(ctx)]);
+    return { ...h, ref, ctx };
+  }
+
+  // --- Constructor postcondition ---
+
+  test('A-3 post:constructor(Context) — mBase set to passed context', () => {
+    const { heap, ref, ctx } = makeContextWrapper();
+    expect(ContextWrapperContracts.postConstructorBase(heap, ref, ctx)).toBeNull();
+  });
+
+  // --- getBaseContext postcondition ---
+
+  test('A-3 post:getBaseContext — returns mBase', () => {
+    const { heap, ref, invoke } = makeContextWrapper();
+    const result = invoke(CW, 'getBaseContext',
+      '()Landroid/content/Context;', [objectRef(ref)]);
+    expect(ContextWrapperContracts.postGetBaseContext(
+      heap, ref, result as { type: string; ref?: number }
+    )).toBeNull();
+  });
+
+  // --- getApplicationContext postcondition (I-CW1) ---
+
+  test('A-3 I-CW1 — getApplicationContext() returns non-null', () => {
+    const { ref, invoke } = makeContextWrapper();
+    const result = invoke(CW, 'getApplicationContext',
+      '()Landroid/content/Context;', [objectRef(ref)]);
+    expect(ContextWrapperContracts.postGetApplicationContext(
+      result as { type: string; ref?: number }
+    )).toBeNull();
+  });
+
+  // --- No-arg constructor does not throw ---
+
+  test('A-3 no-arg constructor — does not throw', () => {
+    const h = makeHarness();
+    const ref = h.heap.allocate(CW);
+    expect(() => h.invoke(CW, '<init>', '()V', [objectRef(ref)])).not.toThrow();
   });
 });

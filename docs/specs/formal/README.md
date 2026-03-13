@@ -68,9 +68,14 @@ search for counterexamples.
 | `android_view_view.jml` | V-1 | `android.view.View` |
 | `android_view_view_group.jml` | V-2 | `android.view.ViewGroup` |
 | `android_widget_text_view.jml` | V-3 | `android.widget.TextView` |
+| `android_widget_button.jml` | V-5 | `android.widget.Button` |
+| `android_widget_linear_layout.jml` | V-4 | `android.widget.LinearLayout` |
+| `android_app_activity.jml` | A-4 | `android.app.Activity` |
+| `android_content_context.jml` | A-2/A-3 | `android.content.Context` + `ContextWrapper` |
 | `android_os_bundle.jml` | A-1 | `android.os.Bundle` |
 | `viewsystem.als` | V-1..V-3 | View hierarchy structural model |
 | `bundle_isolation.als` | A-1 | Bundle per-instance isolation model |
+| `linear_layout.als` | V-4 | LinearLayout orientation domain + isolation model |
 
 ## Relationship to src/contracts/
 
