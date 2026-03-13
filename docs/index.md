@@ -25,7 +25,7 @@ A compatibility layer enabling OpenHarmony to run Android APKs natively through 
 | **Stage 4** | UI Bridge to ArkUI | [Plan](stages/stage_4_plan.md) | [Results](stages/stage_4_complete.md) | ✅ Complete (55 tests) |
 | **Stage 5** | OpenHarmony Host | [Plan](stages/stage_5_plan.md) | [Status](stage_5_status.md) | ✅ Complete — Device Tested |
 
-**Current Status:** 660 tests passing | 0 TypeScript errors | 0 regressions | Complete — Device Tested
+**Current Status:** 785 tests passing | 0 TypeScript errors | 0 regressions | Complete — Device Tested
 **Deployment:** ✅ HAP built, signed, tested on HarmonyOS device (Feb 24) - [Details](stage_5_status.md)
 
 ---
@@ -75,7 +75,7 @@ Use these when implementing, reviewing, or debugging any part of the translation
 
 ### Implementation Codebase
 - **Main Entry:** `src/index.ts` - CRAFT runtime entry point
-- **Tests:** `test/` - 660 tests across all stages
+- **Tests:** `test/` - 785 tests across all stages
 
 ### For AI Agents (Claude Code)
 - [CLAUDE.md](../CLAUDE.md) - Project context, architecture, and current stage
@@ -98,5 +98,5 @@ Use these when implementing, reviewing, or debugging any part of the translation
 
 ---
 
-**Last Updated:** 2026-03-09
+**Last Updated:** 2026-03-13
 **Version:** 0.3.0

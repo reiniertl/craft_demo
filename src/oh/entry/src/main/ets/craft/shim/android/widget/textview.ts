@@ -19,14 +19,20 @@ export function registerTextViewShim(registry: ShimRegistry, uiBridge?: UIBridge
       heap.setField(thisRef, 'mContext', args[0]);
       heap.setField(thisRef, 'mId', intValue(-1));
       heap.setField(thisRef, 'mVisibility', intValue(0));
+      // Initialize ViewGroup fields (spec V-2) — TextView extends ViewGroup
+      heap.setField(thisRef, '__childCount', intValue(0));
       // Initialize TextView fields — mText MUST NOT be null (spec V-3 invariant 1)
       heap.setField(thisRef, 'mText', objectRef(heap.internString('')));
       heap.setField(thisRef, 'mTextSize', floatValue(14.0));
       heap.setField(thisRef, 'mTextColor', intValue(0xFF000000 | 0));
 
-      // Register with UI bridge
+      // Register with UI bridge and initialise all ViewNode properties (JML I-TV3/4/5)
       if (uiBridge) {
         uiBridge.registerView(thisRef, 'TextView');
+        uiBridge.updateViewProperty(thisRef, 'visibility', 0);
+        uiBridge.updateViewProperty(thisRef, 'text', '');
+        uiBridge.updateViewProperty(thisRef, 'textSize', 14.0);
+        uiBridge.updateViewProperty(thisRef, 'textColor', 0xFF000000 | 0);
       }
 
       return NULL_VALUE;

@@ -6,7 +6,7 @@
 
 import { Interpreter } from '../interpreter/interpreter';
 import { Heap } from '../interpreter/heap';
-import { NULL_VALUE } from '../core/types';
+import { NULL_VALUE, objectRef } from '../core/types';
 
 /**
  * Lifecycle Mapping:
@@ -53,12 +53,19 @@ export class LifecycleBridge {
       [{ type: 'object', ref: this.activityRef }]
     );
 
-    // Call Activity.onCreate(null)
+    // Call Activity.onCreate(Bundle.EMPTY) — spec A-4 requires a non-null Bundle
+    const bundleRef = this.heap.allocate('Landroid/os/Bundle;');
+    this.interpreter.invoke(
+      'Landroid/os/Bundle;',
+      '<init>',
+      '()V',
+      [objectRef(bundleRef)]
+    );
     this.interpreter.invoke(
       mainClass,
       'onCreate',
       '(Landroid/os/Bundle;)V',
-      [{ type: 'object', ref: this.activityRef }, NULL_VALUE]
+      [{ type: 'object', ref: this.activityRef }, objectRef(bundleRef)]
     );
 
     return this.activityRef;

@@ -24,6 +24,11 @@ import { registerAndroidShims }   from '../../../src/shim/android/index';
 import { objectRef, intValue, floatValue, NULL_VALUE } from '../../../src/core/types';
 import { makeMethod }             from '../../helpers/shim_test_utils';
 
+import { ObjectContracts }        from '../../../src/contracts/object_contracts';
+import { StringContracts }        from '../../../src/contracts/string_contracts';
+import { StringBuilderContracts } from '../../../src/contracts/string_builder_contracts';
+import { SystemContracts }        from '../../../src/contracts/system_contracts';
+import { ClassContracts }         from '../../../src/contracts/class_contracts';
 import { ViewContracts }          from '../../../src/contracts/view_contracts';
 import { ViewGroupContracts }     from '../../../src/contracts/view_group_contracts';
 import { TextViewContracts }      from '../../../src/contracts/textview_contracts';
@@ -33,8 +38,40 @@ import { LinearLayoutContracts }  from '../../../src/contracts/linear_layout_con
 import { ActivityContracts }      from '../../../src/contracts/activity_contracts';
 import { ContextContracts, ContextWrapperContracts } from '../../../src/contracts/context_contracts';
 import { checkAll }               from '../../../src/contracts/contract_types';
+import { registerJavaLangShims }  from '../../../src/shim/java/lang/index';
 
-// ─── Test harness ─────────────────────────────────────────────────────────────
+// ─── Test harnesses ───────────────────────────────────────────────────────────
+
+/** Harness for java.lang shim tests (JL-* specs). */
+function makeJavaLangHarness() {
+  const heap = new Heap();
+  const reg  = new ShimRegistry();
+  registerJavaLangShims(reg);
+
+  const mockInterp = {
+    invoke: (cls: string, name: string, desc: string, args: ReturnType<typeof objectRef>[]) => {
+      const m = makeMethod(cls, name, desc);
+      return reg.invoke(m, mockInterp, heap, args);
+    },
+    getClassLoader: () => ({
+      getClassObject: (desc: string) => {
+        const r = heap.allocate('Ljava/lang/Class;');
+        heap.setField(r, '__classDescriptor', objectRef(heap.internString(desc)));
+        return r;
+      },
+    }),
+  };
+
+  function invoke(
+    cls: string, name: string, desc: string,
+    args: ReturnType<typeof objectRef>[],
+    isStatic = false
+  ) {
+    return reg.invoke(makeMethod(cls, name, desc, isStatic), mockInterp, heap, args);
+  }
+
+  return { heap, invoke };
+}
 
 function makeHarness() {
   const heap    = new Heap();
@@ -925,5 +962,315 @@ describe('Spec A-3 — android.content.ContextWrapper', () => {
     const h = makeHarness();
     const ref = h.heap.allocate(CW);
     expect(() => h.invoke(CW, '<init>', '()V', [objectRef(ref)])).not.toThrow();
+  });
+});
+
+// ─── Spec JL-1: java.lang.Object ─────────────────────────────────────────────
+
+describe('Spec JL-1 — java.lang.Object', () => {
+  const OBJ = 'Ljava/lang/Object;';
+
+  function makeObject() {
+    const h = makeJavaLangHarness();
+    const ref = h.heap.allocate(OBJ);
+    h.invoke(OBJ, '<init>', '()V', [objectRef(ref)]);
+    return { ...h, ref };
+  }
+
+  // --- hashCode postconditions ---
+
+  test('JL-1 I2 / post:hashCode — returns heap ref of this', () => {
+    const { ref, invoke } = makeObject();
+    const result = invoke(OBJ, 'hashCode', '()I', [objectRef(ref)]);
+    expect(ObjectContracts.postHashCode(ref, result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  // --- equals postconditions ---
+
+  test('JL-1 I3 / post:equals(same) — returns 1', () => {
+    const { ref, invoke } = makeObject();
+    const result = invoke(OBJ, 'equals', '(Ljava/lang/Object;)Z', [objectRef(ref), objectRef(ref)]);
+    expect(ObjectContracts.postEqualsSameRef(result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  test('JL-1 I3 / post:equals(different) — returns 0', () => {
+    const { heap, ref, invoke } = makeObject();
+    const other = heap.allocate(OBJ);
+    invoke(OBJ, '<init>', '()V', [objectRef(other)]);
+    const result = invoke(OBJ, 'equals', '(Ljava/lang/Object;)Z', [objectRef(ref), objectRef(other)]);
+    expect(ObjectContracts.postEqualsDifferentRef(result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  test('JL-1 I3 / post:equals(null) — returns 0', () => {
+    const { ref, invoke } = makeObject();
+    const result = invoke(OBJ, 'equals', '(Ljava/lang/Object;)Z', [objectRef(ref), NULL_VALUE]);
+    expect(ObjectContracts.postEqualsNull(result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  // --- getClass postconditions ---
+
+  test('JL-1 post:getClass — returns non-null object ref', () => {
+    const { ref, invoke } = makeObject();
+    const result = invoke(OBJ, 'getClass', '()Ljava/lang/Class;', [objectRef(ref)]);
+    expect(ObjectContracts.postGetClass(result as { type: string; ref?: number })).toBeNull();
+  });
+
+  test('JL-1 post:getClass — __classDescriptor matches object class', () => {
+    const { heap, ref, invoke } = makeObject();
+    const result = invoke(OBJ, 'getClass', '()Ljava/lang/Class;', [objectRef(ref)]);
+    expect(ObjectContracts.postGetClassDescriptor(heap, ref, result as { type: string; ref?: number })).toBeNull();
+  });
+});
+
+// ─── Spec JL-2: java.lang.String ─────────────────────────────────────────────
+
+describe('Spec JL-2 — java.lang.String', () => {
+  const STR = 'Ljava/lang/String;';
+
+  function makeString(value?: string) {
+    const h = makeJavaLangHarness();
+    const ref = h.heap.internString(value ?? '');
+    return { ...h, ref };
+  }
+
+  // --- Constructor postconditions ---
+
+  test('JL-2 post:constructor() — value is ""', () => {
+    const { heap, invoke } = makeJavaLangHarness();
+    const ref = heap.allocate(STR);
+    invoke(STR, '<init>', '()V', [objectRef(ref)]);
+    expect(StringContracts.postConstructorEmpty(heap, ref)).toBeNull();
+  });
+
+  test('JL-2 post:constructor(String) — value copied from source', () => {
+    const { heap, invoke } = makeJavaLangHarness();
+    const sourceRef = heap.internString('hello');
+    const destRef   = heap.allocate(STR);
+    invoke(STR, '<init>', '(Ljava/lang/String;)V', [objectRef(destRef), objectRef(sourceRef)]);
+    expect(StringContracts.postConstructorCopy(heap, destRef, 'hello')).toBeNull();
+  });
+
+  // --- length postcondition ---
+
+  test('JL-2 post:length — returns non-negative int', () => {
+    const { ref, invoke } = makeString('hi');
+    const result = invoke(STR, 'length', '()I', [objectRef(ref)]);
+    expect(StringContracts.postLengthNonNegative(result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  // --- toString postcondition ---
+
+  test('JL-2 I4 / post:toString — returns this (same ref)', () => {
+    const { ref, invoke } = makeString('test');
+    const result = invoke(STR, 'toString', '()Ljava/lang/String;', [objectRef(ref)]);
+    expect(StringContracts.postToStringIdentity(ref, result as { type: string; ref?: number })).toBeNull();
+  });
+
+  // --- equals postconditions ---
+
+  test('JL-2 I2 / post:equals(same value) — returns 1', () => {
+    const { heap, ref, invoke } = makeString('abc');
+    const other = heap.internString('abc');
+    const result = invoke(STR, 'equals', '(Ljava/lang/Object;)Z', [objectRef(ref), objectRef(other)]);
+    expect(StringContracts.postEqualsSameValue(result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  test('JL-2 I2 / post:equals(different value) — returns 0', () => {
+    const { heap, ref, invoke } = makeString('abc');
+    const other = heap.internString('xyz');
+    const result = invoke(STR, 'equals', '(Ljava/lang/Object;)Z', [objectRef(ref), objectRef(other)]);
+    expect(StringContracts.postEqualsDifferentValue(result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  test('JL-2 post:equals(null) — returns 0', () => {
+    const { ref, invoke } = makeString('abc');
+    const result = invoke(STR, 'equals', '(Ljava/lang/Object;)Z', [objectRef(ref), NULL_VALUE]);
+    expect(StringContracts.postEqualsNull(result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  // --- hashCode postcondition ---
+
+  test('JL-2 I3 / post:hashCode — matches Java polynomial hash', () => {
+    const { heap, ref, invoke } = makeString('Hello');
+    const result = invoke(STR, 'hashCode', '()I', [objectRef(ref)]);
+    expect(StringContracts.postHashCode(heap, ref, result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  test('JL-2 I3 / post:hashCode — empty string hash is 0', () => {
+    const { heap, ref, invoke } = makeString('');
+    const result = invoke(STR, 'hashCode', '()I', [objectRef(ref)]);
+    expect(StringContracts.postHashCode(heap, ref, result as { type: string; value?: unknown })).toBeNull();
+  });
+});
+
+// ─── Spec JL-3: java.lang.StringBuilder ──────────────────────────────────────
+
+describe('Spec JL-3 — java.lang.StringBuilder', () => {
+  const SB  = 'Ljava/lang/StringBuilder;';
+  const STR = 'Ljava/lang/String;';
+
+  function makeStringBuilder() {
+    const h = makeJavaLangHarness();
+    const ref = h.heap.allocate(SB);
+    h.invoke(SB, '<init>', '()V', [objectRef(ref)]);
+    return { ...h, ref };
+  }
+
+  // --- Constructor postconditions ---
+
+  test('JL-3 I2 / post:constructor() — buffer is ""', () => {
+    const { heap, ref } = makeStringBuilder();
+    expect(StringBuilderContracts.postConstructorEmpty(heap, ref)).toBeNull();
+  });
+
+  test('JL-3 post:constructor(String) — buffer equals source', () => {
+    const { heap, invoke } = makeJavaLangHarness();
+    const strRef = heap.internString('init');
+    const ref = heap.allocate(SB);
+    invoke(SB, '<init>', '(Ljava/lang/String;)V', [objectRef(ref), objectRef(strRef)]);
+    expect(StringBuilderContracts.postConstructorFromString(heap, ref, 'init')).toBeNull();
+  });
+
+  // --- append postconditions ---
+
+  test('JL-3 I1 / post:append(String) — returns this', () => {
+    const { heap, ref, invoke } = makeStringBuilder();
+    const strRef = heap.internString('world');
+    const result = invoke(SB, 'append', '(Ljava/lang/String;)Ljava/lang/StringBuilder;',
+      [objectRef(ref), objectRef(strRef)]);
+    expect(StringBuilderContracts.postAppendReturnsThis(ref, result as { type: string; ref?: number })).toBeNull();
+  });
+
+  test('JL-3 post:append(String) — buffer updated', () => {
+    const { heap, ref, invoke } = makeStringBuilder();
+    const strRef = heap.internString('hello');
+    invoke(SB, 'append', '(Ljava/lang/String;)Ljava/lang/StringBuilder;',
+      [objectRef(ref), objectRef(strRef)]);
+    expect(StringBuilderContracts.postAppendBuffer(heap, ref, 'hello')).toBeNull();
+  });
+
+  test('JL-3 I1 / post:append(int) — returns this', () => {
+    const { ref, invoke } = makeStringBuilder();
+    const result = invoke(SB, 'append', '(I)Ljava/lang/StringBuilder;',
+      [objectRef(ref), intValue(42)]);
+    expect(StringBuilderContracts.postAppendReturnsThis(ref, result as { type: string; ref?: number })).toBeNull();
+  });
+
+  test('JL-3 post:append(int) — buffer updated with decimal', () => {
+    const { heap, ref, invoke } = makeStringBuilder();
+    invoke(SB, 'append', '(I)Ljava/lang/StringBuilder;', [objectRef(ref), intValue(42)]);
+    expect(StringBuilderContracts.postAppendBuffer(heap, ref, '42')).toBeNull();
+  });
+
+  // --- length postcondition ---
+
+  test('JL-3 post:length — returns non-negative int', () => {
+    const { ref, invoke } = makeStringBuilder();
+    const result = invoke(SB, 'length', '()I', [objectRef(ref)]);
+    expect(StringBuilderContracts.postLengthNonNegative(result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  test('JL-3 I3 — length() equals buffer length after append', () => {
+    const { heap, ref, invoke } = makeStringBuilder();
+    const strRef = heap.internString('abc');
+    invoke(SB, 'append', '(Ljava/lang/String;)Ljava/lang/StringBuilder;',
+      [objectRef(ref), objectRef(strRef)]);
+    const result = invoke(SB, 'length', '()I', [objectRef(ref)]);
+    expect(StringBuilderContracts.invariantLengthConsistency(heap, ref, result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  // --- toString postcondition ---
+
+  test('JL-3 post:toString — distinct ref from this', () => {
+    const { ref, invoke } = makeStringBuilder();
+    const result = invoke(SB, 'toString', '()Ljava/lang/String;', [objectRef(ref)]);
+    expect(StringBuilderContracts.postToStringDistinct(ref, result as { type: string; ref?: number })).toBeNull();
+  });
+});
+
+// ─── Spec JL-4: java.lang.System ─────────────────────────────────────────────
+
+describe('Spec JL-4 — java.lang.System', () => {
+  const SYS = 'Ljava/lang/System;';
+
+  // --- currentTimeMillis postconditions ---
+
+  test('JL-4 post:currentTimeMillis — returns long > 0', () => {
+    const { invoke } = makeJavaLangHarness();
+    const result = invoke(SYS, 'currentTimeMillis', '()J', [], true);
+    expect(SystemContracts.postCurrentTimeMillisPositive(result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  test('JL-4 I2 — currentTimeMillis is non-decreasing across calls', () => {
+    const { invoke } = makeJavaLangHarness();
+    const r1 = invoke(SYS, 'currentTimeMillis', '()J', [], true) as { type: 'long'; value: bigint };
+    const r2 = invoke(SYS, 'currentTimeMillis', '()J', [], true) as { type: 'long'; value: bigint };
+    expect(SystemContracts.invariantCurrentTimeNonDecreasing(r1.value, r2.value)).toBeNull();
+  });
+
+  // --- identityHashCode postconditions ---
+
+  test('JL-4 post:identityHashCode(null) — returns 0', () => {
+    const { invoke } = makeJavaLangHarness();
+    const result = invoke(SYS, 'identityHashCode', '(Ljava/lang/Object;)I', [NULL_VALUE], true);
+    expect(SystemContracts.postIdentityHashCodeNull(result as { type: string; value?: unknown })).toBeNull();
+  });
+
+  test('JL-4 post:identityHashCode(obj) — returns heap ref', () => {
+    const { heap, invoke } = makeJavaLangHarness();
+    const objRef = heap.allocate('Ljava/lang/Object;');
+    const result = invoke(SYS, 'identityHashCode', '(Ljava/lang/Object;)I', [objectRef(objRef)], true);
+    expect(SystemContracts.postIdentityHashCode(objRef, result as { type: string; value?: unknown })).toBeNull();
+  });
+});
+
+// ─── Spec JL-5: java.lang.Class ──────────────────────────────────────────────
+
+describe('Spec JL-5 — java.lang.Class', () => {
+  const CLS = 'Ljava/lang/Class;';
+  const DESCRIPTOR = 'Lcom/example/Foo;';
+
+  function makeClass() {
+    const h = makeJavaLangHarness();
+    const ref = h.heap.allocate(CLS);
+    h.heap.setField(ref, '__classDescriptor', objectRef(h.heap.internString(DESCRIPTOR)));
+    return { ...h, ref };
+  }
+
+  // --- __classDescriptor invariant ---
+
+  test('JL-5 I1 — __classDescriptor is present and non-empty', () => {
+    const { heap, ref } = makeClass();
+    expect(ClassContracts.invariantDescriptorPresent(heap, ref)).toBeNull();
+  });
+
+  // --- getName postconditions ---
+
+  test('JL-5 post:getName — returns non-null, non-empty string', () => {
+    const { heap, ref, invoke } = makeClass();
+    const result = invoke(CLS, 'getName', '()Ljava/lang/String;', [objectRef(ref)]);
+    expect(ClassContracts.postGetNameNonEmpty(heap, result as { type: string; ref?: number })).toBeNull();
+  });
+
+  test('JL-5 I3 / post:getName — correct transformation from descriptor', () => {
+    const { heap, ref, invoke } = makeClass();
+    const result = invoke(CLS, 'getName', '()Ljava/lang/String;', [objectRef(ref)]);
+    expect(ClassContracts.postGetNameTransformation(heap, ref, result as { type: string; ref?: number })).toBeNull();
+  });
+
+  // --- getSimpleName postconditions ---
+
+  test('JL-5 post:getSimpleName — returns non-null, non-empty string', () => {
+    const { heap, ref, invoke } = makeClass();
+    const result = invoke(CLS, 'getSimpleName', '()Ljava/lang/String;', [objectRef(ref)]);
+    expect(ClassContracts.postGetSimpleNameNonEmpty(heap, result as { type: string; ref?: number })).toBeNull();
+  });
+
+  // --- toString postcondition ---
+
+  test('JL-5 post:toString — result starts with "class "', () => {
+    const { heap, ref, invoke } = makeClass();
+    const result = invoke(CLS, 'toString', '()Ljava/lang/String;', [objectRef(ref)]);
+    expect(ClassContracts.postToStringPrefix(heap, result as { type: string; ref?: number })).toBeNull();
   });
 });

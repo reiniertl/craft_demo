@@ -91,6 +91,7 @@ export function registerActivityShim(registry: ShimRegistry, uiBridge?: UIBridge
     '(I)Landroid/view/View;',
     (_interp, _heap, _thisRef, _args) => {
       // Stub: return null (full implementation requires view tree traversal)
+      console.warn('[CRAFT][Activity][WARN] findViewById not implemented — returning null');
       return NULL_VALUE;
     }
   );

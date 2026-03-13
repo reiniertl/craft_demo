@@ -63,16 +63,27 @@ search for counterexamples.
 
 ## Files
 
+### JML files
+
+| File | Spec ID | Class | Runtime contracts |
+|------|---------|-------|-------------------|
+| `android_view_view.jml` | V-1 | `android.view.View` | `src/contracts/view_contracts.ts` |
+| `android_view_view_group.jml` | V-2 | `android.view.ViewGroup` | `src/contracts/view_group_contracts.ts` |
+| `android_widget_text_view.jml` | V-3 | `android.widget.TextView` | `src/contracts/textview_contracts.ts` |
+| `android_widget_button.jml` | V-5 | `android.widget.Button` | `src/contracts/button_contracts.ts` |
+| `android_widget_linear_layout.jml` | V-4 | `android.widget.LinearLayout` | `src/contracts/linear_layout_contracts.ts` |
+| `android_app_activity.jml` | A-4 | `android.app.Activity` | `src/contracts/activity_contracts.ts` |
+| `android_content_context.jml` | A-2/A-3 | `android.content.Context` + `ContextWrapper` | `src/contracts/context_contracts.ts` |
+| `android_os_bundle.jml` | A-1 | `android.os.Bundle` | `src/contracts/bundle_contracts.ts` |
+
+> **Note:** JML files for `java.lang.*` specs (JL-1 through JL-5) are not yet written.
+> Runtime contracts exist in `src/contracts/` and are tested in the spec compliance suite.
+> See `docs/specs/java_lang_*.md` for the descriptive specs that define the contractual obligations.
+
+### Alloy files
+
 | File | Spec ID | Class |
 |------|---------|-------|
-| `android_view_view.jml` | V-1 | `android.view.View` |
-| `android_view_view_group.jml` | V-2 | `android.view.ViewGroup` |
-| `android_widget_text_view.jml` | V-3 | `android.widget.TextView` |
-| `android_widget_button.jml` | V-5 | `android.widget.Button` |
-| `android_widget_linear_layout.jml` | V-4 | `android.widget.LinearLayout` |
-| `android_app_activity.jml` | A-4 | `android.app.Activity` |
-| `android_content_context.jml` | A-2/A-3 | `android.content.Context` + `ContextWrapper` |
-| `android_os_bundle.jml` | A-1 | `android.os.Bundle` |
 | `viewsystem.als` | V-1..V-3 | View hierarchy structural model |
 | `bundle_isolation.als` | A-1 | Bundle per-instance isolation model |
 | `linear_layout.als` | V-4 | LinearLayout orientation domain + isolation model |

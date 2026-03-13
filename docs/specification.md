@@ -759,13 +759,16 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 | ClassLoader | `test/unit/interpreter/class_loader.test.ts` | 11 | Class/method resolution |
 | ShimRegistry | `test/unit/interpreter/shim_registry.test.ts` | 6 | Register, invoke |
 | java.lang Shims | `test/unit/shim/java_lang.test.ts` | 34 | Object, String, StringBuilder, etc. |
+| java.lang String Extended | `test/unit/shim/java_lang_string_extended.test.ts` | 29 | String edge cases & extended methods |
 | Android Shims | `test/unit/shim/android_api.test.ts` | 29 | All 9 Android classes |
-| Button | `test/unit/shim/button.test.ts` | 15 | Button shim |
-| Tracer | `test/unit/interpreter/tracer.test.ts` | 10 | Execution tracer |
-| UIBridge | `test/unit/bridge/ui_bridge.test.ts` | 17 | View mapping |
+| Button | `test/unit/shim/button.test.ts` | 11 | Button shim |
+| Tracer | `test/unit/interpreter/tracer.test.ts` | 8 | Execution tracer |
+| UIBridge | `test/unit/bridge/ui_bridge.test.ts` | 24 | View mapping |
 | StateManager | `test/unit/bridge/state_manager.test.ts` | 17 | Reactive state |
 | LifecycleBridge | `test/unit/bridge/lifecycle_bridge.test.ts` | 13 | Lifecycle mapping |
-| **Total Unit** | -- | **530** | -- |
+| Bridge Stress | `test/unit/bridge/bridge_stress.test.ts` | 13 | Stress & edge cases |
+| Spec Compliance | `test/unit/contracts/spec_compliance.test.ts` | 125 | JML contract enforcement (JL-1–JL-5, V-1–V-5, A-1–A-4) |
+| **Total Unit** | -- | **704** | -- |
 
 ### Integration Test Coverage
 
@@ -782,10 +785,13 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 | StringBuilder | `test/integration/interpreter/string_builder.test.ts` | 1 | String building |
 | Activity Lifecycle | `test/integration/android/activity_lifecycle.test.ts` | 6 | onCreate, TextView, setContentView |
 | Multi-View Layout | `test/integration/android/multi_view_layout.test.ts` | 8 | LinearLayout, arithmetic, conditional |
+| Calculator Simulation | `test/integration/android/calculator_simulation.test.ts` | 16 | End-to-end calculator APK execution |
+| Clock Simulation | `test/integration/android/clock_simulation.test.ts` | 18 | End-to-end clock APK execution |
 | UI Integration | `test/integration/bridge/ui_integration.test.ts` | 8 | UI Bridge integration |
-| **Total Integration** | -- | **38** | -- |
+| Cross-Component | `test/integration/bridge/cross_component.test.ts` | 9 | Multi-shim interaction |
+| **Total Integration** | -- | **81** | -- |
 
-**Total: 660 tests across 37 test suites**
+**Total: 785 tests across 38 test suites**
 
 ---
 
@@ -795,7 +801,7 @@ function initializeShimRegistry(uiBridge?: UIBridge): ShimRegistry
 
 | Metric | Target | Actual | Status |
 |--------|--------|--------|--------|
-| Test Pass Rate | 100% | 660/660 | ✅ |
+| Test Pass Rate | 100% | 785/785 | ✅ |
 | TypeScript Errors | 0 | 0 | ✅ |
 | Regression Rate | 0% | 0% | ✅ |
 | Code Coverage | >80% | ~85% | ✅ |
@@ -908,5 +914,5 @@ Example: Adding `android.widget.EditText` (extends `android.widget.TextView`)
 ---
 
 **Status:** Stages 1-5 Complete | Device Tested Feb 24
-**Last Updated:** 2026-03-09
+**Last Updated:** 2026-03-13
 **Version:** 0.3.0
