@@ -85,21 +85,30 @@ craft/
 │   ├── apk_build_guide.md     # Demo APK building (HelloWorld + Calculator)
 │   ├── hap_build_guide.md     # HAP building guide
 │   ├── stage_5_status.md      # Deployment status
-│   └── stages/                # Stage-specific docs
+│   ├── stages/                # Stage-specific docs
+│   └── specs/                 # Shim layer specifications
+│       ├── INDEX.md           # Master index, ViewNode key registry, class hierarchy
+│       ├── java_lang_*.md     # JL-1..JL-5: java.lang shim specs
+│       ├── android_*.md       # A-1..A-4, V-1..V-5: Android shim specs
+│       └── formal/            # Machine-checkable formal specs
+│           ├── *.jml          # JML pre/post conditions (Android shims)
+│           └── *.als          # Alloy structural models
 ├── demo/                       # Demo app Java sources
 │   ├── hello_world/           # Simple Hello World app
 │   ├── calculator/            # Calculator with button grid
 │   └── clock/                 # Clock (System.currentTimeMillis)
-├── src/                        # Source code (39 files, ~9,307 lines)
+├── src/                        # Source code
 │   ├── parser/                # APK & DEX parsers
 │   ├── interpreter/           # Bytecode interpreter (218 opcodes)
 │   ├── shim/                  # API shims (java.lang + android.*)
 │   ├── bridge/                # UI Bridge (View → ArkUI mapping)
 │   ├── core/                  # Core types & utilities
+│   ├── contracts/             # Runtime contract enforcement (TypeScript translation of JML)
 │   ├── runtime.ts             # High-level CRAFT API
 │   └── oh/                    # OpenHarmony HAP project
 ├── test/                       # Test suite (785 tests, 38 files)
 │   ├── unit/                  # Unit tests
+│   │   └── contracts/         # JML spec compliance tests
 │   ├── integration/           # Integration tests
 │   ├── helpers/               # Test utilities
 │   └── fixtures/              # Built APKs & test data
